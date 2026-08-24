@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Canteen OS - Digital Ordering & Token Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link active">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot">
+                <!-- Injected by app.js -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Hero -->
+    <main class="site-main">
+        <div class="container">
+            <section style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:var(--space-6); align-items:center; min-height:60vh; margin-bottom:var(--space-8);">
+                <div>
+                    <div style="display:inline-flex; align-items:center; gap:var(--space-2); background:var(--primary-light); border:1px solid var(--primary-border); padding:0.35rem 0.9rem; border-radius:var(--radius-full); margin-bottom:var(--space-4);">
+                        <span style="display:inline-block; width:6px; height:6px; background:var(--success); border-radius:50%;"></span>
+                        <span style="font-size:0.8125rem; font-weight:600; color:var(--text-primary); letter-spacing:0.02em;">Smart Campus Dining Platform</span>
+                    </div>
+
+                    <h1 style="font-size:2.85rem; font-weight:800; line-height:1.15; margin-bottom:var(--space-4);">
+                        Order Fresh Food.<br>
+                        Skip the Line.
+                    </h1>
+
+                    <p style="font-size:1.05rem; color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-6); max-width:540px;">
+                        Order ahead from our multi-counter campus kitchen. Receive instant AI-predicted wait times, scannable QR tokens, and live pickup notifications.
+                    </p>
+
+                    <div style="display:flex; gap:var(--space-3); flex-wrap:wrap;">
+                        <a href="/menu.html" class="btn btn-lg btn-primary"><i class="fa-solid fa-bowl-food"></i> Browse Food Menu</a>
+                        <a href="/token.html" class="btn btn-lg btn-secondary"><i class="fa-solid fa-ticket"></i> Track Live Token</a>
+                    </div>
+                </div>
+
+                <!-- Hero Token Preview Card -->
+                <div class="token-ticket-glow">
+                    <div class="token-ticket-inner">
+                        <div class="token-header-meta">
+                            <span style="font-size:0.8125rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Live Digital Token</span>
+                            <span class="badge badge-ready"><i class="fa-solid fa-check-circle"></i> Ready for Pickup</span>
+                        </div>
+                        <div class="token-counter-pill"><i class="fa-solid fa-store"></i> Counter 1 (South Indian Meals)</div>
+                        <div style="font-size:0.8125rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:var(--space-1);">Token Number</div>
+                        <div class="token-number-hero">C1-104</div>
+                        <div style="font-size:0.875rem; color:var(--accent); font-weight:600; margin-bottom:var(--space-3);">
+                            <i class="fa-solid fa-bell"></i> Food ready for collection at Counter 1
+                        </div>
+                        <div style="background:var(--bg-surface); border:1px solid var(--border); padding:var(--space-3); border-radius:var(--radius-sm); font-size:0.8125rem; color:var(--text-secondary);">
+                            1x Masala Dosa • 1x Degree Filter Coffee
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Canteen Crowd Metrics -->
+            <section style="margin-bottom:var(--space-8);">
+                <div class="card">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:var(--space-5); text-align:center;">
+                        <div>
+                            <div style="font-size:2rem; font-family:var(--font-accent); color:var(--accent); font-weight:700;" id="hero-crowd-level">Moderate</div>
+                            <div style="color:var(--text-muted); font-size:0.8125rem; font-weight:600; margin-top:var(--space-1); text-transform:uppercase; letter-spacing:0.04em;">Campus Crowd Density</div>
+                        </div>
+                        <div>
+                            <div style="font-size:2rem; font-family:var(--font-accent); color:var(--primary-hover); font-weight:700;" id="hero-avg-wait">~6 mins</div>
+                            <div style="color:var(--text-muted); font-size:0.8125rem; font-weight:600; margin-top:var(--space-1); text-transform:uppercase; letter-spacing:0.04em;">Average Wait Time</div>
+                        </div>
+                        <div>
+                            <div style="font-size:2rem; font-family:var(--font-accent); color:#a78bfa; font-weight:700;">3 Counters</div>
+                            <div style="color:var(--text-muted); font-size:0.8125rem; font-weight:600; margin-top:var(--space-1); text-transform:uppercase; letter-spacing:0.04em;">Active Routing</div>
+                        </div>
+                        <div>
+                            <div style="font-size:2rem; font-family:var(--font-accent); color:var(--success); font-weight:700;">100% Fresh</div>
+                            <div style="color:var(--text-muted); font-size:0.8125rem; font-weight:600; margin-top:var(--space-1); text-transform:uppercase; letter-spacing:0.04em;">Hygiene & Quality</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Campus Categories -->
+            <section>
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-header-title">Explore Campus Cuisines</h2>
+                        <p class="page-header-desc">Freshly prepared hot meals, traditional sweets, and refreshing beverages.</p>
+                    </div>
+                    <a href="/menu.html" class="btn btn-secondary">Full Menu <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="food-grid" id="featured-categories-grid">
+                    <!-- Categories loaded dynamically -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Built for seamless digital dining.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const queue = await ApiClient.get(CONFIG.ENDPOINTS.AI.QUEUE_STATUS);
+                document.getElementById('hero-crowd-level').textContent = queue.crowd_level;
+                document.getElementById('hero-avg-wait').textContent = `~${queue.estimated_average_wait_minutes} mins`;
+
+                const categories = await ApiClient.get(CONFIG.ENDPOINTS.FOOD.CATEGORIES);
+                const grid = document.getElementById('featured-categories-grid');
+                grid.innerHTML = categories.map(cat => `
+                    <div class="card" style="cursor:pointer;" onclick="window.location.href='/menu.html?cat=${cat.id}'">
+                        <div style="font-size:2rem; margin-bottom:var(--space-3); color:var(--primary-hover);"><i class="fa-solid fa-utensils"></i></div>
+                        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-1);">${cat.name}</h3>
+                        <p style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:var(--space-4);">${cat.description || 'Fresh campus specialties'}</p>
+                        <span class="btn btn-sm btn-outline">Explore Category →</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+</html>

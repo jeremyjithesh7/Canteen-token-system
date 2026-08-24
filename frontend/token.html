@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Token Tracker - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/token.html" class="nav-link active">Token Tracker</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Token Tracker Section -->
+    <main class="site-main">
+        <div class="container" style="max-width: 680px;">
+            <div class="page-header" style="justify-content:center; text-align:center; margin-bottom:var(--space-6);">
+                <div>
+                    <h1 class="page-header-title">Live Digital Token Tracker</h1>
+                    <p class="page-header-desc">Real-time kitchen ticket status with dynamic turnaround estimates.</p>
+                </div>
+            </div>
+
+            <!-- Token Card Slot -->
+            <div id="token-card-slot">
+                <!-- Skeleton Loader while polling -->
+                <div class="skeleton skeleton-card" style="height:440px;"></div>
+            </div>
+
+            <!-- Additional Instructions -->
+            <div class="card" style="margin-top:var(--space-6); padding:var(--space-4) var(--space-5);">
+                <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:var(--space-2); color:var(--accent);"><i class="fa-solid fa-lightbulb"></i> Pickup Instructions</h3>
+                <ul style="padding-left:1.25rem; color:var(--text-secondary); font-size:0.8125rem; line-height:1.65;">
+                    <li>Keep this page open on your phone or device while waiting in the seating area.</li>
+                    <li>When your token turns <strong style="color:var(--success);">READY FOR PICKUP</strong>, an audio chime will notify you.</li>
+                    <li>Show the scannable QR code on screen to the counter staff to collect your meal.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Live Digital Token Tracker.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/qr.js"></script>
+    <script src="js/token.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireAuth();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const specificTokenId = urlParams.get('id') || urlParams.get('token_id');
+
+            TokenTracker.initLiveTracking(specificTokenId, (tokenData) => {
+                TokenTracker.renderSignatureCard(tokenData, 'token-card-slot');
+            });
+        });
+    </script>
+</body>
+</html>

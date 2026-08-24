@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: canteen_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: canteen_user
+      POSTGRES_PASSWORD: canteen_password
+      POSTGRES_DB: canteen_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U canteen_user -d canteen_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Database GUI (Adminer)
+  adminer:
+    image: adminer:latest
+    container_name: canteen_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 3. FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: canteen_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://canteen_user:canteen_password@postgres:5432/canteen_db
+      - SECRET_KEY=canteen-super-secure-production-jwt-secret-key-change-in-prod
+      - ENV=production
+      - DEBUG=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 4. Frontend Static Server
+  frontend:
+    image: nginx:alpine
+    container_name: canteen_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Demand Intelligence & Accuracy - Canteen Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span style="font-weight:700; font-size:1.05rem;">Canteen Admin</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/admin/index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> <span>Overview</span></a></li>
+                <li><a href="/admin/orders.html" class="sidebar-link"><i class="fa-solid fa-kitchen-set"></i> <span>Live Kitchen</span></a></li>
+                <li><a href="/admin/waste.html" class="sidebar-link"><i class="fa-solid fa-recycle"></i> <span>Waste Analytics</span></a></li>
+                <li><a href="/verify.html" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> <span>QR Verify</span></a></li>
+                <li><a href="/admin/menu.html" class="sidebar-link"><i class="fa-solid fa-book-open"></i> <span>Menu Manager</span></a></li>
+                <li><a href="/admin/inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></a></li>
+                <li><a href="/admin/analytics.html" class="sidebar-link active"><i class="fa-solid fa-brain"></i> <span>AI Analytics</span></a></li>
+                <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
+                <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
+                <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="/dashboard.html" class="btn btn-sm btn-secondary" style="width:100%;"><i class="fa-solid fa-user"></i> Student View</a>
+                <button class="btn btn-sm btn-outline" style="width:100%;" onclick="Auth.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <div>
+                    <h1 style="font-size:1.65rem; font-weight:700; font-family:var(--font-heading); margin-bottom:var(--space-1);">AI Demand Intelligence & Accuracy</h1>
+                    <p style="color:var(--text-secondary); font-size:0.875rem;">Statistical forecasting, 7-day predicted vs. actual accuracy, and manual preparation overrides.</p>
+                </div>
+            </div>
+
+            <!-- AI Live Queue Status Overview -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--accent-light); color:var(--accent);"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="metric-val" id="ai-crowd-level">Moderate</div>
+                        <div class="metric-lbl">Current Crowd Density</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--primary-light); color:var(--primary);"><i class="fa-solid fa-clock"></i></div>
+                    <div>
+                        <div class="metric-val" id="ai-avg-wait">~8 mins</div>
+                        <div class="metric-lbl">Avg. Turnaround Time</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--info-light); color:var(--info);"><i class="fa-solid fa-chart-simple"></i></div>
+                    <div>
+                        <div class="metric-val" id="ai-total-forecast">0 dishes</div>
+                        <div class="metric-lbl">Predicted Demand</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--warning-light); color:var(--warning);"><i class="fa-solid fa-bowl-food"></i></div>
+                    <div>
+                        <div class="metric-val" id="ai-total-prep">0 portions</div>
+                        <div class="metric-lbl">Recommended Prep (Buffer)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predicted vs. Actual Demand Chart (Last 7 Days) -->
+            <div class="card" style="margin-bottom: var(--space-6); padding:var(--space-5);">
+                <div class="card-header" style="margin-bottom:var(--space-3);">
+                    <div>
+                        <h2 class="card-title">AI Predicted Demand vs. Actual Recorded Sales (Last 7 Days)</h2>
+                        <p class="card-subtitle">Real-time model accuracy benchmark comparing statistical predictions against actual customer orders</p>
+                    </div>
+                </div>
+                <div class="chart-container-box">
+                    <canvas id="demand-vs-actual-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Forecast & Manual Override Table -->
+            <div class="card" style="margin-bottom: var(--space-6); padding:0;">
+                <div style="padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;"><i class="fa-solid fa-sliders" style="color:var(--primary-hover); margin-right:4px;"></i> Dish Demand Breakdown & Admin Overrides</h2>
+                    <p style="color:var(--text-secondary); font-size:0.8125rem; margin:var(--space-1) 0 0 0;">Click 'Override' to adjust AI kitchen prep targets with auditable logs</p>
+                </div>
+
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Food Item</th>
+                                <th>Meal Slot</th>
+                                <th>Predicted Demand</th>
+                                <th>Recommended Prep</th>
+                                <th>Confidence Bounds</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecast-table-body">
+                            <tr><td colspan="6" style="text-align:center; padding:var(--space-6); color:var(--text-muted);"><div class="spinner"></div> Computing AI demand forecast...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Overrides Audit Trail -->
+            <div class="card" style="padding:0;">
+                <div style="padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent); margin-right:4px;"></i> Prediction Overrides Audit Log</h2>
+                    <p style="color:var(--text-secondary); font-size:0.8125rem; margin:var(--space-1) 0 0 0;">Complete chronological record of all manual kitchen prep adjustments</p>
+                </div>
+
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Dish</th>
+                                <th>Target Date</th>
+                                <th>Slot</th>
+                                <th>Original</th>
+                                <th>Override Target</th>
+                                <th>Adjusted By</th>
+                                <th style="text-align:right;">Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="overrides-audit-tbody">
+                            <tr><td colspan="7" style="text-align:center; padding:var(--space-6); color:var(--text-muted);"><div class="spinner"></div> Loading audit trail...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Manual Override Modal -->
+    <div id="override-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="font-size:1.15rem; font-weight:700; margin:0;">Manual Demand Override</h3>
+                <button class="btn btn-icon btn-secondary btn-sm" onclick="AdminController.closeOverrideModal()">✕</button>
+            </div>
+
+            <form onsubmit="AdminController.submitOverride(event)">
+                <div class="modal-body" style="padding:var(--space-4);">
+                    <input type="hidden" id="override-food-id" />
+                    <input type="hidden" id="override-slot" />
+
+                    <div style="background:var(--bg-surface); padding:var(--space-3); border-radius:var(--radius-sm); margin-bottom:var(--space-4); border:1px solid var(--border);">
+                        <span style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Selected Food Dish</span>
+                        <h4 id="override-food-name" style="font-size:1.05rem; font-weight:700; color:var(--primary-hover); margin:var(--space-1) 0;">Dish Name</h4>
+                        <span style="font-size:0.8125rem; color:var(--text-secondary);">AI Predicted Demand: <strong id="override-pred-display" style="color:var(--accent);">45 units</strong></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="override-quantity">Adjusted Kitchen Prep Quantity</label>
+                        <input type="number" id="override-quantity" class="form-control" placeholder="e.g. 55" min="0" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="override-reason">Audit Reason / Batch Justification</label>
+                        <input type="text" id="override-reason" class="form-control" placeholder="e.g. Campus fest influx, special VIP event" value="Campus Event Prep" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding:var(--space-3) var(--space-4); border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:var(--space-2);">
+                    <button type="button" class="btn btn-secondary" onclick="AdminController.closeOverrideModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save & Audit Override</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        async function loadOverridesAuditTrail() {
+            try {
+                const overrides = await ApiClient.get(CONFIG.ENDPOINTS.AI.DEMAND_OVERRIDES);
+                const tbody = document.getElementById('overrides-audit-tbody');
+                if (!overrides || overrides.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:var(--space-6); color:var(--text-muted);">No manual overrides recorded.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = overrides.map(o => `
+                    <tr>
+                        <td><strong>${o.food_item_name}</strong></td>
+                        <td>${o.prediction_date}</td>
+                        <td><span class="badge badge-info">${o.meal_slot}</span></td>
+                        <td>${o.original_predicted_quantity} units</td>
+                        <td><strong style="color:var(--accent); font-family:var(--font-accent);">${o.override_quantity} units</strong></td>
+                        <td>${o.admin_name}</td>
+                        <td style="text-align:right;">${o.reason || '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireStaffOrAdmin();
+            AdminController.loadAIAnalytics();
+            loadOverridesAuditTrail();
+        });
+    </script>
+</body>
+</html>

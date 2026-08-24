@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Pickup Verification - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .scanner-box {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-hover);
+            border-radius: var(--radius-lg);
+            padding: var(--space-7) var(--space-5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--space-6);
+        }
+        .verify-result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">Staff</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/verify.html" class="nav-link active"><i class="fa-solid fa-qrcode"></i> QR Verification</a></li>
+                <li><a href="/admin/index.html" class="nav-link">Admin Center</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container" style="max-width:800px;">
+            
+            <div class="page-header" style="justify-content:center; text-align:center; margin-bottom:var(--space-6);">
+                <div>
+                    <span class="badge badge-info" style="margin-bottom:var(--space-2); display:inline-block;"><i class="fa-solid fa-id-card-clip"></i> Counter Staff Tool</span>
+                    <h1 class="page-header-title">QR Token Pickup Verification</h1>
+                    <p class="page-header-desc">Scan student phone QR code or enter token number to verify items and mark collected.</p>
+                </div>
+            </div>
+
+            <!-- QR Scanner Box & Manual Input -->
+            <div class="scanner-box">
+                <div style="font-size:2.75rem; color:var(--primary-hover); margin-bottom:var(--space-3);"><i class="fa-solid fa-qrcode"></i></div>
+                <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-1);">Ready to Verify Token</h3>
+                <p style="color:var(--text-secondary); font-size:0.875rem; max-width:420px; margin:0 auto var(--space-4) auto;">Point scanner at the student's digital token QR code or enter the token number below.</p>
+
+                <form id="verify-token-form" style="display:flex; gap:var(--space-2); max-width:440px; margin:0 auto;" onsubmit="handleTokenLookup(event)">
+                    <input type="text" id="token-input" class="form-control" placeholder="e.g. C1-724" style="font-family:var(--font-accent); font-weight:700; font-size:1.05rem; text-align:center;" required />
+                    <button type="submit" class="btn btn-primary" style="white-space:nowrap;"><i class="fa-solid fa-magnifying-glass"></i> Verify</button>
+                </form>
+            </div>
+
+            <!-- Verification Result Card -->
+            <div class="verify-result-card" id="verify-result">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-4); flex-wrap:wrap; gap:var(--space-2);">
+                    <div>
+                        <span class="badge badge-info" id="v-counter-badge">Counter 1</span>
+                        <h2 style="font-size:2rem; font-weight:800; font-family:var(--font-accent); color:var(--text-primary); margin:var(--space-1) 0;" id="v-token-num">C1-724</h2>
+                        <div style="font-size:0.95rem; color:var(--text-primary); font-weight:600;">Customer: <span id="v-student-name" style="color:var(--accent);">Aarav Sharma</span></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="badge badge-ready" id="v-status-badge">READY FOR PICKUP</span>
+                        <div style="font-size:0.8125rem; color:var(--text-muted); margin-top:var(--space-2);">Order: <strong id="v-order-num" style="color:var(--text-primary);">ORD-20260824-724</strong></div>
+                    </div>
+                </div>
+
+                <!-- Duplicate Alert Notice (if already collected) -->
+                <div id="duplicate-warning-banner" style="display:none; background:var(--danger-light); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-sm); padding:var(--space-3); margin-bottom:var(--space-4); color:var(--danger);">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>DUPLICATE PICKUP WARNING:</strong> This token has already been marked as Collected on <span id="v-collected-time"></span>. Do not dispatch duplicate food!
+                </div>
+
+                <!-- Items Breakdown -->
+                <h3 style="font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:var(--space-2);">Dishes Ordered</h3>
+                <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-3); margin-bottom:var(--space-4);">
+                    <ul id="v-items-list" style="list-style:none; padding:0; margin:0;">
+                        <!-- Dynamic items -->
+                    </ul>
+                </div>
+
+                <!-- Action Button -->
+                <div style="display:flex; justify-content:flex-end; gap:var(--space-2);" id="v-actions-wrap">
+                    <button class="btn btn-secondary" onclick="resetScanner()">Scan Another</button>
+                    <button class="btn btn-primary" id="btn-mark-collected" onclick="markCollected()">
+                        <i class="fa-solid fa-check-double"></i> Mark Food Collected & Complete
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Audio Chime -->
+    <audio id="success-chime" preload="auto" src="/assets/audio/chime.mp3"></audio>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Staff Verification Module.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let currentTokenId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "/login.html?redirect=verify.html";
+                return;
+            }
+        });
+
+        async function handleTokenLookup(e) {
+            e.preventDefault();
+            const val = document.getElementById('token-input').value.trim();
+            if (!val) return;
+
+            try {
+                const res = await API.get(`/api/tokens/verify-qr?token_str=${encodeURIComponent(val)}`);
+                if (res) {
+                    currentTokenId = res.token_id;
+                    displayTokenResult(res);
+                }
+            } catch (err) {
+                showNotification(`Token not found: ${err.message || 'Invalid QR code'}`, 'error');
+            }
+        }
+
+        function displayTokenResult(data) {
+            document.getElementById('verify-result').style.display = 'block';
+            document.getElementById('v-token-num').textContent = data.token_number;
+            document.getElementById('v-student-name').textContent = data.student_name;
+            document.getElementById('v-counter-badge').textContent = `Counter ${data.counter_number || 1}`;
+            document.getElementById('v-order-num').textContent = data.order_number;
+            document.getElementById('v-status-badge').textContent = data.token_status.toUpperCase();
+
+            const warn = document.getElementById('duplicate-warning-banner');
+            const markBtn = document.getElementById('btn-mark-collected');
+            if (data.is_already_collected) {
+                warn.style.display = 'block';
+                document.getElementById('v-collected-time').textContent = data.collected_at ? new Date(data.collected_at).toLocaleTimeString() : 'Earlier';
+                markBtn.disabled = true;
+                markBtn.classList.add('btn-disabled');
+                markBtn.innerHTML = `<i class="fa-solid fa-ban"></i> Already Collected`;
+            } else {
+                warn.style.display = 'none';
+                markBtn.disabled = false;
+                markBtn.classList.remove('btn-disabled');
+                markBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> Mark Food Collected & Complete`;
+            }
+
+            const itemsList = document.getElementById('v-items-list');
+            if (data.items && data.items.length > 0) {
+                itemsList.innerHTML = data.items.map(i => `
+                    <li style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <strong style="color:var(--text-primary); font-size:0.9375rem;">${i.quantity}x ${i.food_item_name}</strong>
+                        <span style="color:var(--text-primary); font-weight:700; font-family:var(--font-heading);">₹${parseFloat(i.subtotal).toFixed(2)}</span>
+                    </li>
+                `).join('');
+            } else {
+                itemsList.innerHTML = `<li>South Indian Combo Meal</li>`;
+            }
+        }
+
+        async function markCollected() {
+            if (!currentTokenId) return;
+            try {
+                const res = await API.post(`/api/tokens/${currentTokenId}/mark-collected`);
+                if (res) {
+                    showNotification(`Token ${res.token_number} marked as Collected! 🎉`, 'success');
+                    try {
+                        const chime = document.getElementById('success-chime');
+                        if (chime) chime.play();
+                    } catch (e) {}
+
+                    document.getElementById('v-status-badge').textContent = "COMPLETED";
+                    document.getElementById('v-status-badge').className = "badge badge-ready";
+                    const markBtn = document.getElementById('btn-mark-collected');
+                    markBtn.disabled = true;
+                    markBtn.innerHTML = `<i class="fa-solid fa-check"></i> Dispatched & Completed`;
+                }
+            } catch (err) {
+                showNotification(`Action failed: ${err.message || 'Error'}`, 'error');
+            }
+        }
+
+        function resetScanner() {
+            document.getElementById('token-input').value = '';
+            document.getElementById('verify-result').style.display = 'none';
+            currentTokenId = null;
+        }
+    </script>
+</body>
+</html>

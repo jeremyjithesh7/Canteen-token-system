@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Waste Analytics - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .waste-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        .waste-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4) var(--space-5);
+        }
+        @media (max-width: 900px) {
+            .dash-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/admin/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">Admin</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/admin/index.html" class="nav-link">Overview</a></li>
+                <li><a href="/admin/waste.html" class="nav-link active"><i class="fa-solid fa-recycle" style="color:var(--accent);"></i> Waste Analytics</a></li>
+                <li><a href="/ai-center.html" class="nav-link">AI Center</a></li>
+                <li><a href="/verify.html" class="nav-link">Staff Verify</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Student View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank">Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            
+            <div class="page-header">
+                <div>
+                    <span class="badge badge-info" style="margin-bottom:var(--space-2); display:inline-block;"><i class="fa-solid fa-leaf"></i> Sustainability & Resource Efficiency</span>
+                    <h1 class="page-header-title">Food Waste Analytics</h1>
+                    <p class="page-header-desc">Track prepared vs sold food quantities, financial losses, and AI waste prevention recommendations.</p>
+                </div>
+                <a href="/admin/index.html" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to Console</a>
+            </div>
+
+            <!-- Top 4 Waste Metric Cards -->
+            <div class="waste-stat-grid">
+                <div class="waste-stat-card">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Overall Waste Rate</span>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--accent); margin:var(--space-1) 0;" id="stat-waste-rate">0.0%</div>
+                    <small style="color:var(--text-secondary); font-size:0.75rem;">Target: Below 5%</small>
+                </div>
+
+                <div class="waste-stat-card">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Total Financial Loss</span>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--danger); margin:var(--space-1) 0;" id="stat-loss-inr">₹0.00</div>
+                    <small style="color:var(--text-secondary); font-size:0.75rem;">Cumulative raw material cost</small>
+                </div>
+
+                <div class="waste-stat-card">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Portions Prepared</span>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--primary-hover); margin:var(--space-1) 0;" id="stat-prep-units">0</div>
+                    <small style="color:var(--text-secondary); font-size:0.75rem;">7-day historical total</small>
+                </div>
+
+                <div class="waste-stat-card">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Portions Sold / Consumed</span>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--success); margin:var(--space-1) 0;" id="stat-sold-units">0</div>
+                    <small style="color:var(--text-secondary); font-size:0.75rem;">Fulfillment rate: 90.8%</small>
+                </div>
+            </div>
+
+            <!-- AI Actionable Waste Reduction Strategies -->
+            <div class="card" style="margin-bottom:var(--space-6); padding:var(--space-5); border-left:3px solid var(--accent);">
+                <h2 style="font-size:1.15rem; font-weight:700; color:var(--accent); margin-bottom:var(--space-2);"><i class="fa-solid fa-lightbulb"></i> AI Waste Reduction Recommendations</h2>
+                <ul id="admin-waste-tips" style="padding-left:1.25rem; color:var(--text-secondary); font-size:0.875rem; line-height:1.65;">
+                    <!-- Dynamic tips -->
+                </ul>
+            </div>
+
+            <!-- Two-Column Section: Top Wasted Dishes & 7-Day Trend Table -->
+            <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:var(--space-6); margin-bottom:var(--space-8);" class="dash-split-grid">
+                
+                <!-- Left: Top Most Wasted Dishes -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3);"><i class="fa-solid fa-fire-flame-curved" style="color:var(--danger); margin-right:4px;"></i> Most Wasted Dishes</h2>
+                    <div class="card" style="padding:0;">
+                        <div class="table-container" style="border:none; border-radius:0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dish Name</th>
+                                        <th>Wasted</th>
+                                        <th>Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-wasted-tbody">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: 7-Day Trend Table -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3);"><i class="fa-solid fa-calendar-days" style="color:var(--primary-hover); margin-right:4px;"></i> 7-Day Waste Trend</h2>
+                    <div class="card" style="padding:0;">
+                        <div class="table-container" style="border:none; border-radius:0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Prepared</th>
+                                        <th>Sold</th>
+                                        <th>Waste %</th>
+                                        <th style="text-align:right;">Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trend-tbody">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Admin Waste Intelligence Module.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "/login.html?redirect=admin/waste.html";
+                return;
+            }
+            await loadWasteAnalytics();
+        });
+
+        async function loadWasteAnalytics() {
+            try {
+                const data = await API.get('/api/ai/waste-analytics');
+                if (data) {
+                    document.getElementById('stat-waste-rate').textContent = `${data.overall_waste_percentage}%`;
+                    document.getElementById('stat-loss-inr').textContent = `₹${parseFloat(data.total_financial_loss_inr).toFixed(2)}`;
+                    document.getElementById('stat-prep-units').textContent = data.total_prepared_units;
+                    document.getElementById('stat-sold-units').textContent = data.total_sold_units;
+
+                    // AI Tips
+                    const tipsList = document.getElementById('admin-waste-tips');
+                    tipsList.innerHTML = data.ai_waste_reduction_suggestions.map(s => `
+                        <li style="margin-bottom:var(--space-1);">${s}</li>
+                    `).join('');
+
+                    // Top Wasted Dishes
+                    const topTbody = document.getElementById('top-wasted-tbody');
+                    topTbody.innerHTML = data.most_wasted_dishes.map(d => `
+                        <tr>
+                            <td style="font-weight:600; color:var(--text-primary);">${d.food_item_name}</td>
+                            <td style="color:var(--warning); font-weight:600; font-family:var(--font-accent);">${d.total_wasted_quantity} units</td>
+                            <td style="color:var(--danger); font-weight:700; font-family:var(--font-accent);">₹${parseFloat(d.total_waste_cost_inr).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+
+                    // 7-Day Trend
+                    const trendTbody = document.getElementById('trend-tbody');
+                    trendTbody.innerHTML = data.trend_by_day.map(t => `
+                        <tr>
+                            <td style="font-weight:600; color:var(--text-primary);">${t.date}</td>
+                            <td style="color:var(--text-secondary); font-family:var(--font-accent);">${t.prepared}</td>
+                            <td style="color:var(--success); font-weight:600; font-family:var(--font-accent);">${t.sold}</td>
+                            <td style="color:var(--accent); font-weight:600; font-family:var(--font-accent);">${t.waste_percentage}%</td>
+                            <td style="text-align:right; font-weight:700; font-family:var(--font-accent); color:var(--danger);">₹${parseFloat(t.cost_inr).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Waste analytics err:", e);
+            }
+        }
+    </script>
+</body>
+</html>

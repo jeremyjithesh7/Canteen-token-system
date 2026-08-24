@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg-body);">
+
+    <div class="container" style="max-width: 440px; padding: var(--space-6) var(--space-4);">
+        <div style="text-align:center; margin-bottom: var(--space-5);">
+            <div class="brand-icon" style="margin: 0 auto var(--space-3); width:44px; height:44px; font-size:1.25rem;"><i class="fa-solid fa-utensils"></i></div>
+            <h1 style="font-size: 1.65rem; font-weight: 700; font-family:var(--font-heading); margin-bottom:var(--space-1);">Welcome Back</h1>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">Sign in to your campus canteen account</p>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);">
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="email">Campus Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@canteen.edu" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required />
+                </div>
+
+                <button type="submit" id="login-btn" class="btn btn-primary" style="width:100%; margin-top:var(--space-2);">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+
+            <div style="margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border);">
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-align:center; margin-bottom: var(--space-3); text-transform:uppercase; letter-spacing:0.04em; font-weight:700;">
+                    1-Click Demo Logins
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:var(--space-2);">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('student@canteen.edu', 'Student@123')"><i class="fa-solid fa-graduation-cap"></i> Student</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('staff@canteen.edu', 'Staff@123')"><i class="fa-solid fa-kitchen-set"></i> Staff</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('admin@canteen.edu', 'Admin@123')"><i class="fa-solid fa-shield-halved"></i> Admin</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top: var(--space-4); font-size: 0.875rem; color: var(--text-secondary);">
+            Don't have an account? <a href="/register.html" style="color:var(--primary-hover); font-weight:600;">Sign up here</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        function fillDemo(email, pwd) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = pwd;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Signing in...';
+
+            try {
+                const data = await Auth.login(email, password);
+                Toast.success(`Welcome back, ${data.user.name}!`);
+                setTimeout(() => {
+                    if (data.user.role_id === 1 || data.user.role_id === 2) {
+                        window.location.href = '/admin/index.html';
+                    } else {
+                        window.location.href = '/dashboard.html';
+                    }
+                }, 400);
+            } catch (err) {
+                Toast.error(err.message || 'Login failed. Please check your credentials.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+            }
+        }
+    </script>
+</body>
+</html>

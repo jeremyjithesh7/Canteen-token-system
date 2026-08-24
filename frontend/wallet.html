@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Wallet - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .wallet-hero-card {
+            background: linear-gradient(135deg, rgba(30, 20, 56, 0.9), rgba(18, 12, 34, 0.95));
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--space-6);
+        }
+        .wallet-chip {
+            width: 44px;
+            height: 32px;
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            border-radius: 4px;
+            margin-bottom: var(--space-4);
+        }
+        .quick-topup-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.6rem 1.15rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .quick-topup-btn:hover {
+            border-color: var(--primary-border);
+            background: var(--primary-light);
+            color: #ffffff;
+        }
+        .txn-badge-credit {
+            color: var(--success);
+            background: var(--success-light);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 0.15rem 0.45rem;
+            border-radius: var(--radius-xs);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .txn-badge-debit {
+            color: var(--danger);
+            background: var(--danger-light);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            padding: 0.15rem 0.45rem;
+            border-radius: var(--radius-xs);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link active"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container" style="max-width:1040px;">
+            
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">Campus Digital Wallet</h1>
+                    <p class="page-header-desc">Instant 1-Click food token purchases with zero payment gateway delays.</p>
+                </div>
+                <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Order With Wallet</a>
+            </div>
+
+            <!-- Digital Campus Card -->
+            <div class="wallet-hero-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-4);">
+                    <div>
+                        <div class="wallet-chip"></div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Smart Campus Student Card</span>
+                        <div style="font-size:2.5rem; font-weight:700; font-family:var(--font-accent); color:#ffffff; margin:var(--space-1) 0;" id="wallet-balance-val">₹0.00</div>
+                        <div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;" id="wallet-holder-name">Loading cardholder...</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="badge badge-ready"><i class="fa-solid fa-shield-halved"></i> ACTIVE</span>
+                        <div style="font-size:0.8125rem; color:var(--text-muted); margin-top:var(--space-4);">Canteen ID: <strong id="student-roll-id" style="color:var(--text-primary);">CAN-STU-8821</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Up Section -->
+            <div class="card" style="margin-bottom:var(--space-6); padding:var(--space-5);">
+                <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-1);"><i class="fa-solid fa-bolt" style="color:var(--primary-hover); margin-right:4px;"></i> Instant Demo Top-Up</h2>
+                <p style="color:var(--text-secondary); font-size:0.875rem; margin-bottom:var(--space-4);">Select an amount or enter custom credits to recharge your simulated campus wallet balance immediately.</p>
+                
+                <div style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-4);">
+                    <button class="quick-topup-btn" onclick="quickTopUp(100)">+ ₹100.00</button>
+                    <button class="quick-topup-btn" onclick="quickTopUp(250)">+ ₹250.00</button>
+                    <button class="quick-topup-btn" onclick="quickTopUp(500)">+ ₹500.00</button>
+                    <button class="quick-topup-btn" onclick="quickTopUp(1000)">+ ₹1000.00</button>
+                </div>
+
+                <form id="custom-topup-form" style="display:flex; gap:var(--space-2); max-width:440px;">
+                    <input type="number" id="custom-amount-input" class="form-input" placeholder="Enter amount (₹)" min="10" max="5000" required>
+                    <button type="submit" class="btn btn-primary" style="white-space:nowrap;"><i class="fa-solid fa-plus"></i> Add Funds</button>
+                </form>
+            </div>
+
+            <!-- Transaction Ledger -->
+            <div class="card" style="padding:0;">
+                <div style="padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;"><i class="fa-solid fa-receipt" style="color:var(--accent); margin-right:4px;"></i> Wallet Transaction History</h2>
+                </div>
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th style="text-align:right;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wallet-txns-tbody">
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:var(--space-6); color:var(--text-muted);">
+                                    <div class="spinner"></div> Loading transaction history...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Campus Wallet Module.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "/login.html?redirect=wallet.html";
+                return;
+            }
+            const user = Auth.getUser();
+            if (user) {
+                document.getElementById('wallet-holder-name').textContent = user.name.toUpperCase();
+                document.getElementById('student-roll-id').textContent = `CAN-STU-${user.id.toString().padStart(4, '0')}`;
+            }
+            await loadWalletData();
+
+            document.getElementById('custom-topup-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const amt = parseFloat(document.getElementById('custom-amount-input').value);
+                if (amt && amt > 0) {
+                    await executeTopUp(amt);
+                    document.getElementById('custom-amount-input').value = '';
+                }
+            });
+        });
+
+        async function loadWalletData() {
+            try {
+                const res = await API.get('/api/wallet/me');
+                if (res) {
+                    document.getElementById('wallet-balance-val').textContent = `₹${parseFloat(res.balance).toFixed(2)}`;
+                    const tbody = document.getElementById('wallet-txns-tbody');
+                    const txns = res.transactions || res.recent_transactions || [];
+                    if (txns && txns.length > 0) {
+                        tbody.innerHTML = txns.map(t => {
+                            const isCredit = t.transaction_type === 'CREDIT';
+                            const dateStr = new Date(t.created_at).toLocaleString();
+                            return `
+                                <tr>
+                                    <td style="color:var(--text-muted); font-size:0.8125rem;">${dateStr}</td>
+                                    <td style="font-weight:600; color:var(--text-primary);">${t.description}</td>
+                                    <td>
+                                        <span class="${isCredit ? 'txn-badge-credit' : 'txn-badge-debit'}">${t.transaction_type}</span>
+                                    </td>
+                                    <td style="text-align:right; font-weight:700; font-family:var(--font-accent); color:${isCredit ? 'var(--success)' : 'var(--danger)'};">
+                                        ${isCredit ? '+' : '-'}₹${parseFloat(t.amount).toFixed(2)}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:var(--space-6); color:var(--text-muted);">No wallet transactions found.</td></tr>`;
+                    }
+                }
+            } catch (e) {
+                console.error("Wallet error:", e);
+            }
+        }
+
+        async function quickTopUp(amount) {
+            await executeTopUp(amount);
+        }
+
+        async function executeTopUp(amount) {
+            try {
+                const res = await API.post('/api/wallet/topup', {
+                    amount: amount,
+                    payment_reference: `Instant Top-Up (+₹${amount})`
+                });
+                if (res) {
+                    showNotification(`Recharged ₹${amount} successfully! 🎉`, 'success');
+                    await loadWalletData();
+                }
+            } catch (e) {
+                showNotification(`Top-up failed: ${e.message || 'Error'}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

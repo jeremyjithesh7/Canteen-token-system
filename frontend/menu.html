@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Food Menu - Smart Campus Canteen OS</title>
+    <meta name="description" content="Explore 25 authentic South Indian tiffins, sweets, and beverages. Order online and get live token tracking.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .menu-filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            margin-bottom: var(--space-5);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-3) var(--space-4);
+        }
+        .cat-tab-btn {
+            padding: 0.4rem 0.95rem;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border);
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .cat-tab-btn.active, .cat-tab-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+        .food-img-container {
+            height: 165px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-surface-elevated);
+        }
+        .food-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+        .food-card:hover .food-img {
+            transform: scale(1.04);
+        }
+        .counter-badge-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(17, 11, 32, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-xs);
+            backdrop-filter: blur(8px);
+        }
+        .rating-badge-tag {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(17, 11, 32, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fbbf24;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-xs);
+            backdrop-filter: blur(8px);
+        }
+        .food-body {
+            padding: var(--space-4);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .macro-row {
+            display: flex;
+            gap: var(--space-2);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: var(--space-2) 0 var(--space-3) 0;
+            flex-wrap: wrap;
+        }
+        .macro-item {
+            background: var(--bg-surface);
+            padding: 0.15rem 0.45rem;
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar" id="site-nav">
+        <div class="container navbar-container">
+            <a href="/" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links" id="main-nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link active">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">South Indian Food Menu</h1>
+                    <p class="page-header-desc">Crispy dosas, steamed tiffins, authentic sweets, and freshly brewed degree coffee.</p>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;">
+                    <div class="search-input-wrap" style="width:260px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" class="search-input" placeholder="Search dishes (e.g. Dosa)..." oninput="filterDishes()">
+                    </div>
+                    <a href="/cart.html" class="btn btn-primary"><i class="fa-solid fa-cart-shopping"></i> View Cart</a>
+                </div>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div style="display:flex; gap:var(--space-2); overflow-x:auto; padding-bottom:var(--space-3); margin-bottom:var(--space-5);" id="categories-tabs">
+                <button class="cat-tab-btn active" data-cat="all" onclick="selectCategory(null, this)">All 25 Dishes</button>
+                <button class="cat-tab-btn" data-cat="1" onclick="selectCategory(1, this)"><i class="fa-solid fa-bowl-food"></i> South Indian Tiffin & Meals</button>
+                <button class="cat-tab-btn" data-cat="2" onclick="selectCategory(2, this)"><i class="fa-solid fa-cookie-bite"></i> Traditional Desserts</button>
+                <button class="cat-tab-btn" data-cat="3" onclick="selectCategory(3, this)"><i class="fa-solid fa-mug-hot"></i> Beverages & Brews</button>
+            </div>
+
+            <!-- Food Items Grid -->
+            <div class="food-grid" id="food-items-grid">
+                <div style="grid-column:1/-1; text-align:center; padding:var(--space-8); color:var(--text-secondary);">
+                    <div class="spinner spinner-lg"></div>
+                    <p style="margin-top:var(--space-3); font-size:0.875rem;">Loading dishes catalog...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let allDishes = [];
+        let selectedCategory = null;
+
+        async function loadMenu() {
+            try {
+                allDishes = await API.get("/api/food/items?only_available=false");
+                renderDishes(allDishes);
+                updateNavCartBadge();
+            } catch (err) {
+                console.error("Menu load error:", err);
+                document.getElementById("food-items-grid").innerHTML = `
+                    <div class="card" style="grid-column:1/-1; text-align:center; padding:var(--space-7); color:var(--danger);">
+                        <i class="fa-solid fa-circle-exclamation fa-2x"></i>
+                        <p style="margin-top:var(--space-3); font-size:0.95rem;">Failed to load dishes. Please ensure backend is active.</p>
+                        <button class="btn btn-secondary btn-sm" style="margin-top:var(--space-3);" onclick="loadMenu()">Retry <i class="fa-solid fa-rotate-right"></i></button>
+                    </div>
+                `;
+            }
+        }
+
+        function selectCategory(catId, btn) {
+            selectedCategory = catId;
+            document.querySelectorAll(".cat-tab-btn").forEach(b => b.classList.remove("active"));
+            if (btn) btn.classList.add("active");
+            filterDishes();
+        }
+
+        function filterDishes() {
+            const query = (document.getElementById("search-input")?.value || "").toLowerCase().trim();
+            let filtered = allDishes;
+
+            if (selectedCategory !== null) {
+                filtered = filtered.filter(d => d.category_id === selectedCategory);
+            }
+
+            if (query) {
+                filtered = filtered.filter(d => 
+                    d.name.toLowerCase().includes(query) || 
+                    (d.description && d.description.toLowerCase().includes(query))
+                );
+            }
+
+            renderDishes(filtered);
+        }
+
+        function renderDishes(dishes) {
+            const grid = document.getElementById("food-items-grid");
+            if (!dishes || dishes.length === 0) {
+                grid.innerHTML = `
+                    <div class="card" style="grid-column:1/-1; text-align:center; padding:var(--space-8) var(--space-4);">
+                        <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <h3 class="empty-state-title">No Dishes Found</h3>
+                        <p class="empty-state-desc">Try adjusting your search query or category filter.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="selectCategory(null, document.querySelector('.cat-tab-btn'))">Show All Dishes</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = dishes.map(dish => {
+                const counterName = dish.counter_id === 1 ? 'Counter 1' : (dish.counter_id === 2 ? 'Counter 2' : 'Counter 3');
+                const ratingScore = dish.average_rating ? dish.average_rating.toFixed(1) : "4.8";
+                const ratingCount = dish.rating_count || 14;
+                const img = dish.image_url || 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80';
+
+                return `
+                    <div class="food-card">
+                        <div class="food-img-container">
+                            <img src="${img}" alt="${dish.name}" class="food-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80'">
+                            <span class="counter-badge-tag"><i class="fa-solid fa-store"></i> ${counterName}</span>
+                            <span class="rating-badge-tag"><i class="fa-solid fa-star"></i> ${ratingScore} (${ratingCount})</span>
+                        </div>
+
+                        <div class="food-body">
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:var(--space-1);">
+                                <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0;">${dish.name}</h3>
+                                <span style="font-weight:800; font-family:var(--font-heading); color:var(--text-primary); font-size:1.1rem;">₹${parseFloat(dish.price).toFixed(2)}</span>
+                            </div>
+
+                            <p style="color:var(--text-secondary); font-size:0.8125rem; line-height:1.45; margin-bottom:auto; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                ${dish.description || 'Authentic South Indian specialty prepared fresh on order.'}
+                            </p>
+
+                            <div class="macro-row">
+                                <span class="macro-item"><i class="fa-regular fa-clock"></i> ${dish.prep_time_minutes}m</span>
+                                <span class="macro-item"><i class="fa-solid fa-fire-flame-curved"></i> ${dish.calories || 280} kcal</span>
+                                <span class="macro-item"><i class="fa-solid fa-dumbbell"></i> ${dish.protein || 6}g protein</span>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); margin-top:var(--space-3);">
+                                <button class="btn btn-sm btn-secondary" onclick="addToCartItem(${dish.id})">
+                                    <i class="fa-solid fa-plus"></i> Add to Cart
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="quickOrderItem(${dish.id})">
+                                    <i class="fa-solid fa-bolt"></i> Order Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function addToCartItem(dishId) {
+            const dish = allDishes.find(d => d.id === dishId);
+            if (!dish) return;
+
+            Cart.addItem(dish, 1);
+            updateNavCartBadge();
+            showNotification(`Added ${dish.name} to Cart! 🛒`, "success");
+        }
+
+        function quickOrderItem(dishId) {
+            const dish = allDishes.find(d => d.id === dishId);
+            if (!dish) return;
+
+            Cart.addItem(dish, 1);
+            window.location.href = "/cart.html";
+        }
+
+        function updateNavCartBadge() {
+            const items = Cart.getItems();
+            const count = items.reduce((acc, i) => acc + i.quantity, 0);
+            const badge = document.getElementById("nav-cart-count");
+            if (badge) badge.textContent = count;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadMenu();
+        });
+    </script>
+</body>
+</html>

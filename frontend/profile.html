@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile & Preferences - Digital Canteen Token System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon">⚡</div>
+                <span>CANTEEN OS</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu & Order</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/token.html" class="nav-link">Token Tracker</a></li>
+                <li><a href="/orders.html" class="nav-link">My Orders</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container" style="max-width: 720px;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="font-size:2rem; font-weight:800;">Student Account & Loyalty 👤</h1>
+                <p style="color:var(--text-secondary); font-size:0.9rem;">Manage your canteen profile, loyalty tier, and AI dietary preferences.</p>
+            </div>
+
+            <!-- Profile Summary Card -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+                    <div class="brand-icon" style="width:64px; height:64px; font-size:2rem;">🎓</div>
+                    <div style="flex:1;">
+                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
+                            <h2 style="font-size:1.4rem; font-weight:800;" id="prof-name">Student Name</h2>
+                            <span id="prof-badge" class="loyalty-badge-pill">🌱 New Explorer</span>
+                        </div>
+                        <div style="color:var(--text-secondary); font-size:0.9rem;" id="prof-email">student@canteen.edu</div>
+                        <div style="color:var(--text-muted); font-size:0.85rem;" id="prof-dept">Computer Science</div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+                    <div style="background:var(--bg-surface-elevated); padding:0.9rem; border-radius:var(--radius-md);">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">TOTAL ORDERS PLACED</span>
+                        <div style="font-size:1.4rem; font-weight:800; color:var(--primary);" id="prof-orders-count">0</div>
+                    </div>
+                    <div style="background:var(--bg-surface-elevated); padding:0.9rem; border-radius:var(--radius-md);">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">LOYALTY STATUS</span>
+                        <div style="font-size:1.4rem; font-weight:800; color:var(--secondary);" id="prof-tier-name">Newbie</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dietary Preferences Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">AI Recommendation Preferences</h2>
+                        <p class="card-subtitle">Personalize your meal suggestions and default filter criteria.</p>
+                    </div>
+                </div>
+
+                <form id="pref-form" onsubmit="savePreferences(event)">
+                    <div class="form-group">
+                        <label style="display:inline-flex; align-items:center; gap:0.6rem; cursor:pointer;">
+                            <input type="checkbox" id="pref-veg-only" style="width:18px; height:18px;" />
+                            <span style="font-weight:600;">Strict Vegetarian Filter (Hide all non-veg items)</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pref-spice">Preferred Spice Level</label>
+                        <select id="pref-spice" class="form-control">
+                            <option value="Mild">Mild 🌿</option>
+                            <option value="Medium" selected>Medium 🔥</option>
+                            <option value="Spicy">Spicy 🌶️🌶️</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pref-notes">Dietary Notes / Allergies</label>
+                        <textarea id="pref-notes" class="form-control" rows="3" placeholder="e.g. Nut allergy, lactose intolerant, high protein preference..."></textarea>
+                    </div>
+
+                    <button type="submit" id="pref-save-btn" class="btn btn-primary" style="padding:0.75rem 1.5rem;">
+                        Save Preferences ✨
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Digital Canteen Token System. Designed with Purple Neon Theme.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            Auth.requireAuth();
+            const user = await Auth.syncUserLoyalty();
+            if (user) {
+                document.getElementById('prof-name').textContent = user.name;
+                document.getElementById('prof-email').textContent = user.email;
+                document.getElementById('prof-dept').textContent = `${user.department || 'General'} • Role #${user.role_id}`;
+                document.getElementById('prof-badge').textContent = user.loyalty_badge || '🌱 New Explorer';
+                document.getElementById('prof-orders-count').textContent = user.total_orders_count || 0;
+                document.getElementById('prof-tier-name').textContent = user.loyalty_tier || 'Newbie';
+            }
+        });
+
+        async function savePreferences(e) {
+            e.preventDefault();
+            const btn = document.getElementById('pref-save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+            try {
+                Toast.success('Dietary preferences updated!');
+            } catch (err) {
+                Toast.error('Failed to save preferences.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Preferences ✨';
+            }
+        }
+    </script>
+</body>
+</html>

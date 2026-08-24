@@ -1,0 +1,493 @@
+/* ==========================================================================
+   SMART CAMPUS CANTEEN MANAGEMENT SYSTEM (V2.0)
+   Design System: Professional AI SaaS + Smart Campus Technology
+   Typography: Inter (Body & UI) | Manrope (Headings) | Space Grotesk (Accent/Numbers)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+    /* ----------------------------------------------------------------------
+       1. Typography System
+       ---------------------------------------------------------------------- */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-heading: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-accent: 'Space Grotesk', -apple-system, monospace, sans-serif;
+
+    --font-main: var(--font-body);
+    --font-display: var(--font-heading);
+    --font-mono: var(--font-accent);
+
+    /* ----------------------------------------------------------------------
+       2. Strict Spacing Scale (4px, 8px, 12px, 16px, 24px, 32px, 40px, 48px, 64px)
+       ---------------------------------------------------------------------- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 40px;
+    --space-8: 48px;
+    --space-9: 64px;
+
+    --space-xs: var(--space-1);
+    --space-sm: var(--space-2);
+    --space-md: var(--space-4);
+    --space-lg: var(--space-5);
+    --space-xl: var(--space-6);
+    --space-2xl: var(--space-8);
+    --space-3xl: var(--space-9);
+
+    /* ----------------------------------------------------------------------
+       3. Color System - Professional Dark Purple AI SaaS
+       ---------------------------------------------------------------------- */
+    --bg-base: #090611;
+    --bg-surface: #110B20;
+    --bg-surface-elevated: #170F2B;
+    --bg-card: rgba(23, 15, 43, 0.78);
+    --bg-card-hover: rgba(30, 20, 56, 0.92);
+    --bg-input: #120B22;
+    --bg-glass: rgba(12, 8, 22, 0.85);
+
+    /* Primary Violet / Purple */
+    --primary: #9333ea;
+    --primary-hover: #a855f7;
+    --primary-active: #7e22ce;
+    --primary-light: rgba(147, 51, 234, 0.12);
+    --primary-border: rgba(147, 51, 234, 0.28);
+    --primary-glow: rgba(147, 51, 234, 0.22);
+
+    /* Secondary Lavender */
+    --secondary: #7c3aed;
+    --secondary-light: rgba(124, 58, 237, 0.12);
+    --secondary-glow: rgba(124, 58, 237, 0.2);
+
+    /* Tech Accent Cyan */
+    --accent: #06b6d4;
+    --accent-light: rgba(6, 182, 212, 0.12);
+    --accent-border: rgba(6, 182, 212, 0.28);
+    --accent-glow: rgba(6, 182, 212, 0.2);
+
+    /* Status Colors */
+    --success: #10b981;
+    --success-light: rgba(16, 185, 129, 0.12);
+    --success-glow: rgba(16, 185, 129, 0.2);
+
+    --warning: #f59e0b;
+    --warning-light: rgba(245, 158, 11, 0.12);
+    --warning-glow: rgba(245, 158, 11, 0.2);
+
+    --danger: #ef4444;
+    --danger-light: rgba(239, 68, 68, 0.12);
+    --danger-glow: rgba(239, 68, 68, 0.2);
+
+    --info: #8b5cf6;
+    --info-light: rgba(139, 92, 246, 0.12);
+
+    /* Typography Colors */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-inverse: #090611;
+
+    /* Borders & Hairlines */
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(147, 51, 234, 0.35);
+    --border-focus: #9333ea;
+    --border-glow: 0 0 12px rgba(147, 51, 234, 0.2);
+
+    /* Geometry Scale */
+    --radius-xs: 6px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    /* Shadows - Soft diffused SaaS Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.08);
+    --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.12);
+    --shadow-neon: 0 4px 20px rgba(147, 51, 234, 0.22);
+
+    /* Transitions */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Light Theme Fallback (Accessible clean SaaS) */
+[data-theme="light"] {
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f1f5f9;
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --bg-card-hover: #ffffff;
+    --bg-input: #f1f5f9;
+    --bg-glass: rgba(255, 255, 255, 0.88);
+
+    --primary: #7e22ce;
+    --primary-hover: #6b21a8;
+    --primary-light: rgba(126, 34, 206, 0.08);
+    --primary-border: rgba(126, 34, 206, 0.2);
+
+    --secondary: #6366f1;
+    --secondary-light: rgba(99, 102, 241, 0.08);
+
+    --accent: #0284c7;
+    --accent-light: rgba(2, 132, 199, 0.08);
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+
+    --border: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(126, 34, 206, 0.3);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   4. Reset & Base Setup
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.55;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(124, 58, 237, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.02) 0%, transparent 60%);
+    background-attachment: fixed;
+    transition: background-color var(--transition-base), color var(--transition-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   5. Typography Hierarchy
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.page-title {
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    margin-bottom: var(--space-1);
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    margin-bottom: var(--space-5);
+}
+
+.display-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+a {
+    color: var(--primary-hover);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   6. Global Content Width & Container
+   -------------------------------------------------------------------------- */
+.container {
+    width: 100%;
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--space-4);
+    }
+}
+
+.site-main {
+    flex: 1;
+    padding: var(--space-6) 0 var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   7. Professional SaaS Navbar
+   -------------------------------------------------------------------------- */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all var(--transition-base);
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+}
+
+.brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.35);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.brand-highlight {
+    color: var(--primary-hover);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    list-style: none;
+}
+
+.nav-link {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    color: var(--text-primary);
+    background: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    font-weight: 600;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* --------------------------------------------------------------------------
+   8. Header Toolbars & Actions
+   -------------------------------------------------------------------------- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.page-header-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-bottom: var(--space-1);
+}
+
+.page-header-desc {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+/* Broadcast Announcement Banner */
+.broadcast-banner {
+    background: linear-gradient(90deg, #6b21a8, #7c3aed);
+    color: #ffffff;
+    padding: var(--space-2) var(--space-5);
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1001;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.broadcast-banner-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 var(--space-2);
+    opacity: 0.85;
+}
+
+.broadcast-banner-close:hover {
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   9. Footer
+   -------------------------------------------------------------------------- */
+.site-footer {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    padding: var(--space-6) 0 var(--space-5);
+    margin-top: auto;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--space-3);
+    font-size: 0.8125rem;
+}
+
+/* --------------------------------------------------------------------------
+   10. Responsiveness
+   -------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+    .nav-links {
+        display: none;
+    }
+
+    .nav-links.mobile-open {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--bg-surface);
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        gap: var(--space-2);
+    }
+}

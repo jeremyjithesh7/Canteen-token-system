@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Kitchen & Orders - Canteen Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span style="font-weight:700; font-size:1.05rem;">Canteen Admin</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/admin/index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> <span>Overview</span></a></li>
+                <li><a href="/admin/orders.html" class="sidebar-link active"><i class="fa-solid fa-kitchen-set"></i> <span>Live Kitchen</span></a></li>
+                <li><a href="/admin/waste.html" class="sidebar-link"><i class="fa-solid fa-recycle"></i> <span>Waste Analytics</span></a></li>
+                <li><a href="/verify.html" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> <span>QR Verify</span></a></li>
+                <li><a href="/admin/menu.html" class="sidebar-link"><i class="fa-solid fa-book-open"></i> <span>Menu Manager</span></a></li>
+                <li><a href="/admin/inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></a></li>
+                <li><a href="/admin/analytics.html" class="sidebar-link"><i class="fa-solid fa-brain"></i> <span>AI Analytics</span></a></li>
+                <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
+                <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
+                <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="/dashboard.html" class="btn btn-sm btn-secondary" style="width:100%;"><i class="fa-solid fa-user"></i> Student View</a>
+                <button class="btn btn-sm btn-outline" style="width:100%;" onclick="Auth.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <div>
+                    <h1 style="font-size:1.65rem; font-weight:700; font-family:var(--font-heading); margin-bottom:var(--space-1);">Live Kitchen & Counter Management</h1>
+                    <p style="color:var(--text-secondary); font-size:0.875rem;">Advance tokens in real-time as chefs cook and serve orders across counters.</p>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                    <select id="counter-filter-select" class="form-control" style="width:180px;" onchange="AdminController.loadKitchenLanes(this.value)">
+                        <option value="all">All Pickup Counters</option>
+                        <option value="1">Counter 1 (South Meals)</option>
+                        <option value="2">Counter 2 (Fast Food)</option>
+                        <option value="3">Counter 3 (Beverages)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="AdminController.loadKitchenLanes(document.getElementById('counter-filter-select').value); loadAllOrdersTable();"><i class="fa-solid fa-arrows-rotate"></i> Refresh Queue</button>
+                </div>
+            </div>
+
+            <!-- Kanban Board -->
+            <div class="kanban-board" style="margin-bottom: var(--space-6);">
+                <!-- Waiting Lane -->
+                <div class="kanban-lane lane-waiting">
+                    <div class="kanban-lane-header">
+                        <span style="color:var(--warning);"><i class="fa-solid fa-hourglass-half" style="margin-right:4px;"></i> Waiting in Queue</span>
+                        <span class="badge badge-waiting" id="count-waiting">0</span>
+                    </div>
+                    <div id="lane-waiting" style="display:flex; flex-direction:column; gap:var(--space-2);"></div>
+                </div>
+
+                <!-- Preparing Lane -->
+                <div class="kanban-lane lane-preparing">
+                    <div class="kanban-lane-header">
+                        <span style="color:var(--primary-hover);"><i class="fa-solid fa-fire" style="margin-right:4px;"></i> Cooking in Kitchen</span>
+                        <span class="badge badge-preparing" id="count-preparing">0</span>
+                    </div>
+                    <div id="lane-preparing" style="display:flex; flex-direction:column; gap:var(--space-2);"></div>
+                </div>
+
+                <!-- Ready Lane -->
+                <div class="kanban-lane lane-ready">
+                    <div class="kanban-lane-header">
+                        <span style="color:var(--success);"><i class="fa-solid fa-bell" style="margin-right:4px;"></i> Ready for Pickup</span>
+                        <span class="badge badge-ready" id="count-ready">0</span>
+                    </div>
+                    <div id="lane-ready" style="display:flex; flex-direction:column; gap:var(--space-2);"></div>
+                </div>
+            </div>
+
+            <!-- All Orders Data Table -->
+            <div class="card" style="padding:0;">
+                <div style="padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;"><i class="fa-solid fa-list-check" style="color:var(--accent); margin-right:4px;"></i> All Customer Orders Registry</h2>
+                    <p style="color:var(--text-secondary); font-size:0.8125rem; margin:var(--space-1) 0 0 0;">Complete chronological record of all canteen orders and token assignments</p>
+                </div>
+
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Token</th>
+                                <th>Counter</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-orders-tbody">
+                            <tr><td colspan="9" style="text-align:center; padding:var(--space-6); color:var(--text-muted);"><div class="spinner"></div> Loading orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        async function loadAllOrdersTable() {
+            try {
+                const orders = await ApiClient.get(CONFIG.ENDPOINTS.ORDERS.ALL_ADMIN);
+                const tbody = document.getElementById('all-orders-tbody');
+                if (!orders || orders.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:var(--space-6); color:var(--text-muted);">No orders recorded yet.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = orders.map(o => `
+                    <tr>
+                        <td><strong>${o.order_number}</strong></td>
+                        <td><span style="font-family:var(--font-accent); font-weight:700; color:var(--accent);">${o.token_number || '-'}</span></td>
+                        <td><span class="badge badge-info">Counter ${o.counter_number || 1}</span></td>
+                        <td>User #${o.user_id}</td>
+                        <td style="max-width:240px; font-size:0.8125rem;">
+                            ${o.items.map(i => `${i.quantity}x ${i.food_item ? i.food_item.name : 'Dish'}`).join(', ')}
+                        </td>
+                        <td><strong style="font-family:var(--font-accent);">₹${parseFloat(o.final_amount).toFixed(2)}</strong></td>
+                        <td><span class="badge badge-ready">${o.payment_method || 'UPI'} (${o.payment_status || 'Paid'})</span></td>
+                        <td><span class="badge badge-${o.status === 'Completed' ? 'completed' : (o.status === 'Cancelled' ? 'cancelled' : (o.status === 'Ready' ? 'ready' : (o.status === 'Preparing' ? 'preparing' : 'waiting')))}">${o.status}</span></td>
+                        <td style="text-align:right;">
+                            ${o.status !== 'Completed' && o.status !== 'Cancelled' ? `
+                                <button class="btn btn-sm btn-secondary" onclick="AdminController.advanceTokenStatus(${o.id}, 'Completed'); loadAllOrdersTable();">Complete</button>
+                            ` : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireStaffOrAdmin();
+            AdminController.loadKitchenLanes();
+            loadAllOrdersTable();
+            setInterval(() => {
+                const selected = document.getElementById('counter-filter-select').value;
+                AdminController.loadKitchenLanes(selected);
+            }, 4000);
+        });
+    </script>
+</body>
+</html>

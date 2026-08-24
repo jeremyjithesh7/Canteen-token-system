@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards & Badges - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .rewards-hero {
+            background: linear-gradient(135deg, rgba(30, 20, 56, 0.9), rgba(18, 12, 34, 0.95));
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-6);
+        }
+        .progress-bar-wrap {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            margin: var(--space-2) 0;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width 0.5s ease;
+        }
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-3);
+        }
+        .achievement-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            transition: all var(--transition-base);
+        }
+        .achievement-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+        .achievement-icon {
+            font-size: 2rem;
+            min-width: 44px;
+            text-align: center;
+        }
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background var(--transition-fast);
+        }
+        .leaderboard-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .rank-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8125rem;
+            font-family: var(--font-accent);
+        }
+        .rank-1 { background: #ffd700; color: #000; }
+        .rank-2 { background: #e2e8f0; color: #000; }
+        .rank-3 { background: #d97706; color: #fff; }
+        .rank-other { background: var(--bg-surface-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+        @media (max-width: 900px) {
+            .dash-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link active"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">Rewards & Gamification</h1>
+                    <p class="page-header-desc">Earn points on every South Indian order, maintain streaks, and climb the campus foodie ranks.</p>
+                </div>
+                <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Order & Earn Points</a>
+            </div>
+
+            <!-- Gamification Hero Card -->
+            <div class="rewards-hero">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-5);">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
+                            <span class="badge badge-accent" id="user-tier-badge">Silver Foodie</span>
+                            <span class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="user-streak-val">5</span>-Day Canteen Streak</span>
+                        </div>
+                        <div style="font-size:2.5rem; font-weight:700; font-family:var(--font-accent); color:#ffffff;" id="user-points-val">320 <span style="font-size:1rem; font-weight:500; color:var(--text-secondary);">POINTS</span></div>
+                        <div style="font-size:0.8125rem; color:var(--text-secondary);" id="user-points-sub">Earn 1 reward point for every ₹10 spent on meals!</div>
+                    </div>
+
+                    <!-- Tier Progression Bar -->
+                    <div style="min-width:280px; flex:1; max-width:440px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8125rem; font-weight:600;">
+                            <span id="tier-current-label" style="color:var(--primary-hover);">Silver Foodie (250 pts)</span>
+                            <span id="tier-next-label" style="color:var(--text-secondary);">Gold Gourmet (500 pts)</span>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" id="tier-progress-fill" style="width: 56%;"></div>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-align:right;" id="points-needed-label">180 points to level up!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Split: Unlocked Badges & Campus Leaderboard -->
+            <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:var(--space-6); margin-bottom:var(--space-8);" class="dash-split-grid">
+                
+                <!-- Left: Achievements & Badges Gallery -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3);"><i class="fa-solid fa-trophy" style="color:#ffd700; margin-right:6px;"></i> Unlocked Badges & Milestones</h2>
+                    <div class="badge-grid" id="achievements-gallery">
+                        <!-- Dynamic -->
+                        <div class="achievement-card">
+                            <div class="achievement-icon">🏆</div>
+                            <div>
+                                <strong style="color:var(--text-primary); display:block; font-size:0.9rem;">First Order Placed</strong>
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Placed your first digital canteen order</small>
+                            </div>
+                        </div>
+                        <div class="achievement-card">
+                            <div class="achievement-icon">☕</div>
+                            <div>
+                                <strong style="color:var(--text-primary); display:block; font-size:0.9rem;">Degree Coffee Fanatic</strong>
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Ordered authentic Degree Filter Coffee 3+ times</small>
+                            </div>
+                        </div>
+                        <div class="achievement-card">
+                            <div class="achievement-icon">🔥</div>
+                            <div>
+                                <strong style="color:var(--text-primary); display:block; font-size:0.9rem;">7-Day Streak Master</strong>
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Ordered food for 7 consecutive days</small>
+                            </div>
+                        </div>
+                        <div class="achievement-card">
+                            <div class="achievement-icon">🍛</div>
+                            <div>
+                                <strong style="color:var(--text-primary); display:block; font-size:0.9rem;">South Feast Connoisseur</strong>
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Tasted 10+ South Indian specialties</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Campus Foodie Leaderboard -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3);"><i class="fa-solid fa-ranking-star" style="color:var(--primary-hover); margin-right:6px;"></i> Campus Foodie Leaderboard</h2>
+                    <div class="card" style="padding:0;">
+                        <div id="leaderboard-container">
+                            <div style="text-align:center; padding:var(--space-6); color:var(--text-muted);">
+                                <div class="spinner"></div> Loading rankings...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Gamification & Loyalty Module.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "/login.html?redirect=rewards.html";
+                return;
+            }
+            await loadRewardsData();
+            await loadLeaderboard();
+        });
+
+        async function loadRewardsData() {
+            try {
+                const res = await API.get('/api/rewards/me');
+                if (res) {
+                    document.getElementById('user-tier-badge').textContent = res.tier;
+                    document.getElementById('user-streak-val').textContent = res.current_streak_days;
+                    document.getElementById('user-points-val').innerHTML = `${res.total_points} <span style="font-size:1rem; font-weight:500; color:var(--text-secondary);">POINTS</span>`;
+                    document.getElementById('tier-current-label').textContent = `${res.tier} (${res.total_points} pts)`;
+                    document.getElementById('tier-next-label').textContent = `${res.next_tier}`;
+                    document.getElementById('points-needed-label').textContent = `${res.points_to_next_tier} points to ${res.next_tier}!`;
+
+                    let pct = Math.min(100, Math.max(15, (res.total_points / (res.total_points + res.points_to_next_tier)) * 100));
+                    document.getElementById('tier-progress-fill').style.width = `${pct}%`;
+
+                    if (res.achievements && res.achievements.length > 0) {
+                        const gallery = document.getElementById('achievements-gallery');
+                        gallery.innerHTML = res.achievements.map(a => `
+                            <div class="achievement-card">
+                                <div class="achievement-icon">${a.icon || '🏅'}</div>
+                                <div>
+                                    <strong style="color:var(--text-primary); display:block; font-size:0.9rem;">${a.title}</strong>
+                                    <small style="color:var(--text-secondary); font-size:0.75rem;">${a.description}</small>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) {
+                console.error("Rewards error:", e);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const res = await API.get('/api/rewards/leaderboard');
+                const container = document.getElementById('leaderboard-container');
+                if (res && res.top_users && res.top_users.length > 0) {
+                    container.innerHTML = res.top_users.map(u => {
+                        let rankClass = 'rank-other';
+                        if (u.rank === 1) rankClass = 'rank-1';
+                        else if (u.rank === 2) rankClass = 'rank-2';
+                        else if (u.rank === 3) rankClass = 'rank-3';
+
+                        const isMe = u.is_current_user;
+                        const userName = u.user_name || u.name || 'Campus Foodie';
+                        return `
+                            <div class="leaderboard-row" style="${isMe ? 'background:var(--primary-light); border-left:3px solid var(--primary);' : ''}">
+                                <div style="display:flex; align-items:center; gap:var(--space-3);">
+                                    <div class="rank-circle ${rankClass}">${u.rank}</div>
+                                    <div>
+                                        <strong style="color:var(--text-primary); font-size:0.875rem;">${userName} ${isMe ? '<span class="badge badge-info" style="font-size:0.6875rem;">YOU</span>' : ''}</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-secondary);">${u.tier} • <i class="fa-solid fa-fire" style="color:var(--warning);"></i> ${u.streak_days}d streak</div>
+                                    </div>
+                                </div>
+                                <div style="font-size:1rem; font-weight:700; font-family:var(--font-accent); color:var(--text-primary);">
+                                    ${u.total_points} <span style="font-size:0.75rem; color:var(--text-muted);">pts</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error("Leaderboard error:", e);
+            }
+        }
+    </script>
+</body>
+</html>

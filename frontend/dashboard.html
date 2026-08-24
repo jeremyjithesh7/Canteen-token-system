@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dash-widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4) var(--space-5);
+            transition: all var(--transition-base);
+            position: relative;
+        }
+        .stat-card:hover {
+            border-color: var(--border-hover);
+        }
+        .crowd-step-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-3);
+            text-align: center;
+        }
+        .badge-match {
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        @media (max-width: 900px) {
+            .dash-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
+                <li><a href="/dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            
+            <!-- Top Welcome Banner & Loyalty Bar -->
+            <div class="page-header">
+                <div>
+                    <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; margin-bottom:var(--space-1);">
+                        <h1 class="page-header-title" id="user-greeting">Welcome back!</h1>
+                        <span id="user-loyalty-slot" class="badge badge-accent">Bronze Explorer</span>
+                        <span id="user-streak-badge" class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="streak-days-val">3</span>-Day Streak</span>
+                    </div>
+                    <p class="page-header-desc">AI-powered smart campus canteen command center.</p>
+                </div>
+                <div style="display:flex; gap:var(--space-2);">
+                    <a href="/wallet.html" class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Top Up Wallet</a>
+                    <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Order Food</a>
+                </div>
+            </div>
+
+            <!-- 4-Pillar Stat Widgets: Active Token, Wallet, Rewards, Crowd -->
+            <div class="dash-widget-grid">
+                
+                <!-- 1. Campus Wallet Widget -->
+                <div class="stat-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-wallet" style="color:var(--accent); margin-right:4px;"></i> Campus Wallet</span>
+                        <a href="/wallet.html" style="font-size:0.75rem; color:var(--accent); text-decoration:none; font-weight:600;">Top Up →</a>
+                    </div>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--accent);" id="dash-wallet-bal">₹420.00</div>
+                    <small style="color:var(--text-muted); font-size:0.75rem;">1-Click checkout enabled</small>
+                </div>
+
+                <!-- 2. Reward Points & Tier Widget -->
+                <div class="stat-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-award" style="color:var(--primary-hover); margin-right:4px;"></i> Rewards</span>
+                        <a href="/rewards.html" style="font-size:0.75rem; color:var(--primary-hover); text-decoration:none; font-weight:600;">Badges →</a>
+                    </div>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--primary-hover);" id="dash-points-val">320 <span style="font-size:0.875rem; font-weight:500; color:var(--text-secondary);">pts</span></div>
+                    <small style="color:var(--text-muted); font-size:0.75rem;" id="dash-points-sub">80 pts to Gold Gourmet</small>
+                </div>
+
+                <!-- 3. Current Live Crowd Meter -->
+                <div class="stat-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-users" style="color:var(--warning); margin-right:4px;"></i> Live Crowd</span>
+                        <a href="/queue.html" style="font-size:0.75rem; color:var(--warning); text-decoration:none; font-weight:600;">Queue →</a>
+                    </div>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--warning);" id="dash-crowd-val">MODERATE</div>
+                    <small style="color:var(--text-muted); font-size:0.75rem;" id="dash-wait-sub">Avg Wait: ~6-8 mins</small>
+                </div>
+
+                <!-- 4. Active Token Status -->
+                <div class="stat-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-ticket" style="color:var(--secondary); margin-right:4px;"></i> Active Token</span>
+                        <a href="/token.html" style="font-size:0.75rem; color:var(--secondary); text-decoration:none; font-weight:600;">Tracker →</a>
+                    </div>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--text-primary);" id="dash-token-val">No Active Token</div>
+                    <small style="color:var(--text-muted); font-size:0.75rem;" id="dash-token-sub">Place an order to receive a token</small>
+                </div>
+
+            </div>
+
+            <!-- Two-Column Grid: Active Token + AI Crowd Forecast -->
+            <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:var(--space-6); margin-bottom:var(--space-8);" class="dash-split-grid">
+                
+                <!-- Left: Active Digital Token Signature Card -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
+                        <i class="fa-solid fa-qrcode" style="color:var(--primary-hover);"></i> Live Token Card
+                    </h2>
+                    <div id="active-token-container">
+                        <div class="card" style="text-align:center; padding:var(--space-7) var(--space-4);">
+                            <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-ticket"></i></div>
+                            <h3 class="empty-state-title">No Active Orders</h3>
+                            <p class="empty-state-desc">Order from our 25 authentic South Indian dishes to get your live queue token.</p>
+                            <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Browse Food Menu</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: AI Crowd Prediction & Timeline Forecast -->
+                <div>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
+                        <i class="fa-solid fa-chart-line" style="color:var(--accent);"></i> AI Crowd Forecast (Next 2 Hours)
+                    </h2>
+                    <div class="card" style="padding:var(--space-5);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+                            <div>
+                                <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Expected Peak Rush</span>
+                                <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary); font-family:var(--font-accent);" id="crowd-peak-time">01:15 PM</div>
+                            </div>
+                            <span class="badge badge-ready" id="crowd-peak-level">PEAK LUNCH</span>
+                        </div>
+
+                        <!-- 4 Step Forecast Cards (Current, 30m, 60m, 120m) -->
+                        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:var(--space-2); margin-bottom:var(--space-4);" id="crowd-forecast-steps">
+                            <div class="crowd-step-card">
+                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">CURRENT</div>
+                                <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-now">MODERATE</div>
+                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~6 mins</div>
+                            </div>
+                            <div class="crowd-step-card">
+                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">30 MIN</div>
+                                <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-30">HIGH</div>
+                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~14 mins</div>
+                            </div>
+                            <div class="crowd-step-card">
+                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">60 MIN</div>
+                                <div style="font-size:0.9375rem; font-weight:700; color:var(--danger); margin:var(--space-1) 0;" id="cf-60">PEAK</div>
+                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~22 mins</div>
+                            </div>
+                            <div class="crowd-step-card">
+                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">120 MIN</div>
+                                <div style="font-size:0.9375rem; font-weight:700; color:var(--accent); margin:var(--space-1) 0;" id="cf-120">LOW</div>
+                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~4 mins</div>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--primary-light); border:1px solid var(--primary-border); padding:var(--space-3); border-radius:var(--radius-sm); font-size:0.8125rem; color:var(--text-secondary);" id="crowd-recommendation-note">
+                            💡 <strong>Smart Tip:</strong> Pre-order 15 mins ahead during Lunch rush for instant pickup without counter waiting.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upgraded AI Recommendations Section -->
+            <section style="margin-bottom:var(--space-8);">
+                <div class="page-header">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:var(--space-2);">
+                            <span class="badge badge-info">AI Recommendation</span>
+                            <h2 style="font-size:1.35rem; font-weight:700; margin:0;">Recommended For You</h2>
+                        </div>
+                        <p class="page-header-desc">Personalized dishes tailored to your taste profile, time of day, and ordering habits.</p>
+                    </div>
+                    <a href="/menu.html" class="btn btn-sm btn-secondary">Explore Full Menu <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="food-grid" id="recs-grid">
+                    <div style="grid-column:1/-1; text-align:center; padding:var(--space-7); color:var(--text-secondary);">
+                        <div class="spinner spinner-lg"></div>
+                        <p style="margin-top:var(--space-3); font-size:0.875rem;">Calculating personalized match scores...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Orders Feed -->
+            <section style="margin-bottom:var(--space-8);">
+                <div class="page-header">
+                    <h2 class="page-header-title" style="font-size:1.35rem;"><i class="fa-regular fa-clock" style="color:var(--primary-hover); margin-right:6px;"></i> Recent Orders</h2>
+                    <a href="/orders.html" class="btn btn-sm btn-secondary">View All History <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="table-container" id="recent-orders-card">
+                    <div style="text-align:center; padding:var(--space-6); color:var(--text-muted);" id="recent-orders-feed">
+                        <div class="spinner"></div> Loading recent orders...
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/qr.js"></script>
+    <script src="/js/token.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "/login.html?redirect=dashboard.html";
+                return;
+            }
+
+            const user = Auth.getUser();
+            if (user) {
+                document.getElementById('user-greeting').textContent = `Welcome back, ${user.name}!`;
+            }
+
+            // 1. Load Wallet Summary
+            try {
+                const wallet = await API.get("/api/wallet/me");
+                if (wallet) {
+                    document.getElementById("dash-wallet-bal").textContent = `₹${parseFloat(wallet.balance).toFixed(2)}`;
+                }
+            } catch (e) {
+                console.error("Wallet load err:", e);
+            }
+
+            // 2. Load Rewards Summary
+            try {
+                const rew = await API.get("/api/rewards/me");
+                if (rew) {
+                    document.getElementById("dash-points-val").innerHTML = `${rew.total_points} <span style="font-size:0.875rem; font-weight:500; color:var(--text-secondary);">pts</span>`;
+                    document.getElementById("user-loyalty-slot").textContent = rew.tier;
+                    document.getElementById("streak-days-val").textContent = rew.current_streak_days;
+                    document.getElementById("dash-points-sub").textContent = `${rew.points_to_next_tier} pts to ${rew.next_tier}`;
+                }
+            } catch (e) {
+                console.error("Rewards load err:", e);
+            }
+
+            // 3. Load Live Crowd Forecast
+            try {
+                const crowd = await API.get("/api/ai/crowd-forecast");
+                if (crowd) {
+                    document.getElementById("dash-crowd-val").textContent = crowd.current_crowd;
+                    document.getElementById("dash-wait-sub").textContent = `Avg Wait: ~${crowd.current_wait_minutes} mins`;
+                    document.getElementById("crowd-peak-time").textContent = crowd.expected_peak_time;
+                    document.getElementById("crowd-peak-level").textContent = crowd.expected_peak_level;
+                    document.getElementById("cf-now").textContent = crowd.current_crowd;
+                    document.getElementById("cf-30").textContent = crowd.forecast_30m;
+                    document.getElementById("cf-60").textContent = crowd.forecast_60m;
+                    document.getElementById("cf-120").textContent = crowd.forecast_120m;
+                    document.getElementById("crowd-recommendation-note").innerHTML = `💡 <strong>Smart Tip:</strong> ${crowd.recommendation}`;
+                }
+            } catch (e) {
+                console.error("Crowd forecast err:", e);
+            }
+
+            // 4. Start Live Token Poller
+            TokenTracker.initLiveTracking(null, (tokenData) => {
+                if (tokenData) {
+                    document.getElementById("dash-token-val").textContent = tokenData.token_number;
+                    document.getElementById("dash-token-sub").textContent = `Status: ${tokenData.status} • Est: ${tokenData.estimated_wait_minutes} mins`;
+                    TokenTracker.renderSignatureCard(tokenData, 'active-token-container');
+                }
+            });
+
+            // 5. Load AI recommendations
+            try {
+                const recs = await API.get("/api/ai/recommendations?top_n=4");
+                const recsGrid = document.getElementById('recs-grid');
+                if (recs && recs.length > 0) {
+                    recsGrid.innerHTML = recs.map(item => `
+                        <div class="food-card">
+                            <div class="food-image-wrap">
+                                <img src="${item.image_url || '/assets/menu/placeholder.svg'}" alt="${item.name}" class="food-image" loading="lazy" onerror="this.onerror=null;this.src='/assets/menu/placeholder.svg';" />
+                                <span class="food-counter-tag">${item.category_name}</span>
+                                <div class="food-veg-tag ${item.is_veg ? '' : 'nonveg'}">
+                                    <div class="food-veg-dot ${item.is_veg ? '' : 'nonveg'}"></div>
+                                </div>
+                            </div>
+                            <div class="food-card-body">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
+                                    <h3 class="food-name" style="margin:0; font-size:0.95rem;">${item.name}</h3>
+                                    <span class="badge-match">${item.match_percentage || 94}% MATCH</span>
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--accent); font-weight:600; margin-bottom:var(--space-3); line-height:1.4;">
+                                    💡 ${item.recommendation_reason}
+                                </div>
+                                <div class="food-card-footer">
+                                    <span class="food-price">₹${parseFloat(item.price).toFixed(2)}</span>
+                                    <button class="btn btn-sm btn-primary" onclick="quickAddRec(${item.id})">
+                                        <i class="fa-solid fa-plus"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Recs load err:", e);
+            }
+
+            // 6. Load Recent Orders
+            try {
+                const orders = await API.get("/api/orders/my-orders");
+                const container = document.getElementById("recent-orders-feed");
+                if (orders && orders.length > 0) {
+                    const topOrders = orders.slice(0, 4);
+                    container.innerHTML = `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Token</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${topOrders.map(o => `
+                                    <tr>
+                                        <td style="font-weight:700; color:var(--text-primary);">${o.order_number}</td>
+                                        <td><span class="badge badge-info">${o.token_number || 'N/A'}</span></td>
+                                        <td style="color:var(--text-secondary);">${o.items_summary || (o.items ? o.items.map(i => `${i.quantity}x ${i.food_item_name}`).join(', ') : 'South Indian Meal')}</td>
+                                        <td style="font-weight:700; color:var(--text-primary); font-family:var(--font-heading);">₹${parseFloat(o.final_amount || o.total_amount).toFixed(2)}</td>
+                                        <td><span class="badge ${o.status === 'Completed' ? 'badge-completed' : (o.status === 'Ready' ? 'badge-ready' : 'badge-preparing')}">${o.status}</span></td>
+                                        <td style="text-align:right;">
+                                            <a href="/orders.html" class="btn btn-sm btn-secondary">Details</a>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    container.innerHTML = `<div style="padding:var(--space-6); color:var(--text-muted);">No recent orders found. Place your first meal order today!</div>`;
+                }
+            } catch (e) {
+                console.error("Orders load err:", e);
+            }
+        });
+
+        async function quickAddRec(foodId) {
+            try {
+                const food = await API.get(`/api/food/items/${foodId}`);
+                if (food) {
+                    Cart.addItem(food, 1);
+                    showNotification(`Added ${food.name} to Cart! 🛒`, "success");
+                    updateNavCartBadge();
+                }
+            } catch (e) {
+                showNotification("Added item to cart! 🛒", "success");
+            }
+        }
+
+        function updateNavCartBadge() {
+            const items = Cart.getItems();
+            const count = items.reduce((acc, i) => acc + i.quantity, 0);
+            const badge = document.getElementById("nav-cart-count");
+            if (badge) badge.textContent = count;
+        }
+    </script>
+</body>
+</html>

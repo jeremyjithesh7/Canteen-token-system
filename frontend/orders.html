@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders & History - Smart Campus Canteen OS</title>
+    <meta name="description" content="View past orders, track digital token status, download receipts, reorder favorite dishes, and submit dish ratings.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .order-history-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-xs);
+        }
+        .order-history-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+        }
+        .star-rating-interactive {
+            display: flex;
+            gap: var(--space-2);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin: var(--space-3) 0;
+        }
+        .star-rating-interactive i:hover,
+        .star-rating-interactive i.active {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar" id="site-nav">
+        <div class="container navbar-container">
+            <a href="/" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links" id="main-nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/orders.html" class="nav-link active">My Orders</a></li>
+                <li><a href="/token.html" class="nav-link">Live Token</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">My Orders & History</h1>
+                    <p class="page-header-desc">Track your orders, tokens and previous purchases.</p>
+                </div>
+                <div>
+                    <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Place New Order</a>
+                </div>
+            </div>
+
+            <!-- Filters Toolbar -->
+            <div class="filter-toolbar">
+                <div class="filter-pills-group">
+                    <span style="font-size:0.8125rem; color:var(--text-muted); font-weight:600; margin-right:var(--space-1);">Status:</span>
+                    <button class="filter-pill-btn active" onclick="setFilter('all', this)">All</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Preparing', this)">Preparing</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Ready', this)">Ready</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Confirmed', this)">Confirmed</button>
+                    <button class="filter-pill-btn" onclick="setFilter('Completed', this)">Completed</button>
+                </div>
+
+                <div class="search-input-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="order-search-input" class="search-input" placeholder="Search order # or dish..." oninput="applyFilters()">
+                </div>
+            </div>
+
+            <!-- Orders Feed Container -->
+            <div id="orders-feed-container">
+                <div style="text-align:center; padding:var(--space-8) 0; color:var(--text-secondary);">
+                    <div class="spinner spinner-lg"></div>
+                    <p style="margin-top:var(--space-3); font-size:0.875rem;">Loading your order history...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dish Rating Modal -->
+    <div id="rating-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
+                <h3 style="font-size:1.25rem; font-weight:700; color:var(--text-primary);">Rate & Review Dish</h3>
+                <button onclick="closeRatingModal()" class="btn-ghost btn-icon" style="cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="rating-dish-name" style="color:var(--primary-hover); font-weight:600; margin-bottom:var(--space-4);">Masala Dosa</p>
+
+            <div style="text-align:center;">
+                <div class="star-rating-interactive" id="star-picker" style="justify-content:center;">
+                    <i class="fa-solid fa-star active" data-val="1" onclick="setStarRating(1)"></i>
+                    <i class="fa-solid fa-star active" data-val="2" onclick="setStarRating(2)"></i>
+                    <i class="fa-solid fa-star active" data-val="3" onclick="setStarRating(3)"></i>
+                    <i class="fa-solid fa-star active" data-val="4" onclick="setStarRating(4)"></i>
+                    <i class="fa-solid fa-star active" data-val="5" onclick="setStarRating(5)"></i>
+                </div>
+                <small id="rating-label-desc" style="color:var(--text-secondary); font-weight:500;">5 Stars - Outstanding Taste!</small>
+            </div>
+
+            <div style="margin-top:var(--space-4);">
+                <label class="form-label">Your Feedback (Optional):</label>
+                <textarea id="rating-comment" class="form-control" rows="3" placeholder="How was the taste, crispiness, and serving time?"></textarea>
+            </div>
+
+            <button id="btn-submit-rating" class="btn btn-primary" style="width:100%; margin-top:var(--space-4);" onclick="submitRating()">
+                Submit Review
+            </button>
+        </div>
+    </div>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let allOrders = [];
+        let currentStatusFilter = "all";
+        let activeRatingFoodId = null;
+        let activeRatingOrderId = null;
+        let selectedStars = 5;
+
+        async function loadOrders() {
+            if (!Auth.isLoggedIn()) {
+                document.getElementById("orders-feed-container").innerHTML = `
+                    <div class="card" style="text-align:center; padding:var(--space-8) var(--space-4);">
+                        <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-lock"></i></div>
+                        <h3 class="empty-state-title">Login Required</h3>
+                        <p class="empty-state-desc">Please log in to view your orders and live tokens.</p>
+                        <a href="/login.html?redirect=orders.html" class="btn btn-primary">Login to Canteen Account</a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                allOrders = await API.get("/api/orders/my-orders");
+                renderOrders(allOrders);
+            } catch (err) {
+                console.error("Orders load error:", err);
+                document.getElementById("orders-feed-container").innerHTML = `
+                    <div class="card" style="text-align:center; padding:var(--space-7); color:var(--danger);">
+                        <i class="fa-solid fa-circle-exclamation fa-2x"></i>
+                        <p style="margin-top:var(--space-2); font-size:0.95rem;">Failed to load orders: ${err.message || 'Server error'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function setFilter(status, btnElem) {
+            currentStatusFilter = status;
+            document.querySelectorAll(".filter-pill-btn").forEach(b => b.classList.remove("active"));
+            if (btnElem) btnElem.classList.add("active");
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = (document.getElementById("order-search-input")?.value || "").toLowerCase().trim();
+            let filtered = allOrders;
+
+            if (currentStatusFilter !== "all") {
+                filtered = filtered.filter(o => o.status === currentStatusFilter || o.token_status === currentStatusFilter);
+            }
+
+            if (query) {
+                filtered = filtered.filter(o => {
+                    const ordNumMatch = o.order_number?.toLowerCase().includes(query);
+                    const tokenMatch = o.token_number?.toLowerCase().includes(query);
+                    const itemMatch = o.items?.some(i => i.food_item?.name?.toLowerCase().includes(query));
+                    return ordNumMatch || tokenMatch || itemMatch;
+                });
+            }
+
+            renderOrders(filtered);
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById("orders-feed-container");
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align:center; padding:var(--space-8) var(--space-4);">
+                        <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-regular fa-clipboard"></i></div>
+                        <h3 class="empty-state-title">No orders yet</h3>
+                        <p class="empty-state-desc">Your orders will appear here once you place your first order.</p>
+                        <a href="/menu.html" class="btn btn-secondary"><i class="fa-solid fa-utensils"></i> Place New Order</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(o => {
+                const dateStr = new Date(o.created_at).toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                let statusBadgeClass = "badge-waiting";
+                if (o.status === "Ready") statusBadgeClass = "badge-ready";
+                else if (o.status === "Preparing") statusBadgeClass = "badge-preparing";
+                else if (o.status === "Completed") statusBadgeClass = "badge-completed";
+                else if (o.status === "Cancelled") statusBadgeClass = "badge-cancelled";
+
+                const itemsHtml = (o.items || []).map(i => {
+                    const foodName = i.food_item ? i.food_item.name : `Food Item #${i.food_item_id}`;
+                    return `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) 0; font-size:0.875rem; border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <span>
+                                <strong style="color:var(--text-primary);">${i.quantity}x</strong> ${foodName}
+                                <button class="btn btn-sm btn-ghost" style="padding:0.15rem 0.45rem; font-size:0.75rem; color:#fbbf24; margin-left:var(--space-2);" onclick="openRatingModal(${i.food_item_id}, ${o.id}, '${foodName.replace(/'/g, "\\'")}')">
+                                    <i class="fa-solid fa-star"></i> Rate
+                                </button>
+                            </span>
+                            <span style="font-weight:600; color:var(--text-primary);">₹${parseFloat(i.subtotal).toFixed(2)}</span>
+                        </div>
+                    `;
+                }).join("");
+
+                const tokenSection = o.token_number ? `
+                    <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-3) var(--space-4); display:flex; align-items:center; justify-content:space-between; margin-top:var(--space-3);">
+                        <div>
+                            <small style="color:var(--text-muted); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Digital Token</small>
+                            <div style="font-family:var(--font-accent); font-size:1.35rem; font-weight:700; color:var(--accent);">${o.token_number}</div>
+                        </div>
+                        <a href="/token.html?token_id=${o.id}" class="btn btn-sm btn-secondary"><i class="fa-solid fa-qrcode"></i> View Live Token</a>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="order-history-card">
+                        <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-3); padding-bottom:var(--space-2); border-bottom:1px solid var(--border);">
+                            <div>
+                                <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0;">Order #${o.order_number}</h3>
+                                <small style="color:var(--text-muted);">${dateStr} • ${o.payment_method || 'UPI'}</small>
+                            </div>
+                            <div>
+                                <span class="badge ${statusBadgeClass}">${o.status}</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:var(--space-3);">
+                            ${itemsHtml}
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                            <span style="font-weight:600; color:var(--text-secondary); font-size:0.875rem;">Total Amount:</span>
+                            <span style="font-size:1.15rem; font-weight:800; font-family:var(--font-heading); color:var(--text-primary);">₹${parseFloat(o.final_amount).toFixed(2)}</span>
+                        </div>
+
+                        ${tokenSection}
+
+                        <div style="display:flex; justify-content:flex-end; gap:var(--space-2); margin-top:var(--space-3);">
+                            <button class="btn btn-sm btn-primary" onclick="reorderItems(${o.id})">
+                                <i class="fa-solid fa-rotate-right"></i> Reorder
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function reorderItems(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order || !order.items) return;
+
+            order.items.forEach(i => {
+                const food = i.food_item || { id: i.food_item_id, name: `Dish #${i.food_item_id}`, price: i.unit_price };
+                Cart.addItem(food, i.quantity);
+            });
+
+            showNotification("Items added to cart! Redirecting to checkout...", "success");
+            setTimeout(() => {
+                window.location.href = "/cart.html";
+            }, 600);
+        }
+
+        function openRatingModal(foodId, orderId, dishName) {
+            activeRatingFoodId = foodId;
+            activeRatingOrderId = orderId;
+            document.getElementById("rating-dish-name").textContent = dishName;
+            setStarRating(5);
+            document.getElementById("rating-comment").value = "";
+            document.getElementById("rating-modal").classList.add("open");
+        }
+
+        function closeRatingModal() {
+            document.getElementById("rating-modal").classList.remove("open");
+        }
+
+        function setStarRating(val) {
+            selectedStars = val;
+            const stars = document.querySelectorAll("#star-picker i");
+            stars.forEach((s, idx) => {
+                if (idx < val) s.classList.add("active");
+                else s.classList.remove("active");
+            });
+
+            const labels = ["1 Star - Poor", "2 Stars - Fair", "3 Stars - Good", "4 Stars - Very Good", "5 Stars - Outstanding!"];
+            document.getElementById("rating-label-desc").textContent = labels[val - 1] || `${val} Stars`;
+        }
+
+        async function submitRating() {
+            if (!activeRatingFoodId) return;
+            const comment = document.getElementById("rating-comment").value.trim();
+            const btn = document.getElementById("btn-submit-rating");
+            btn.disabled = true;
+
+            try {
+                await API.post("/api/ratings/", {
+                    food_item_id: activeRatingFoodId,
+                    order_id: activeRatingOrderId,
+                    rating: selectedStars,
+                    comment: comment || null
+                });
+                showNotification("Thank you for your rating!", "success");
+                closeRatingModal();
+            } catch (err) {
+                alert(err.message || "Failed to submit rating");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadOrders();
+        });
+    </script>
+</body>
+</html>

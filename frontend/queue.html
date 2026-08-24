@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Queue & Crowd Tracker - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-5);
+            margin-top: var(--space-4);
+        }
+        .counter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        .counter-card:hover {
+            border-color: var(--border-hover);
+        }
+        .now-serving-badge {
+            font-family: var(--font-accent);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: var(--space-2) 0;
+            letter-spacing: 0.02em;
+        }
+        .next-token-pill {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            font-family: var(--font-accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0.2rem;
+        }
+        .crowd-meter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-5);
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-3);
+            margin-top: var(--space-3);
+        }
+        .forecast-tile {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-3);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link active">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">Live Queue & AI Crowd Feed</h1>
+                    <p class="page-header-desc">Real-time counter queues, AI predictive crowd forecasts, and live serving tokens.</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:var(--space-2);">
+                    <button class="btn btn-sm btn-secondary" onclick="fetchLiveQueue()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    <a href="/kiosk.html" class="btn btn-sm btn-primary" target="_blank"><i class="fa-solid fa-tv"></i> TV Fullscreen</a>
+                </div>
+            </div>
+
+            <!-- Crowd Meter & Live Stats -->
+            <div class="crowd-meter-card">
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:var(--space-1);">Current Campus Crowd</div>
+                    <div style="display:flex; align-items:center; gap:var(--space-2);">
+                        <span id="crowd-level-badge" class="badge badge-ready" style="font-size:0.875rem; padding:0.3rem 0.8rem;">MODERATE</span>
+                        <span id="crowd-status-desc" style="font-size:0.8125rem; color:var(--text-secondary);">Steady student flow</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:var(--space-1);">Avg Preparation Time</div>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--primary-hover);">
+                        <span id="avg-wait-time">6-8</span> <span style="font-size:0.95rem; font-weight:500; color:var(--text-secondary);">mins</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:var(--space-1);">Active Orders in Kitchen</div>
+                    <div style="font-size:1.85rem; font-weight:700; font-family:var(--font-accent); color:var(--accent);">
+                        <span id="active-orders-count">4</span> <span style="font-size:0.95rem; font-weight:500; color:var(--text-secondary);">orders</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 2-Hour Predictive Timeline Forecast Card -->
+            <div class="card" style="margin-bottom:var(--space-6); padding:var(--space-5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);">
+                    <div>
+                        <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin:0;"><i class="fa-solid fa-chart-line" style="color:var(--accent); margin-right:4px;"></i> AI Predictive Crowd Forecast (Next 2 Hours)</h3>
+                        <p style="color:var(--text-secondary); font-size:0.8125rem; margin:var(--space-1) 0 0 0;" id="cf-rec-tip">Predicted peak today around 01:15 PM (Lunch Rush).</p>
+                    </div>
+                    <span class="badge badge-info" id="cf-peak-badge">Peak: 01:15 PM (HIGH)</span>
+                </div>
+
+                <div class="forecast-grid" id="queue-cf-grid">
+                    <div class="forecast-tile">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">CURRENT</div>
+                        <div style="font-size:1rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="qcf-now">MODERATE</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary);">~6 mins wait</div>
+                    </div>
+                    <div class="forecast-tile">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">+30 MINUTES</div>
+                        <div style="font-size:1rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="qcf-30">HIGH</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary);">~14 mins wait</div>
+                    </div>
+                    <div class="forecast-tile">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">+60 MINUTES</div>
+                        <div style="font-size:1rem; font-weight:700; color:var(--danger); margin:var(--space-1) 0;" id="qcf-60">PEAK</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary);">~22 mins wait</div>
+                    </div>
+                    <div class="forecast-tile">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">+120 MINUTES</div>
+                        <div style="font-size:1rem; font-weight:700; color:var(--accent); margin:var(--space-1) 0;" id="qcf-120">LOW</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary);">~4 mins wait</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Counter Station Boards -->
+            <h2 style="font-size:1.25rem; font-weight:700; color:var(--text-primary); margin-bottom:var(--space-3);"><i class="fa-solid fa-store" style="color:var(--primary-hover); margin-right:4px;"></i> Multi-Counter Live Status</h2>
+            <div class="counter-grid" id="counters-feed-container">
+                <!-- Injected dynamically -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. Real-time Live Queue & AI Crowd Forecaster.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let pollTimer = null;
+
+        async function fetchLiveQueue() {
+            try {
+                const data = await API.get("/api/tokens/kiosk/live");
+                if (data) {
+                    renderQueueData(data);
+                }
+                const crowd = await API.get("/api/ai/crowd-forecast");
+                if (crowd) {
+                    renderCrowdForecast(crowd);
+                }
+            } catch (err) {
+                console.error("Queue fetch error:", err);
+            }
+        }
+
+        function renderCrowdForecast(crowd) {
+            document.getElementById("cf-peak-badge").textContent = `Peak: ${crowd.expected_peak_time} (${crowd.expected_peak_level})`;
+            document.getElementById("cf-rec-tip").textContent = `💡 ${crowd.recommendation}`;
+            document.getElementById("qcf-now").textContent = crowd.current_crowd;
+            document.getElementById("qcf-30").textContent = crowd.forecast_30m;
+            document.getElementById("qcf-60").textContent = crowd.forecast_60m;
+            document.getElementById("qcf-120").textContent = crowd.forecast_120m;
+        }
+
+        function renderQueueData(data) {
+            const badge = document.getElementById("crowd-level-badge");
+            const desc = document.getElementById("crowd-status-desc");
+            const crowd = data.crowd_level || "MODERATE";
+
+            badge.textContent = crowd;
+            if (crowd === "High" || crowd === "Peak" || crowd === "PEAK") {
+                badge.className = "badge badge-cancelled";
+                desc.textContent = "High queue depth, prepare for 12-15m wait";
+            } else if (crowd === "Moderate" || crowd === "MODERATE") {
+                badge.className = "badge badge-preparing";
+                desc.textContent = "Moderate activity, steady dispatch";
+            } else {
+                badge.className = "badge badge-ready";
+                desc.textContent = "Low wait times, instant preparation";
+            }
+
+            document.getElementById("avg-wait-time").textContent = data.estimated_wait_minutes || "6-8";
+            document.getElementById("active-orders-count").textContent = data.total_waiting_tokens || "0";
+
+            const container = document.getElementById("counters-feed-container");
+            const counters = data.counters || [];
+
+            container.innerHTML = counters.map(c => {
+                const nowServingText = c.now_serving ? c.now_serving : "Standby";
+                const nextTokens = c.next_up && c.next_up.length > 0 
+                    ? c.next_up.map(t => `<span class="next-token-pill">${t}</span>`).join("")
+                    : `<span style="font-size:0.8125rem; color:var(--text-muted); font-style:italic;">No waiting tokens</span>`;
+
+                return `
+                    <div class="counter-card">
+                        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:var(--space-2);">
+                            <div>
+                                <span class="badge badge-info" style="margin-bottom:var(--space-1);">${c.counter_code}</span>
+                                <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin:0;">${c.counter_name}</h3>
+                                <p style="font-size:0.75rem; color:var(--text-muted); margin:var(--space-1) 0 0 0;">${c.station_type}</p>
+                            </div>
+                            <span class="badge badge-ready"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Active</span>
+                        </div>
+
+                        <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-3); text-align:center; margin:var(--space-3) 0;">
+                            <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Now Serving</div>
+                            <div class="now-serving-badge">${nowServingText}</div>
+                            <small style="color:var(--text-secondary); font-size:0.75rem;">Pick up at Counter Desk</small>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; margin-bottom:var(--space-2);">Next Up in Queue:</div>
+                            <div style="min-height:32px;">
+                                ${nextTokens}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchLiveQueue();
+            pollTimer = setInterval(fetchLiveQueue, 4000);
+        });
+
+        window.addEventListener("beforeunload", () => {
+            if (pollTimer) clearInterval(pollTimer);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Operations Overview - Admin Portal</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span style="font-weight:700; font-size:1.05rem;">Canteen Admin</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/admin/index.html" class="sidebar-link active"><i class="fa-solid fa-chart-line"></i> <span>Overview</span></a></li>
+                <li><a href="/admin/orders.html" class="sidebar-link"><i class="fa-solid fa-kitchen-set"></i> <span>Live Kitchen</span></a></li>
+                <li><a href="/admin/waste.html" class="sidebar-link"><i class="fa-solid fa-recycle"></i> <span>Waste Analytics</span></a></li>
+                <li><a href="/verify.html" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> <span>QR Verify</span></a></li>
+                <li><a href="/admin/menu.html" class="sidebar-link"><i class="fa-solid fa-book-open"></i> <span>Menu Manager</span></a></li>
+                <li><a href="/admin/inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></a></li>
+                <li><a href="/admin/analytics.html" class="sidebar-link"><i class="fa-solid fa-brain"></i> <span>AI Analytics</span></a></li>
+                <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
+                <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
+                <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="/dashboard.html" class="btn btn-sm btn-secondary" style="width:100%;"><i class="fa-solid fa-user"></i> Student View</a>
+                <button class="btn btn-sm btn-outline" style="width:100%;" onclick="Auth.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <div>
+                    <h1 style="font-size:1.65rem; font-weight:700; font-family:var(--font-heading); margin-bottom:var(--space-1);">Canteen Command Center</h1>
+                    <p style="color:var(--text-secondary); font-size:0.875rem;">Real-time revenue, active token queue depth, and kitchen capacity.</p>
+                </div>
+
+                <div style="display:flex; gap:var(--space-2);">
+                    <button class="btn btn-secondary" onclick="AdminController.exportSalesReport()"><i class="fa-solid fa-file-csv"></i> Export Sales CSV</button>
+                    <button class="btn btn-primary" onclick="AdminController.initOverview()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                </div>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--success-light); color:var(--success);"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-revenue">₹0.00</div>
+                        <div class="metric-lbl">Today's Revenue</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--accent-light); color:var(--accent);"><i class="fa-solid fa-receipt"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-orders">0</div>
+                        <div class="metric-lbl">Total Orders Today</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--warning-light); color:var(--warning);"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-queue">0</div>
+                        <div class="metric-lbl">Active Queue (Waiting/Prep)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--danger-light); color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-lowstock">0</div>
+                        <div class="metric-lbl">Low Stock Warnings</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart.js Charts Grid -->
+            <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:var(--space-5); margin-bottom:var(--space-6);">
+                <!-- Revenue Trend -->
+                <div class="card" style="padding:var(--space-5);">
+                    <div class="card-header" style="margin-bottom:var(--space-3);">
+                        <div>
+                            <h2 class="card-title">Daily Revenue Trends (Past 7 Days)</h2>
+                            <p class="card-subtitle">Real-time daily sales volume recorded in PostgreSQL</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-box">
+                        <canvas id="revenue-chart-canvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Peak Hours Breakdown -->
+                <div class="card" style="padding:var(--space-5);">
+                    <div class="card-header" style="margin-bottom:var(--space-3);">
+                        <div>
+                            <h2 class="card-title">Hourly Rush Distribution</h2>
+                            <p class="card-subtitle">Peak ordering windows across campus</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-box">
+                        <canvas id="peak-hours-chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Selling Items Table -->
+            <div class="card" style="padding:0;">
+                <div style="padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;"><i class="fa-solid fa-fire" style="color:var(--warning); margin-right:4px;"></i> Top Selling Dishes Today</h2>
+                    <p style="color:var(--text-secondary); font-size:0.8125rem; margin:var(--space-1) 0 0 0;">Most popular campus selections ranked by volume</p>
+                </div>
+
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Food Item</th>
+                                <th>Portions Sold</th>
+                                <th style="text-align:right;">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-items-tbody">
+                            <tr><td colspan="3" style="text-align:center; padding:var(--space-6); color:var(--text-muted);"><div class="spinner"></div> Loading top dishes...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireStaffOrAdmin();
+            AdminController.initOverview();
+        });
+    </script>
+</body>
+</html>

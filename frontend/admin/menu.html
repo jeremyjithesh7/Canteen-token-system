@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu & Dish Manager - Canteen Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span style="font-weight:700; font-size:1.05rem;">Canteen Admin</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/admin/index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> <span>Overview</span></a></li>
+                <li><a href="/admin/orders.html" class="sidebar-link"><i class="fa-solid fa-kitchen-set"></i> <span>Live Kitchen</span></a></li>
+                <li><a href="/admin/waste.html" class="sidebar-link"><i class="fa-solid fa-recycle"></i> <span>Waste Analytics</span></a></li>
+                <li><a href="/verify.html" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> <span>QR Verify</span></a></li>
+                <li><a href="/admin/menu.html" class="sidebar-link active"><i class="fa-solid fa-book-open"></i> <span>Menu Manager</span></a></li>
+                <li><a href="/admin/inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></a></li>
+                <li><a href="/admin/analytics.html" class="sidebar-link"><i class="fa-solid fa-brain"></i> <span>AI Analytics</span></a></li>
+                <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
+                <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
+                <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="/dashboard.html" class="btn btn-sm btn-secondary" style="width:100%;"><i class="fa-solid fa-user"></i> Student View</a>
+                <button class="btn btn-sm btn-outline" style="width:100%;" onclick="Auth.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <div>
+                    <h1 style="font-size:1.65rem; font-weight:700; font-family:var(--font-heading); margin-bottom:var(--space-1);">Food Catalog & Menu Manager</h1>
+                    <p style="color:var(--text-secondary); font-size:0.875rem;">Add new dishes, assign preparation counters, and adjust real-time pricing.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddItemModal()"><i class="fa-solid fa-plus"></i> Add New Food Dish</button>
+            </div>
+
+            <!-- Food Items Table -->
+            <div class="card" style="padding:0;">
+                <div class="table-container" style="border:none; border-radius:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Assigned Counter</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Prep Time</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-food-tbody">
+                            <tr><td colspan="10" style="text-align:center; padding:var(--space-6); color:var(--text-muted);"><div class="spinner"></div> Loading dishes...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add / Edit Food Item Modal -->
+    <div id="food-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="food-modal-title" style="font-size:1.15rem; font-weight:700; margin:0;">Add New Food Dish</h3>
+                <button class="btn btn-icon btn-secondary btn-sm" onclick="closeFoodModal()">✕</button>
+            </div>
+
+            <form id="food-item-form" onsubmit="saveFoodItem(event)">
+                <div class="modal-body" style="padding:var(--space-4);">
+                    <input type="hidden" id="edit-food-id" />
+
+                    <div class="form-group">
+                        <label class="form-label" for="food-name">Dish Name</label>
+                        <input type="text" id="food-name" class="form-control" placeholder="e.g. Masala Dosa" required />
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+                        <div class="form-group">
+                            <label class="form-label" for="food-cat-select">Category</label>
+                            <select id="food-cat-select" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="food-counter-select">Assigned Counter</label>
+                            <select id="food-counter-select" class="form-control" required>
+                                <option value="1">Counter 1 (South Indian Tiffin & Meals)</option>
+                                <option value="2">Counter 2 (Desserts & Sweets Counter)</option>
+                                <option value="3">Counter 3 (Beverages & Cafe Bar)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+                        <div class="form-group">
+                            <label class="form-label" for="food-price">Price (₹)</label>
+                            <input type="number" step="0.5" id="food-price" class="form-control" placeholder="65.00" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="food-prep">Prep Time (mins)</label>
+                            <input type="number" id="food-prep" class="form-control" placeholder="8" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="food-desc">Description</label>
+                        <textarea id="food-desc" class="form-control" rows="2" placeholder="Ingredients and details"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="food-img">Image URL</label>
+                        <input type="url" id="food-img" class="form-control" placeholder="https://images.unsplash.com/..." />
+                    </div>
+
+                    <div style="display:flex; gap:var(--space-4); margin-top:var(--space-3);">
+                        <label style="display:inline-flex; align-items:center; gap:var(--space-2); cursor:pointer; font-size:0.875rem;">
+                            <input type="checkbox" id="food-is-veg" checked />
+                            <span>Pure Veg</span>
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:var(--space-2); cursor:pointer; font-size:0.875rem;">
+                            <input type="checkbox" id="food-is-avail" checked />
+                            <span>Available For Ordering</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding:var(--space-3) var(--space-4); border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:var(--space-2);">
+                    <button type="button" class="btn btn-secondary" onclick="closeFoodModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Dish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        let categories = [];
+        let items = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            Auth.requireAdmin();
+            await loadCategories();
+            await loadDishes();
+        });
+
+        async function loadCategories() {
+            try {
+                categories = await ApiClient.get(CONFIG.ENDPOINTS.FOOD.CATEGORIES);
+                const select = document.getElementById('food-cat-select');
+                select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            } catch (e) {}
+        }
+
+        async function loadDishes() {
+            try {
+                items = await ApiClient.get(CONFIG.ENDPOINTS.FOOD.ITEMS, { only_available: false });
+                const tbody = document.getElementById('admin-food-tbody');
+                tbody.innerHTML = items.map(item => `
+                    <tr>
+                        <td>
+                            <div style="width:44px; height:44px; border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--border); background:var(--bg-surface-elevated);">
+                                <img src="${item.image_url || '/assets/menu/placeholder.svg'}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" loading="lazy" onerror="this.onerror=null;this.src='/assets/menu/placeholder.svg';" />
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="color:var(--text-primary);">${item.name}</strong>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">${item.calories || 0} kcal • ${item.protein || 0}g prot</div>
+                        </td>
+                        <td><span class="badge badge-info">${item.category ? item.category.name : ''}</span></td>
+                        <td><span class="badge badge-accent">Counter ${item.counter_id || 1}</span></td>
+                        <td><span class="${item.is_veg ? 'veg-indicator' : 'nonveg-indicator'}">${item.is_veg ? '🌱 Veg' : '🍗 Non-Veg'}</span></td>
+                        <td><strong style="font-family:var(--font-accent);">₹${parseFloat(item.price).toFixed(2)}</strong></td>
+                        <td style="font-size:0.8125rem; color:var(--text-secondary);">${item.prep_time_minutes}m</td>
+                        <td style="font-size:0.8125rem; color:var(--text-secondary);">${item.current_stock || 0} units</td>
+                        <td>
+                            <span class="badge badge-${item.is_available ? 'ready' : 'cancelled'}">
+                                ${item.is_available ? 'Active' : 'Unavailable'}
+                            </span>
+                        </td>
+                        <td style="text-align:right;">
+                            <div style="display:flex; justify-content:flex-end; gap:var(--space-1);">
+                                <button class="btn btn-sm btn-secondary" onclick="openEditModal(${item.id})">Edit</button>
+                                <button class="btn btn-sm btn-${item.is_available ? 'outline' : 'primary'}" onclick="toggleAvailability(${item.id}, ${!item.is_available})">
+                                    ${item.is_available ? 'Disable' : 'Enable'}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                Toast.error('Failed to load menu items.');
+            }
+        }
+
+        function openAddItemModal() {
+            document.getElementById('edit-food-id').value = '';
+            document.getElementById('food-modal-title').textContent = 'Add New Food Dish';
+            document.getElementById('food-name').value = '';
+            document.getElementById('food-price').value = '';
+            document.getElementById('food-prep').value = '10';
+            document.getElementById('food-desc').value = '';
+            document.getElementById('food-img').value = '';
+            document.getElementById('food-is-veg').checked = true;
+            document.getElementById('food-is-avail').checked = true;
+            document.getElementById('food-modal').classList.add('open');
+        }
+
+        function openEditModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('edit-food-id').value = item.id;
+            document.getElementById('food-modal-title').textContent = 'Edit Food Dish';
+            document.getElementById('food-name').value = item.name;
+            document.getElementById('food-cat-select').value = item.category_id;
+            document.getElementById('food-counter-select').value = item.counter_id || 1;
+            document.getElementById('food-price').value = item.price;
+            document.getElementById('food-prep').value = item.prep_time_minutes;
+            document.getElementById('food-desc').value = item.description || '';
+            document.getElementById('food-img').value = item.image_url || '';
+            document.getElementById('food-is-veg').checked = item.is_veg;
+            document.getElementById('food-is-avail').checked = item.is_available;
+            document.getElementById('food-modal').classList.add('open');
+        }
+
+        function closeFoodModal() {
+            document.getElementById('food-modal').classList.remove('open');
+        }
+
+        async function toggleAvailability(itemId, newStatus) {
+            try {
+                await ApiClient.put(CONFIG.ENDPOINTS.FOOD.ITEM_DETAIL(itemId), { is_available: newStatus });
+                Toast.success('Availability updated!');
+                loadDishes();
+            } catch (err) {
+                Toast.error(err.message || 'Update failed.');
+            }
+        }
+
+        async function saveFoodItem(event) {
+            event.preventDefault();
+            const editId = document.getElementById('edit-food-id').value;
+
+            const payload = {
+                name: document.getElementById('food-name').value.trim(),
+                category_id: parseInt(document.getElementById('food-cat-select').value, 10),
+                counter_id: parseInt(document.getElementById('food-counter-select').value, 10),
+                price: parseFloat(document.getElementById('food-price').value),
+                prep_time_minutes: parseInt(document.getElementById('food-prep').value, 10),
+                description: document.getElementById('food-desc').value.trim(),
+                image_url: document.getElementById('food-img').value.trim() || null,
+                is_veg: document.getElementById('food-is-veg').checked,
+                is_available: document.getElementById('food-is-avail').checked
+            };
+
+            try {
+                if (editId) {
+                    await ApiClient.put(CONFIG.ENDPOINTS.FOOD.ITEM_DETAIL(editId), payload);
+                    Toast.success('Food dish updated!');
+                } else {
+                    await ApiClient.post(CONFIG.ENDPOINTS.FOOD.ITEMS, payload);
+                    Toast.success('New food dish added to catalog!');
+                }
+                closeFoodModal();
+                loadDishes();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to save dish.');
+            }
+        }
+    </script>
+</body>
+</html>

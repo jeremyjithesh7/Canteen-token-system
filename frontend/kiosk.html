@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Kiosk TV Display - Smart Campus Canteen OS</title>
+    <meta name="description" content="Campus Big-Screen TV Display Board showing real-time Now Serving and Next Up tokens across all counters.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        .kiosk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4) var(--space-6);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+        }
+        .kiosk-clock {
+            font-family: var(--font-accent);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .kiosk-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-5);
+            padding: var(--space-5) var(--space-6);
+            min-height: calc(100vh - 140px);
+        }
+        @media (max-width: 1024px) {
+            .kiosk-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .kiosk-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+        }
+        .kiosk-col.active-serving {
+            border-color: var(--primary-border);
+        }
+        .kiosk-col-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--border);
+        }
+        .kiosk-serving-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-md);
+            padding: var(--space-5) var(--space-3);
+            text-align: center;
+            margin-bottom: var(--space-4);
+        }
+        .kiosk-token-num {
+            font-family: var(--font-accent);
+            font-size: 3.75rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+            margin: var(--space-2) 0;
+        }
+        .kiosk-next-box {
+            flex: 1;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-3);
+        }
+        .kiosk-next-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+        .kiosk-next-item {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            padding: 0.5rem;
+            text-align: center;
+            font-family: var(--font-accent);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .kiosk-marquee {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            padding: 0.4rem 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="kiosk-header">
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+            <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+            <div>
+                <h1 style="font-size:1.25rem; font-weight:700; font-family:var(--font-heading); margin:0;">
+                    Smart Campus Canteen <span style="color:var(--primary-hover);">Kiosk Display</span>
+                </h1>
+                <small style="color:var(--text-secondary); font-size:0.75rem;">Live Multi-Counter Dispatch System</small>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:var(--space-4);">
+            <div style="text-align:right;">
+                <div class="kiosk-clock" id="live-clock">--:--:--</div>
+                <small id="live-date" style="color:var(--text-muted); font-size:0.75rem;">Loading...</small>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="toggleAudio()" id="audio-toggle-btn" title="Toggle Chime Audio">
+                <i class="fa-solid fa-volume-high" id="audio-icon"></i> Audio
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="toggleFullscreen()">
+                <i class="fa-solid fa-expand"></i> Fullscreen
+            </button>
+        </div>
+    </header>
+
+    <!-- Main 3-Column Display Grid -->
+    <main class="kiosk-grid" id="kiosk-columns-container">
+        <!-- Counter 1: South Indian Tiffin & Meals -->
+        <div class="kiosk-col active-serving" id="kiosk-c1">
+            <div class="kiosk-col-header">
+                <div>
+                    <span class="badge badge-info" style="margin-bottom:var(--space-1);">COUNTER 1</span>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;">South Indian Tiffins</h2>
+                </div>
+                <span class="badge badge-ready"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> LIVE</span>
+            </div>
+
+            <div class="kiosk-serving-box">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Now Serving</div>
+                <div class="kiosk-token-num" id="c1-serving">C1-102</div>
+                <div style="font-size:0.8125rem; color:var(--text-secondary);">Collect from Counter 1</div>
+            </div>
+
+            <div class="kiosk-next-box">
+                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;"><i class="fa-solid fa-hourglass-half" style="color:var(--warning);"></i> Next in Queue</div>
+                <div class="kiosk-next-grid" id="c1-next-tokens">
+                    <div class="kiosk-next-item">C1-103</div>
+                    <div class="kiosk-next-item">C1-104</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter 2: Desserts & Sweets -->
+        <div class="kiosk-col" id="kiosk-c2">
+            <div class="kiosk-col-header">
+                <div>
+                    <span class="badge badge-accent" style="margin-bottom:var(--space-1);">COUNTER 2</span>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;">Desserts & Sweets</h2>
+                </div>
+                <span class="badge badge-ready"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> LIVE</span>
+            </div>
+
+            <div class="kiosk-serving-box">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Now Serving</div>
+                <div class="kiosk-token-num" id="c2-serving">C2-201</div>
+                <div style="font-size:0.8125rem; color:var(--text-secondary);">Collect from Counter 2</div>
+            </div>
+
+            <div class="kiosk-next-box">
+                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;"><i class="fa-solid fa-hourglass-half" style="color:var(--warning);"></i> Next in Queue</div>
+                <div class="kiosk-next-grid" id="c2-next-tokens">
+                    <div class="kiosk-next-item">C2-202</div>
+                    <div class="kiosk-next-item">C2-203</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter 3: Beverages & Cafe Bar -->
+        <div class="kiosk-col" id="kiosk-c3">
+            <div class="kiosk-col-header">
+                <div>
+                    <span class="badge badge-info" style="margin-bottom:var(--space-1);">COUNTER 3</span>
+                    <h2 style="font-size:1.15rem; font-weight:700; margin:0;">Beverages & Cafe</h2>
+                </div>
+                <span class="badge badge-ready"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> LIVE</span>
+            </div>
+
+            <div class="kiosk-serving-box">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Now Serving</div>
+                <div class="kiosk-token-num" id="c3-serving">C3-301</div>
+                <div style="font-size:0.8125rem; color:var(--text-secondary);">Collect from Counter 3</div>
+            </div>
+
+            <div class="kiosk-next-box">
+                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;"><i class="fa-solid fa-hourglass-half" style="color:var(--warning);"></i> Next in Queue</div>
+                <div class="kiosk-next-grid" id="c3-next-tokens">
+                    <div class="kiosk-next-item">C3-302</div>
+                    <div class="kiosk-next-item">C3-303</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Ticker -->
+    <div class="kiosk-marquee">
+        <span class="badge badge-ready" style="margin-right:var(--space-3); flex-shrink:0;">NOTICE</span>
+        <marquee behavior="scroll" direction="left" scrollamount="6">
+            📢 Welcome to the Smart Campus Canteen. Please keep your QR Token ready on your mobile for pickup verification at designated counter desks. Hot Mysore Pak & Filter Coffee are available now!
+        </marquee>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+        let audioEnabled = false;
+        let lastServingTokens = {};
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("live-clock").textContent = now.toLocaleTimeString();
+            document.getElementById("live-date").textContent = now.toLocaleDateString(undefined, {
+                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+            });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById("audio-icon");
+            if (audioEnabled) {
+                icon.className = "fa-solid fa-volume-high";
+                showChime();
+            } else {
+                icon.className = "fa-solid fa-volume-xmark";
+            }
+        }
+
+        function showChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {});
+            } else {
+                document.exitFullscreen().catch(err => {});
+            }
+        }
+
+        async function refreshKiosk() {
+            try {
+                const data = await API.get("/api/tokens/kiosk/live");
+                if (data && data.counters) {
+                    data.counters.forEach(c => {
+                        const sElem = document.getElementById(`c${c.counter_id}-serving`);
+                        const nElem = document.getElementById(`c${c.counter_id}-next-tokens`);
+
+                        const nowToken = c.now_serving || "STANDBY";
+                        if (sElem) sElem.textContent = nowToken;
+
+                        if (lastServingTokens[c.counter_id] && lastServingTokens[c.counter_id] !== nowToken && nowToken !== "STANDBY") {
+                            if (audioEnabled) showChime();
+                        }
+                        lastServingTokens[c.counter_id] = nowToken;
+
+                        if (nElem) {
+                            if (c.next_up && c.next_up.length > 0) {
+                                nElem.innerHTML = c.next_up.map(t => `<div class="kiosk-next-item">${t}</div>`).join("");
+                            } else {
+                                nElem.innerHTML = `<div class="kiosk-next-item" style="grid-column: span 2; font-size:0.875rem; color:var(--text-muted); font-style:italic;">No upcoming tokens</div>`;
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Kiosk refresh error:", e);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            refreshKiosk();
+            setInterval(refreshKiosk, 3000);
+        });
+    </script>
+</body>
+</html>

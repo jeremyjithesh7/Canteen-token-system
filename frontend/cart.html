@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart & Checkout - Smart Campus Canteen OS</title>
+    <meta name="description" content="Review your selected South Indian dishes, customize cooking notes, choose pickup slots, and confirm order for instant digital token generation.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cart-grid {
+            display: grid;
+            grid-template-columns: 1.45fr 1fr;
+            gap: var(--space-6);
+            margin-top: var(--space-4);
+        }
+        @media (max-width: 960px) {
+            .cart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .cart-item-card {
+            display: flex;
+            gap: var(--space-4);
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+            transition: all var(--transition-base);
+        }
+        .cart-item-card:hover {
+            border-color: var(--border-hover);
+        }
+        .cart-item-img {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .cart-qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border);
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .cart-qty-btn:hover {
+            border-color: var(--primary-border);
+            color: var(--primary-hover);
+        }
+        .payment-option-label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: 0.65rem 0.9rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            cursor: pointer;
+            margin-bottom: var(--space-2);
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .payment-option-label:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+        .payment-option-label input[type="radio"]:checked + span {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar" id="site-nav">
+        <div class="container navbar-container">
+            <a href="/" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links" id="main-nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link active"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="site-main">
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header-title">Review & Checkout</h1>
+                    <p class="page-header-desc">Confirm your selected dishes, customize notes, and choose pickup details.</p>
+                </div>
+                <div style="display:flex; gap:var(--space-2);">
+                    <button class="btn btn-sm btn-ghost" id="btn-clear-cart" onclick="clearFullCart()"><i class="fa-regular fa-trash-can"></i> Clear Cart</button>
+                    <a href="/menu.html" class="btn btn-sm btn-secondary"><i class="fa-solid fa-plus"></i> Add Items</a>
+                </div>
+            </div>
+
+            <!-- Empty Cart Notice -->
+            <div id="cart-empty-view" class="card" style="display:none; text-align:center; padding:var(--space-8) var(--space-4);">
+                <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-bowl-rice"></i></div>
+                <h3 class="empty-state-title">Your cart is empty</h3>
+                <p class="empty-state-desc">Explore our 25 authentic South Indian tiffins, sweets, and beverages.</p>
+                <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Explore Menu & Order Now</a>
+            </div>
+
+            <!-- Cart Content Grid -->
+            <div class="cart-grid" id="cart-content-view">
+                <!-- Left: Items Feed -->
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
+                        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">Order Items (<span id="cart-items-count-header">0</span>)</h2>
+                    </div>
+
+                    <div id="cart-items-list-container">
+                        <!-- Dynamic items -->
+                    </div>
+
+                    <!-- Cooking / Pickup Notes -->
+                    <div class="card" style="margin-top:var(--space-4); padding:var(--space-4);">
+                        <label for="order-general-notes" class="form-label" style="display:flex; align-items:center; gap:var(--space-2);">
+                            <i class="fa-regular fa-pen-to-square" style="color:var(--accent);"></i> Special Cooking Instructions
+                        </label>
+                        <textarea id="order-general-notes" class="form-control" rows="2" placeholder="e.g. Extra coconut chutney, make dosa crispy, pack sambar separately..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Right: Summary & Checkout -->
+                <div>
+                    <div class="card" style="position:sticky; top:84px; padding:var(--space-5);">
+                        <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-4); color:var(--text-primary);">Order Summary</h2>
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-2); color:var(--text-secondary); font-size:0.875rem;">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal" style="color:var(--text-primary); font-weight:600;">₹0.00</span>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-3); color:var(--text-secondary); font-size:0.875rem;">
+                            <span>Campus GST (5%)</span>
+                            <span id="summary-tax" style="color:var(--text-primary); font-weight:600;">₹0.00</span>
+                        </div>
+
+                        <div style="border-top:1px solid var(--border); padding-top:var(--space-3); display:flex; justify-content:space-between; margin-bottom:var(--space-5);">
+                            <span style="font-size:1rem; font-weight:700; color:var(--text-primary);">Total Amount</span>
+                            <span id="summary-grand-total" style="color:var(--text-primary); font-family:var(--font-heading); font-size:1.25rem; font-weight:800;">₹0.00</span>
+                        </div>
+
+                        <!-- Pickup Slot Selector -->
+                        <label for="pickup-schedule-select" class="form-label" style="display:flex; align-items:center; gap:var(--space-2);">
+                            <i class="fa-regular fa-clock" style="color:var(--primary-hover);"></i> Select Pickup Slot
+                        </label>
+                        <select id="pickup-schedule-select" class="form-control" style="margin-bottom:var(--space-4);">
+                            <option value="immediate">Instant Hot (Next 5-10 mins)</option>
+                            <option value="Lunch (12:30 PM - 01:00 PM)">Scheduled - Lunch (12:30 PM - 01:00 PM)</option>
+                            <option value="Lunch (01:00 PM - 01:30 PM)">Scheduled - Lunch (01:00 PM - 01:30 PM)</option>
+                            <option value="Snacks (04:00 PM - 04:30 PM)">Scheduled - Snacks (04:00 PM - 04:30 PM)</option>
+                        </select>
+
+                        <!-- Payment Method Selector -->
+                        <div class="form-label" style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
+                            <i class="fa-regular fa-credit-card" style="color:var(--accent);"></i> Payment Method
+                        </div>
+
+                        <label class="payment-option-label">
+                            <input type="radio" name="pay_method" value="Wallet" checked>
+                            <span><i class="fa-solid fa-wallet" style="color:var(--accent); margin-right:4px;"></i> Campus Wallet <strong id="cart-wallet-bal-tag" style="color:var(--success); font-size:0.8125rem;">(Checking...)</strong></span>
+                        </label>
+
+                        <label class="payment-option-label">
+                            <input type="radio" name="pay_method" value="UPI">
+                            <span><i class="fa-solid fa-mobile-screen" style="color:var(--primary-hover); margin-right:4px;"></i> UPI (GPay / PhonePe / Paytm)</span>
+                        </label>
+
+                        <label class="payment-option-label">
+                            <input type="radio" name="pay_method" value="Card">
+                            <span><i class="fa-regular fa-credit-card" style="color:var(--secondary); margin-right:4px;"></i> Debit / Credit Card</span>
+                        </label>
+
+                        <label class="payment-option-label">
+                            <input type="radio" name="pay_method" value="Cash">
+                            <span><i class="fa-solid fa-money-bill-wave" style="color:var(--warning); margin-right:4px;"></i> Pay Cash at Billing Desk</span>
+                        </label>
+
+                        <!-- Place Order Button -->
+                        <button id="btn-place-order" class="btn btn-lg btn-primary" style="width:100%; margin-top:var(--space-4);" onclick="processOrderCheckout()">
+                            <i class="fa-solid fa-bolt"></i> Confirm & Generate Token
+                        </button>
+
+                        <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:var(--space-3);">
+                            <i class="fa-solid fa-shield-halved"></i> Instant Digital Token allocation & Kitchen Dispatch.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let currentCartData = null;
+
+        async function loadCartPage() {
+            if (Auth.isLoggedIn()) {
+                try {
+                    const wallet = await API.get("/api/wallet/me");
+                    if (wallet) {
+                        const balTag = document.getElementById("cart-wallet-bal-tag");
+                        if (balTag) balTag.textContent = `(Bal: ₹${parseFloat(wallet.balance).toFixed(2)})`;
+                    }
+                } catch (e) {
+                    console.log("Wallet fetch skipped");
+                }
+            }
+
+            const localCart = Cart.getItems();
+            if (!localCart || localCart.length === 0) {
+                renderEmptyCart();
+                return;
+            }
+
+            if (Auth.isLoggedIn()) {
+                try {
+                    const syncRes = await API.post("/api/cart/sync", {
+                        items: localCart.map(i => ({
+                            food_item_id: i.food_item_id || i.id,
+                            quantity: i.quantity,
+                            special_notes: i.special_instructions || ""
+                        }))
+                    });
+                    if (syncRes && syncRes.items) {
+                        currentCartData = syncRes;
+                        renderCartUI(syncRes);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Server cart sync error, using local fallback", e);
+                }
+            }
+
+            const subtotal = localCart.reduce((acc, i) => acc + (parseFloat(i.price) * i.quantity), 0);
+            const gst = subtotal * 0.05;
+            const grandTotal = subtotal + gst;
+
+            renderCartUI({
+                items: localCart.map(i => ({
+                    food_item_id: i.food_item_id || i.id,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity,
+                    subtotal: parseFloat(i.price) * i.quantity,
+                    image_url: i.image_url,
+                    counter_id: i.counter_id || 1,
+                    special_notes: i.special_instructions || ""
+                })),
+                total_items_count: localCart.reduce((acc, i) => acc + i.quantity, 0),
+                subtotal: subtotal,
+                gst_tax_amount: gst,
+                grand_total: grandTotal
+            });
+        }
+
+        function renderEmptyCart() {
+            document.getElementById("cart-empty-view").style.display = "block";
+            document.getElementById("cart-content-view").style.display = "none";
+            document.getElementById("nav-cart-count").textContent = "0";
+        }
+
+        function renderCartUI(cart) {
+            document.getElementById("cart-empty-view").style.display = "none";
+            document.getElementById("cart-content-view").style.display = "grid";
+
+            document.getElementById("cart-items-count-header").textContent = cart.total_items_count;
+            document.getElementById("nav-cart-count").textContent = cart.total_items_count;
+
+            document.getElementById("summary-subtotal").textContent = `₹${parseFloat(cart.subtotal).toFixed(2)}`;
+            document.getElementById("summary-tax").textContent = `₹${parseFloat(cart.gst_tax_amount).toFixed(2)}`;
+            document.getElementById("summary-grand-total").textContent = `₹${parseFloat(cart.grand_total).toFixed(2)}`;
+
+            const container = document.getElementById("cart-items-list-container");
+            container.innerHTML = cart.items.map(item => {
+                const counterBadge = item.counter_id === 1 ? 'Counter 1' : (item.counter_id === 2 ? 'Counter 2' : 'Counter 3');
+                const itemImg = item.image_url || 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80';
+                
+                return `
+                    <div class="cart-item-card">
+                        <img src="${itemImg}" alt="${item.name}" class="cart-item-img" onerror="this.src='https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80'">
+                        <div style="flex:1;">
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:var(--space-1);">
+                                <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin:0;">${item.name}</h4>
+                                <span style="font-weight:700; color:var(--text-primary); font-family:var(--font-heading);">₹${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                            </div>
+                            <div style="display:flex; gap:var(--space-2); align-items:center; margin-bottom:var(--space-3); font-size:0.75rem; color:var(--text-muted);">
+                                <span>₹${parseFloat(item.price).toFixed(2)} each</span>
+                                <span>•</span>
+                                <span class="badge badge-info">${counterBadge}</span>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:inline-flex; align-items:center; gap:var(--space-1);">
+                                    <button class="cart-qty-btn" onclick="updateItemQuantity(${item.food_item_id}, ${item.quantity - 1})">-</button>
+                                    <span style="font-weight:600; width:22px; text-align:center; font-size:0.875rem;">${item.quantity}</span>
+                                    <button class="cart-qty-btn" onclick="updateItemQuantity(${item.food_item_id}, ${item.quantity + 1})">+</button>
+                                </div>
+                                <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="removeCartItem(${item.food_item_id})">
+                                    <i class="fa-solid fa-trash-can"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        async function updateItemQuantity(foodId, newQty) {
+            Cart.updateQuantity(foodId, newQty);
+            await loadCartPage();
+        }
+
+        async function removeCartItem(foodId) {
+            Cart.removeItem(foodId);
+            if (Auth.isLoggedIn()) {
+                try {
+                    await API.delete(`/api/cart/items/${foodId}`);
+                } catch(e) {}
+            }
+            await loadCartPage();
+            showNotification("Item removed from cart", "info");
+        }
+
+        async function clearFullCart() {
+            if (!confirm("Are you sure you want to clear your cart?")) return;
+            Cart.clear();
+            if (Auth.isLoggedIn()) {
+                try {
+                    await API.delete("/api/cart/");
+                } catch(e) {}
+            }
+            renderEmptyCart();
+            showNotification("Cart cleared", "info");
+        }
+
+        async function processOrderCheckout() {
+            if (!Auth.isLoggedIn()) {
+                alert("Please log in or register to confirm your order and receive a digital token.");
+                window.location.href = "/login.html?redirect=cart.html";
+                return;
+            }
+
+            const localCart = Cart.getItems();
+            if (!localCart || localCart.length === 0) {
+                alert("Your cart is empty.");
+                return;
+            }
+
+            const btn = document.getElementById("btn-place-order");
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner spinner-sm"></div> Dispatching Token...`;
+
+            try {
+                const selectedMethod = document.querySelector('input[name="pay_method"]:checked')?.value || "UPI";
+                const schedule = document.getElementById("pickup-schedule-select").value;
+                const notes = document.getElementById("order-general-notes").value.trim();
+
+                const isPreorder = schedule !== "immediate";
+                let scheduledFor = null;
+                if (isPreorder) {
+                    const d = new Date();
+                    d.setMinutes(d.getMinutes() + 35);
+                    scheduledFor = d.toISOString();
+                }
+
+                const orderPayload = {
+                    items: localCart.map(i => ({
+                        food_item_id: i.food_item_id || i.id,
+                        quantity: i.quantity,
+                        special_instructions: i.special_instructions || notes || null
+                    })),
+                    payment_method: selectedMethod,
+                    notes: notes || (isPreorder ? `Pickup Slot: ${schedule}` : null),
+                    scheduled_for: scheduledFor,
+                    is_preorder: isPreorder
+                };
+
+                const res = await API.post("/api/orders/", orderPayload);
+                if (res && res.id) {
+                    Cart.clear();
+                    showNotification("Order placed successfully! Token issued.", "success");
+                    setTimeout(() => {
+                        window.location.href = `/token.html?token_id=${res.id}`;
+                    }, 800);
+                } else {
+                    throw new Error("Order creation response invalid");
+                }
+            } catch (err) {
+                console.error("Order error:", err);
+                alert(err.message || "Failed to place order. Please try again.");
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Confirm & Generate Token`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadCartPage();
+        });
+    </script>
+</body>
+</html>

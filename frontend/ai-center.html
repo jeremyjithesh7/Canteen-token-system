@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Intelligence Center - Smart Campus Canteen OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .ai-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-6);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .ai-card:hover {
+            border-color: var(--border-hover);
+        }
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin: var(--space-4) 0;
+            overflow-x: auto;
+            gap: var(--space-3);
+        }
+        .pipeline-step {
+            text-align: center;
+            flex: 1;
+            min-width: 130px;
+        }
+        .pipeline-arrow {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .badge-ai {
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Site Broadcast Announcement Slot -->
+    <div id="site-broadcast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/index.html" class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link active"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
+            </ul>
+
+            <div class="nav-actions" id="nav-auth-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="container">
+            
+            <!-- Hero Title -->
+            <div class="page-header" style="justify-content:center; text-align:center; max-width:800px; margin:0 auto var(--space-7) auto;">
+                <div>
+                    <span class="badge-ai" style="margin-bottom:var(--space-2); display:inline-block;"><i class="fa-solid fa-microchip"></i> Machine Learning & Intelligence Suite</span>
+                    <h1 class="page-header-title">AI Intelligence Center</h1>
+                    <p class="page-header-desc">
+                        Explore the 5 Machine Learning and statistical optimization engines powering the smart campus canteen in real-time.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1. DEMAND FORECASTING ENGINE -->
+            <div class="ai-card" id="pillar-demand">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-3);">
+                    <div>
+                        <span class="badge badge-ready">PILLAR 1</span>
+                        <h2 style="font-size:1.35rem; font-weight:700; margin:var(--space-1) 0;"><i class="fa-solid fa-chart-pie" style="color:var(--primary-hover); margin-right:4px;"></i> AI Demand Forecasting</h2>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Predicts exact portion demand for all 25 South Indian dishes per meal slot incorporating rolling sales velocity, day-of-week weights, and manager overrides.</p>
+                    </div>
+                    <div style="display:flex; gap:var(--space-2);">
+                        <button class="btn btn-sm btn-primary" onclick="loadDemandPillar('Lunch')">Lunch Slot</button>
+                        <button class="btn btn-sm btn-secondary" onclick="loadDemandPillar('Breakfast')">Breakfast Slot</button>
+                        <button class="btn btn-sm btn-outline" onclick="loadDemandPillar('Snacks')">Snacks Slot</button>
+                    </div>
+                </div>
+
+                <!-- Pipeline Diagram -->
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Input Data</div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.875rem; margin-top:var(--space-1);">14-Day Sales Velocity</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">ML Analysis</div>
+                        <div style="font-weight:600; color:var(--accent); font-size:0.875rem; margin-top:var(--space-1);">Day/Slot Multipliers</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Prediction</div>
+                        <div style="font-weight:600; color:var(--primary-hover); font-size:0.875rem; margin-top:var(--space-1);" id="demand-summary-pred">2450 Portions</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Recommendation</div>
+                        <div style="font-weight:600; color:var(--secondary); font-size:0.875rem; margin-top:var(--space-1);" id="demand-summary-prep">Prep +120 Portions</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Preview Grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:var(--space-3);" id="demand-preview-grid">
+                    <!-- Dynamic cards -->
+                </div>
+            </div>
+
+            <!-- 2. AI CROWD & QUEUE PREDICTION -->
+            <div class="ai-card" id="pillar-crowd">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-3);">
+                    <div>
+                        <span class="badge badge-ready">PILLAR 2</span>
+                        <h2 style="font-size:1.35rem; font-weight:700; margin:var(--space-1) 0;"><i class="fa-solid fa-users" style="color:var(--accent); margin-right:4px;"></i> AI Crowd & Queue Prediction</h2>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Forecasts upcoming rush and queue depth across 30, 60, and 120-minute windows using active order depths and daily meal rush schedules.</p>
+                    </div>
+                    <a href="/queue.html" class="btn btn-sm btn-secondary">Live Queue Tracker <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Pipeline Diagram -->
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Input Data</div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.875rem; margin-top:var(--space-1);">Live Active Tokens</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">ML Analysis</div>
+                        <div style="font-weight:600; color:var(--accent); font-size:0.875rem; margin-top:var(--space-1);">Counter Depth Decay</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Prediction</div>
+                        <div style="font-weight:600; color:var(--primary-hover); font-size:0.875rem; margin-top:var(--space-1);" id="crowd-summary-level">MODERATE ➔ HIGH (30m)</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Recommendation</div>
+                        <div style="font-weight:600; color:var(--secondary); font-size:0.875rem; margin-top:var(--space-1);">Pre-order 15m Ahead</div>
+                    </div>
+                </div>
+
+                <!-- 4 Step Time Forecast -->
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:var(--space-2);" id="crowd-ai-steps">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+
+            <!-- 3. AI PERSONALIZED FOOD RECOMMENDATIONS -->
+            <div class="ai-card" id="pillar-recs">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-3);">
+                    <div>
+                        <span class="badge badge-ready">PILLAR 3</span>
+                        <h2 style="font-size:1.35rem; font-weight:700; margin:var(--space-1) 0;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary-hover); margin-right:4px;"></i> Context-Aware Recommendations</h2>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Evaluates past orders, star ratings, current time-of-day meal slots, and nutritional density to compute individual match scores with transparent explanations.</p>
+                    </div>
+                    <a href="/menu.html" class="btn btn-sm btn-primary">Order Recommended <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Pipeline Diagram -->
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Input Data</div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.875rem; margin-top:var(--space-1);">Student Past Orders</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">ML Analysis</div>
+                        <div style="font-weight:600; color:var(--accent); font-size:0.875rem; margin-top:var(--space-1);">Slot & Category Matrix</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Prediction</div>
+                        <div style="font-weight:600; color:var(--primary-hover); font-size:0.875rem; margin-top:var(--space-1);">94% Match Probability</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Recommendation</div>
+                        <div style="font-weight:600; color:var(--secondary); font-size:0.875rem; margin-top:var(--space-1);">Masala Dosa + Coffee</div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:var(--space-3);" id="recs-ai-preview">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+
+            <!-- 4. AI INVENTORY PREPARATION INTELLIGENCE -->
+            <div class="ai-card" id="pillar-inventory">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-3);">
+                    <div>
+                        <span class="badge badge-ready">PILLAR 4</span>
+                        <h2 style="font-size:1.35rem; font-weight:700; margin:var(--space-1) 0;"><i class="fa-solid fa-boxes-stacked" style="color:var(--warning); margin-right:4px;"></i> Inventory Preparation Intelligence</h2>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Compares current real-time stock levels with predicted meal-slot demand to generate automated kitchen prep recommendations and alert kitchen staff of deficits.</p>
+                    </div>
+                    <span class="badge badge-info" id="inv-intel-badge">25 Dishes Analyzed</span>
+                </div>
+
+                <!-- Pipeline Diagram -->
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Input Data</div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.875rem; margin-top:var(--space-1);">Current Inventory Stock</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">ML Analysis</div>
+                        <div style="font-weight:600; color:var(--accent); font-size:0.875rem; margin-top:var(--space-1);">Demand Deficit Solver</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Prediction</div>
+                        <div style="font-weight:600; color:var(--primary-hover); font-size:0.875rem; margin-top:var(--space-1);">High Demand on 6 Items</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Recommendation</div>
+                        <div style="font-weight:600; color:var(--secondary); font-size:0.875rem; margin-top:var(--space-1);">Auto-Prep Batch Orders</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="inv-intel-table">
+                        <thead>
+                            <tr>
+                                <th>Dish Name</th>
+                                <th>Current Stock</th>
+                                <th>Predicted Demand</th>
+                                <th>Recommended Prep</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inv-intel-tbody">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. FOOD WASTE ANALYTICS & STATISTICAL INTELLIGENCE -->
+            <div class="ai-card" id="pillar-waste">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-3);">
+                    <div>
+                        <span class="badge badge-ready">PILLAR 5</span>
+                        <h2 style="font-size:1.35rem; font-weight:700; margin:var(--space-1) 0;"><i class="fa-solid fa-recycle" style="color:var(--accent); margin-right:4px;"></i> Food Waste Analytics & Sustainability</h2>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Analyzes prepared vs sold portions, tracks leftover financial loss (₹), and produces data-driven prep reduction recommendations to eliminate canteen food wastage.</p>
+                    </div>
+                    <a href="/admin/waste.html" class="btn btn-sm btn-secondary">Full Admin Waste Dashboard <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Pipeline Diagram -->
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Input Data</div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.875rem; margin-top:var(--space-1);">Prepared vs Sold Logs</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">ML Analysis</div>
+                        <div style="font-weight:600; color:var(--accent); font-size:0.875rem; margin-top:var(--space-1);">Leftover Variance %</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Prediction</div>
+                        <div style="font-weight:600; color:var(--primary-hover); font-size:0.875rem; margin-top:var(--space-1);" id="waste-summary-stat">~9.2% Waste Rate</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="pipeline-step">
+                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Recommendation</div>
+                        <div style="font-weight:600; color:var(--secondary); font-size:0.875rem; margin-top:var(--space-1);">-10% Payasam Buffer</div>
+                    </div>
+                </div>
+
+                <!-- Actionable AI Suggestions -->
+                <div style="background:var(--accent-light); border:1px solid var(--accent-border); border-radius:var(--radius-sm); padding:var(--space-4); margin-top:var(--space-3);">
+                    <h3 style="font-size:0.95rem; font-weight:700; color:var(--accent); margin-bottom:var(--space-2);"><i class="fa-solid fa-lightbulb"></i> Actionable AI Waste Reduction Tips:</h3>
+                    <ul style="padding-left:1.25rem; color:var(--text-secondary); font-size:0.8125rem; line-height:1.6;" id="waste-suggestions-list">
+                        <!-- Dynamic -->
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <p>© 2026 Smart Campus Canteen OS. AI Intelligence Suite.</p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadDemandPillar('Lunch');
+            loadCrowdPillar();
+            loadRecsPillar();
+            loadInventoryPillar();
+            loadWastePillar();
+        });
+
+        async function loadDemandPillar(slot) {
+            try {
+                const res = await API.get(`/api/ai/demand-forecast?meal_slot=${slot}`);
+                if (res) {
+                    document.getElementById("demand-summary-pred").textContent = `${res.total_prep_units} Units`;
+                    document.getElementById("demand-summary-prep").textContent = `Recommended Prep: ${res.total_prep_units} Portions`;
+                    
+                    const grid = document.getElementById("demand-preview-grid");
+                    const topItems = res.items.slice(0, 4);
+                    grid.innerHTML = topItems.map(i => `
+                        <div style="background:var(--bg-surface); border:1px solid var(--border); padding:var(--space-3); border-radius:var(--radius-sm);">
+                            <strong style="color:var(--text-primary); display:block; margin-bottom:var(--space-1); font-size:0.9rem;">${i.name}</strong>
+                            <div style="display:flex; justify-content:space-between; font-size:0.8125rem; color:var(--text-secondary);">
+                                <span>Predicted:</span>
+                                <strong style="color:var(--accent); font-family:var(--font-accent);">${i.predicted_demand}</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.8125rem; color:var(--text-secondary); margin-top:var(--space-1);">
+                                <span>Target Prep:</span>
+                                <strong style="color:var(--primary-hover); font-family:var(--font-accent);">${i.recommended_prep_quantity}</strong>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Demand pillar err:", e);
+            }
+        }
+
+        async function loadCrowdPillar() {
+            try {
+                const crowd = await API.get("/api/ai/crowd-forecast");
+                if (crowd) {
+                    document.getElementById("crowd-summary-level").textContent = `${crowd.current_crowd} ➔ ${crowd.forecast_30m} (30m)`;
+                    const steps = document.getElementById("crowd-ai-steps");
+                    steps.innerHTML = `
+                        <div class="crowd-step-card">
+                            <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">CURRENT</div>
+                            <div style="font-size:1rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;">${crowd.current_crowd}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">~${crowd.current_wait_minutes} mins</div>
+                        </div>
+                        <div class="crowd-step-card">
+                            <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">IN 30 MINS</div>
+                            <div style="font-size:1rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;">${crowd.forecast_30m}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">~14 mins</div>
+                        </div>
+                        <div class="crowd-step-card">
+                            <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">IN 60 MINS</div>
+                            <div style="font-size:1rem; font-weight:700; color:var(--danger); margin:var(--space-1) 0;">${crowd.forecast_60m}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">~22 mins</div>
+                        </div>
+                        <div class="crowd-step-card">
+                            <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">IN 120 MINS</div>
+                            <div style="font-size:1rem; font-weight:700; color:var(--accent); margin:var(--space-1) 0;">${crowd.forecast_120m}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">~4 mins</div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error("Crowd pillar err:", e);
+            }
+        }
+
+        async function loadRecsPillar() {
+            try {
+                const recs = await API.get("/api/ai/recommendations?top_n=3");
+                if (recs && recs.length > 0) {
+                    const grid = document.getElementById("recs-ai-preview");
+                    grid.innerHTML = recs.map(i => `
+                        <div style="background:var(--bg-surface); border:1px solid var(--border); padding:var(--space-4); border-radius:var(--radius-sm);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
+                                <strong style="color:var(--text-primary); font-size:0.95rem;">${i.name}</strong>
+                                <span class="badge-match">${i.match_percentage || 94}% MATCH</span>
+                            </div>
+                            <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.4; margin-bottom:var(--space-2);">
+                                💡 ${i.recommendation_reason}
+                            </p>
+                            <span class="badge badge-info" style="font-size:0.6875rem;">${i.category_name}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Recs pillar err:", e);
+            }
+        }
+
+        async function loadInventoryPillar() {
+            try {
+                const res = await API.get("/api/ai/inventory-intelligence?meal_slot=Lunch");
+                if (res && res.items) {
+                    document.getElementById("inv-intel-badge").textContent = `${res.total_items_analyzed} Items • ${res.high_demand_count} High Demand`;
+                    const tbody = document.getElementById("inv-intel-tbody");
+                    const topItems = res.items.slice(0, 5);
+                    tbody.innerHTML = topItems.map(i => `
+                        <tr>
+                            <td style="font-weight:600; color:var(--text-primary);">${i.name}</td>
+                            <td style="color:var(--text-secondary); font-family:var(--font-accent);">${i.current_stock}</td>
+                            <td style="color:var(--accent); font-weight:700; font-family:var(--font-accent);">${i.predicted_demand}</td>
+                            <td style="color:var(--primary-hover); font-weight:700; font-family:var(--font-accent);">+${i.recommended_preparation}</td>
+                            <td><span class="badge ${i.status === 'HIGH DEMAND' ? 'badge-danger' : (i.status === 'MODERATE' ? 'badge-warning' : 'badge-ready')}">${i.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Inventory pillar err:", e);
+            }
+        }
+
+        async function loadWastePillar() {
+            try {
+                const waste = await API.get("/api/ai/waste-analytics");
+                if (waste) {
+                    document.getElementById("waste-summary-stat").textContent = `${waste.overall_waste_percentage}% Overall Waste Rate (₹${waste.total_financial_loss_inr} Loss)`;
+                    const list = document.getElementById("waste-suggestions-list");
+                    list.innerHTML = waste.ai_waste_reduction_suggestions.map(s => `
+                        <li style="margin-bottom:var(--space-1);">${s}</li>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Waste pillar err:", e);
+            }
+        }
+    </script>
+</body>
+</html>

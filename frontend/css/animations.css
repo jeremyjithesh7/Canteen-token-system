@@ -1,0 +1,90 @@
+/* ==========================================================================
+   SMART CAMPUS CANTEEN MANAGEMENT SYSTEM (V2.0)
+   Keyframe Animations & Reduced Motion Support
+   ========================================================================== */
+
+/* 1. Subtle Gradient Border Cycle */
+@keyframes gradientCycle {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 2. Soft Status Pulse */
+@keyframes readyPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+}
+
+/* 3. Skeleton Shimmer */
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 4. Toast Slide-In */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 5. Clean Spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--primary-hover);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.spinner-sm {
+    width: 14px;
+    height: 14px;
+    border-width: 1.5px;
+}
+
+.spinner-lg {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+}
+
+/* ==========================================================================
+   PREFERS-REDUCED-MOTION SUPPORT
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .badge-ready {
+        animation: none !important;
+    }
+
+    .skeleton {
+        animation: none !important;
+        background: rgba(25, 18, 43, 0.9) !important;
+    }
+}

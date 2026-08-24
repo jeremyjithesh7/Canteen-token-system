@@ -1,0 +1,31 @@
+order_id,date,time,day_of_week,item_id,item_name,category,quantity,unit_price,meal_slot,prep_time_minutes,weather,campus_event
+1,2026-08-01,08:30:00,Saturday,1,Masala Dosa with Sambar & Chutneys,Breakfast,2,65.00,Breakfast,8,Sunny,Normal
+2,2026-08-01,08:45:00,Saturday,2,Idli Vada Combo,Breakfast,1,55.00,Breakfast,5,Sunny,Normal
+3,2026-08-01,09:15:00,Saturday,14,Kulhad Masala Chai,Beverages,3,20.00,Breakfast,3,Sunny,Normal
+4,2026-08-01,12:30:00,Saturday,5,Executive North Indian Thali,Meals,1,140.00,Lunch,10,Sunny,Normal
+5,2026-08-01,12:45:00,Saturday,6,Special Chicken Biryani with Raita,Meals,2,160.00,Lunch,12,Sunny,Normal
+6,2026-08-01,13:10:00,Saturday,7,Paneer Tikka Rice Bowl,Meals,1,120.00,Lunch,9,Sunny,Normal
+7,2026-08-01,16:30:00,Saturday,9,Crispy Veg Cheese Burger,Snacks,2,80.00,Snacks,10,Sunny,Normal
+8,2026-08-01,16:45:00,Saturday,15,Cold Coffee with Vanilla Ice Cream Scoop,Beverages,2,65.00,Snacks,4,Sunny,Normal
+9,2026-08-01,17:00:00,Saturday,11,Punjabi Samosa (2 pcs) with Mint Chutney,Snacks,3,35.00,Snacks,3,Sunny,Normal
+10,2026-08-02,08:15:00,Sunday,3,Poha with Sev & Roasted Peanuts,Breakfast,2,40.00,Breakfast,4,Clear,Normal
+11,2026-08-02,08:40:00,Sunday,1,Masala Dosa with Sambar & Chutneys,Breakfast,2,65.00,Breakfast,8,Clear,Normal
+12,2026-08-02,12:20:00,Sunday,6,Special Chicken Biryani with Raita,Meals,3,160.00,Lunch,12,Clear,Normal
+13,2026-08-02,13:00:00,Sunday,8,Homestyle Rajma Chawal,Meals,2,90.00,Lunch,6,Clear,Normal
+14,2026-08-02,16:15:00,Sunday,13,Paneer Kathi Roll,Snacks,2,85.00,Snacks,8,Clear,Normal
+15,2026-08-02,17:20:00,Sunday,14,Kulhad Masala Chai,Beverages,4,20.00,Snacks,3,Clear,Normal
+16,2026-08-03,08:10:00,Monday,1,Masala Dosa with Sambar & Chutneys,Breakfast,4,65.00,Breakfast,8,Sunny,Exams
+17,2026-08-03,08:25:00,Monday,2,Idli Vada Combo,Breakfast,3,55.00,Breakfast,5,Sunny,Exams
+18,2026-08-03,08:50:00,Monday,14,Kulhad Masala Chai,Beverages,6,20.00,Breakfast,3,Sunny,Exams
+19,2026-08-03,12:15:00,Monday,5,Executive North Indian Thali,Meals,4,140.00,Lunch,10,Sunny,Exams
+20,2026-08-03,12:35:00,Monday,6,Special Chicken Biryani with Raita,Meals,5,160.00,Lunch,12,Sunny,Exams
+21,2026-08-03,13:05:00,Monday,7,Paneer Tikka Rice Bowl,Meals,3,120.00,Lunch,9,Sunny,Exams
+22,2026-08-03,16:10:00,Monday,9,Crispy Veg Cheese Burger,Snacks,4,80.00,Snacks,10,Sunny,Exams
+23,2026-08-03,16:40:00,Monday,12,Peri Peri French Fries,Snacks,3,60.00,Snacks,6,Sunny,Exams
+24,2026-08-03,17:15:00,Monday,15,Cold Coffee with Vanilla Ice Cream Scoop,Beverages,4,65.00,Snacks,4,Sunny,Exams
+25,2026-08-04,08:30:00,Tuesday,4,Stuffed Paneer Paratha with Curd,Breakfast,3,75.00,Breakfast,12,Rainy,Normal
+26,2026-08-04,08:45:00,Tuesday,14,Kulhad Masala Chai,Beverages,8,20.00,Breakfast,3,Rainy,Normal
+27,2026-08-04,12:30:00,Tuesday,5,Executive North Indian Thali,Meals,5,140.00,Lunch,10,Rainy,Normal
+28,2026-08-04,13:15:00,Tuesday,8,Homestyle Rajma Chawal,Meals,4,90.00,Lunch,6,Rainy,Normal
+29,2026-08-04,16:30:00,Tuesday,11,Punjabi Samosa (2 pcs) with Mint Chutney,Snacks,6,35.00,Snacks,3,Rainy,Normal
+30,2026-08-04,17:00:00,Tuesday,14,Kulhad Masala Chai,Beverages,7,20.00,Snacks,3,Rainy,Normal
