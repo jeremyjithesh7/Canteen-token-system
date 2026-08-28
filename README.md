@@ -1,175 +1,174 @@
-# ⚡ Digital Canteen Token System (Canteen OS)
+# ⚡ CanteenOS - Digital Canteen Token & Management System
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.8-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
-[![Python 3.13](https://img.shields.io/badge/Python-3.13-blue.svg?logo=python)](https://python.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg?logo=postgresql)](https://www.postgresql.org)
-[![Tests](https://img.shields.io/badge/Tests-38%20Passing-success.svg)](https://pytest.org)
-[![Theme](https://img.shields.io/badge/UI%20Theme-Purple%20Neon-b026ff.svg)](https://github.com)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python)](https://python.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-336791.svg?logo=postgresql)](https://neon.tech)
+[![Vercel Ready](https://img.shields.io/badge/Vercel-Serverless%20Functions-black.svg?logo=vercel)](https://vercel.com)
+[![Tests](https://img.shields.io/badge/Tests-71%20Passing-success.svg)](https://pytest.org)
+[![Design](https://img.shields.io/badge/UI-Dark%20Glassmorphism-6366f1.svg)](https://github.com)
 
-An end-to-end, production-grade smart college canteen ordering, multi-counter scheduling, and AI intelligence platform. Featuring a modern **Purple Neon Cyberpunk UI**, 25 authentic South Indian dishes with distinct high-quality food photography, dedicated cart & pre-ordering, customer dish ratings & reviews, big-screen TV kiosk display board, signature glowing token cards, in-browser vector QR generation, interactive Chart.js analytics, 7-day demand forecasting with admin overrides, rotating JWT refresh security, and multi-counter queue balancing.
-
----
-
-## 🌟 Key Capabilities & Scale-Up Enhancements
-
-### 🎨 Modern SaaS Design System & Authentic South Indian Menu
-- **Clean & Vibrant UI Aesthetics**: Crisp, high-contrast light mode with elegant violet/purple accents, elevated surface cards, clean typography, and responsive micro-animations.
-- **Modern Typography**: Google Fonts `Inter` (UI & Body), `Manrope` (Headings), and `Space Grotesk` (Token numbers & accents).
-- **25 Authentic South Indian Dishes with 100% Unique Photos**:
-  1. **South Indian Tiffin & Meals (Counter 1)**: Masala Dosa, Plain Dosa, Rava Dosa, Steamed Idlis, Crispy Medu Vada, Onion Tomato Uttapam, Ven Pongal, Rava Upma, Sambar Rice, Curd Rice, Bisi Bele Bath, Lemon Rice.
-  2. **Traditional Desserts (Counter 2)**: Semiya Payasam, Desi Ghee Mysore Pak, Rava Kesari, Warm Gulab Jamun, Badam Halwa, Saffron Jalebi.
-  3. **Beverages & Cafe Brews (Counter 3)**: Degree Filter Coffee, Masala Chai, Spiced Buttermilk (Majjige), Tender Coconut Water, Rose Milk, Malabar Sulaimani, Fresh Lime Soda.
-- **Image Integrity Guarantee**: Automated test suite enforces zero duplicate images, non-empty URLs, and verified HTTP 200 resolution across all 25 dishes.
-
-### 🛒 Dedicated Cart & Pre-Ordering Engine (`cart.html`)
-- **Real-Time Persistent Cart**: Full database-synced cart session with localStorage offline resilience.
-- **5% Canteen GST & Itemized Billing**: Accurate live tax computations and student discount deductions.
-- **Scheduled Pre-Ordering**: Select pickup slots (*Immediate/ASAP, In 30 mins, Lunch Slot, Evening Snacks, Dinner Slot*).
-- **Payment Method Selection**: Instant UPI (GPay/PhonePe/Paytm), Student Campus Wallet, Debit/Credit Card, and Cash at Billing Counter.
-
-### 📺 Live Queue Tracker (`queue.html`) & Big-Screen Kiosk TV Display (`kiosk.html`)
-- **Student Queue Tracker**: Live crowd meter (*Low, Moderate, High, Peak Rush*), average wait times, active order counters, and daily rush hour timetables.
-- **Counter Big-Screen TV Kiosk (`kiosk.html`)**: High-contrast TV board display showing **Now Serving** and **Next Up** tokens across Counters 1, 2, and 3 with synthesized Web Audio API chime alerts on new token calls.
-
-### ⭐ Customer Ratings & Dish Feedback (`orders.html` & `food_ratings`)
-- **Interactive 5-Star Reviews**: Students can rate dishes directly from their order history and leave review comments.
-- **Live Average Scores**: Menu cards render computed average star ratings and review counts dynamically.
-
-### 🏢 Multi-Counter Kitchen Architecture
-- **Counter 1 (`C1`)**: South Indian Tiffin & Rice Meals.
-- **Counter 2 (`C2`)**: Desserts & Traditional Sweets.
-- **Counter 3 (`C3`)**: Beverages & Cafe Bar.
-- **Station-Scoped Token Allocation**: Automatically generates prefixed tokens (e.g. `C1-102`, `C2-201`, `C3-301`) to eliminate kitchen bottlenecks.
-
-### 🛡️ Security, Rate Limiting & Session Continuity
-- **Login Rate Limiter**: Thread-safe in-memory rate limiting defense allowing 5 failed attempts per 5 minutes before locking for 15 minutes with HTTP 429.
-- **Refresh Token Rotation**: Short-lived JWT access tokens (30 min) paired with 7-day rotating refresh tokens (`/api/auth/refresh`) and logout invalidation (`/api/auth/logout`).
-- **Structured Request Logging**: `RequestLoggingMiddleware` outputting timestamped JSON logs to `logs/canteen_requests.log` with sensitive fields masked.
-
-### 🤖 AI Demand Intelligence & Overrides
-- **7-Day Demand Forecasting**: Item-by-item next-day demand prediction with safety buffers and confidence bounds.
-- **Predicted vs. Actual Accuracy (Chart.js)**: Interactive 7-day model accuracy benchmark comparing statistical predictions against actual recorded sales.
-- **Manual Preparation Overrides**: Kitchen staff can adjust AI targets with auditable reasons and historical logs.
-- **Explainable Food Recommendations**: Transparent, human-readable rationale badges based on order history, time slot, and macros.
+An end-to-end, production-ready campus canteen ordering, multi-counter scheduling, and kitchen intelligence platform. Built with **FastAPI**, **PostgreSQL** (with Neon serverless connection pooling and local SQLite fallback), **Serverless Vercel Functions**, and a **Dark Glassmorphic Web Client**.
 
 ---
 
-## 📁 Project Structure
+## 🌟 Key Features & Architecture
+
+### 🍽️ 25 Authentic South Indian Dishes & Station Load Balancing
+- **Station-Scoped Allocation**:
+  - **Counter 1 (`C1`)**: South Indian Tiffin & Rice Meals (Dosas, Idlis, Vadas, Pongal, Bisi Bele Bath, Sambar Rice).
+  - **Counter 2 (`C2`)**: Desserts & Traditional Sweets (Payasam, Mysore Pak, Kesari, Gulab Jamun, Badam Halwa, Jalebi).
+  - **Counter 3 (`C3`)**: Beverages & Cafe Brews (Filter Coffee, Masala Chai, Majjige, Tender Coconut Water, Sulaimani).
+- **Nutritional Transparency**: Per-dish macros (calories, protein, carbohydrates, fats) and kitchen preparation time indicators.
+- **Local High-Resolution Assets**: Dedicated curated dish photography bundled in `frontend/assets/menu/`.
+
+### 💳 Real Payment Options & Financial Integrity
+- **Campus Wallet**: Instant balance top-up and atomic order settlement with dedicated transaction ledger logging (`wallet_transactions`).
+- **Real UPI Payment QR & Deep-Linking**: Dynamic UPI URI generation (`upi://pay?pa=...&am=...`) with scannable QR codes and a 12-digit UTR/transaction reference submission modal for accounting verification.
+- **5% Campus GST**: Automatic server-side subtotal, tax computation, and discounts.
+
+### 🎫 Live Token Tracking & Counter Staff Verification
+- **Dynamic Digital Token Cards (`token.html`)**: Real-time ticket showing counter station, live status (`Waiting` $\rightarrow$ `Preparing` $\rightarrow$ `Ready` $\rightarrow$ `Completed`), dynamic turnaround wait estimation, queue position, and scannable QR tokens.
+- **Staff QR Verification Module (`verify.html`)**: Counter operators can scan student phone QR codes or enter token strings (`C1-015`) to verify ordered items and prevent **duplicate food collection** with audio-visual alerts.
+- **Big-Screen Kiosk TV Display (`kiosk.html`)**: High-contrast TV board display showing **Now Serving** and **Next Up** tokens across Counters 1, 2, and 3 with Web Audio chime alerts.
+- **Live Queue View (`queue.html`)**: Public crowd meter (*Low, Moderate, High, Peak Rush*), active queue depth, and hourly rush timetables.
+
+### 📊 Relational Database Inspector & Admin Portal
+- **Database Live Inspector (`/admin/database.html`)**: Full administrative relational browser to view, search, and inspect live PostgreSQL records across all 27 tables (Users, Orders, Order Items, Tokens, Payments, Wallets, Inventory, Waste Logs, Ratings, and AI data).
+- **Kitchen Kanban & Live Orders (`/admin/orders.html`)**: Real-time lane transitions per counter.
+- **Inventory & Stock Alert Logs (`/admin/inventory.html`)**: Real-time stock counts with automated depletion on order placement and restock audit trails (`inventory_logs`).
+- **Kitchen Food Waste Analytics (`/admin/waste.html`)**: Daily leftover and food waste tracking with financial loss impact computation.
+
+### 🤖 Predictive Engines & Intelligence
+- **Statistical Demand Forecasting**: Item-by-item next-day demand prediction with safety buffers, confidence bounds, and administrative manual overrides.
+- **Adaptive Queue Wait Estimator**: Calculates queue wait time based on active counter load, dish preparation complexity, and hourly crowd profiles.
+- **Context-Aware Dish Recommender**: Personalized suggestions combining past ordering frequency, meal slot (Breakfast, Lunch, Snacks, Dinner), and dietary constraints.
+
+---
+
+## 📁 Repository Structure
 
 ```
-mini project/
-├── frontend/                     # Modern Purple Neon Web Client
-│   ├── index.html                # Landing page with live crowd metrics
-│   ├── login.html                # Sign-in with 1-click demo logins
-│   ├── register.html             # Student account registration
-│   ├── dashboard.html            # Student portal with active token card & recs
-│   ├── menu.html                 # 25 South Indian dishes with star ratings
-│   ├── cart.html                 # Dedicated Cart with pre-ordering & GST calculation
-│   ├── orders.html               # Order history with filters, reorder & rating modal
-│   ├── token.html                # Live digital token tracker with vector QR
-│   ├── queue.html                # Live queue depth & crowd density tracker
-│   ├── kiosk.html                # Big-Screen Counter TV Display Board with audio chime
-│   ├── profile.html              # Account & dietary preferences
-│   ├── admin/                    # Admin Management Portal
-│   │   ├── index.html            # Overview with Chart.js revenue & peak charts
-│   │   ├── orders.html           # Live Kanban board with counter filter
-│   │   ├── menu.html             # Dish catalog & counter assignment
-│   │   ├── inventory.html        # Real-time stock & restock modal
-│   │   ├── analytics.html        # AI Predicted vs Actual chart & overrides
-│   │   ├── users.html            # User directory & loyalty tiers
-│   │   └── notifications.html    # Site-wide broadcast announcement composer
-│   ├── css/                      # Purple Neon Design Tokens & Styles
-│   │   ├── style.css             # Colors, typography, buttons, inputs
-│   │   ├── components.css        # Glowing token ticket, badges, skeletons
-│   │   ├── animations.css        # Keyframe glows & motion-reduced fallbacks
-│   │   └── admin.css             # Admin metrics, Kanban lanes, Chart containers
-│   └── js/                       # Modular ES6+ Client Logic
-│       ├── config.js             # API base URL & endpoints
-│       ├── api.js                # Authenticated fetch wrapper with token refresh
-│       ├── auth.js               # User auth, refresh rotation & loyalty sync
-│       ├── cart.js               # Cart state, checkout & counter allocation
-│       ├── token.js              # Live token poller, glowing ticket & audio chimes
-│       ├── qr.js                 # Standalone vector QR code renderer
-│       ├── admin.js              # Chart.js visualizers, Kanban & CSV exporter
-│       ├── notifications.js      # Toast notifications & dropdown manager
-│       └── app.js                # Navbar loyalty badge & broadcast banner
-│
-├── backend/app/                  # Production FastAPI Application
-│   ├── authentication/           # JWT access/refresh, rate limiting & deps
-│   ├── database/                 # SQLAlchemy engine & session management
-│   ├── models/                   # 22 Relational Models (Ratings, Cart, Counters, Overrides)
-│   ├── schemas/                  # Pydantic v2 validation models
-│   ├── services/                 # Business logic (Auth, Cart, Ratings, Tokens, AI)
-│   ├── routes/                   # Modular API routers (Cart, Ratings, Kiosk, Orders)
-│   ├── utils/                    # Structured JSON logger & rich startup seeder
-│   └── main.py                   # FastAPI ASGI entrypoint & lifespan seeder
-│
-├── ai/                           # AI & Analytics Engines
-│   ├── demand_prediction/        # Statistical regression model with override injection
-│   ├── token_allocation/         # Multi-counter token allocator & queue scheduler
-│   ├── food_recommendation/      # Context-aware explainable recommender
-│   └── queue_prediction/         # M/M/c queue crowd level & wait predictor
-│
-├── database/                     # Database Schema & Seed Assets
-│   ├── schema.sql                # Complete 22-table PostgreSQL schema
-│   └── seed.sql                  # 25 unique South Indian dish photos & ratings
-│
-├── tests/                        # 38 Automated Test Suites (100% Pass Rate)
-│   ├── conftest.py               # In-memory test database & auth fixtures
-│   ├── ai/                       # AI model unit tests
-│   ├── backend/                  # API endpoints, image integrity, cart, ratings, kiosk tests
-│   └── frontend/                 # Frontend asset integrity tests
-│
-└── docs/                         # Technical Documentation
-    ├── architecture.md           # Architecture diagrams & component breakdown
-    ├── api-documentation.md      # REST API reference
-    ├── database-design.md        # Database schema & entity relationships
-    └── setup.md                  # Setup & deployment instructions
+.
+├── api/
+│   └── index.py                  # Vercel Serverless Function entrypoint (FastAPI ASGI)
+├── backend/
+│   ├── app/
+│   │   ├── authentication/       # JWT access/refresh token handlers & bcrypt hashing
+│   │   ├── database/             # SQLAlchemy engine & session lifecycle (Postgres/SQLite)
+│   │   ├── models/               # 27 Relational SQLAlchemy models
+│   │   ├── routes/               # 16 Modular API routers (auth, orders, tokens, admin, db viewer, etc.)
+│   │   ├── schemas/              # Pydantic v2 request/response validation schemas
+│   │   ├── services/             # Core business logic (orders, wallet, rewards, tokens, AI)
+│   │   ├── utils/                # Database seeding & logging middleware
+│   │   ├── config.py             # Pydantic SettingsConfigDict with environment support
+│   │   └── main.py               # FastAPI application definition & CORS configuration
+│   ├── .env.example              # Environment variables template
+│   └── requirements.txt          # Backend dependencies
+├── database/
+│   ├── schema.sql                # Production PostgreSQL DDL schema
+│   ├── seed.sql                  # Initial seed dataset
+│   └── reset_demo_data.sql       # Safe clean-slate reset script
+├── docs/
+│   ├── api-documentation.md      # API endpoint documentation
+│   └── setup.md                  # Comprehensive setup & Vercel/Neon deployment guide
+├── frontend/                     # Modern Dark Glassmorphic Web Client
+│   ├── index.html                # Landing page with crowd metrics & quick actions
+│   ├── menu.html                 # 25 South Indian dishes with category filters & macros
+│   ├── cart.html                 # Persistent cart, schedule pre-order, and UPI/Wallet checkout
+│   ├── orders.html               # Student order history & 5-star review modal
+│   ├── token.html                # Live token tracker with scannable QR ticket
+│   ├── verify.html               # Staff QR pickup scanner & duplicate prevention tool
+│   ├── wallet.html               # Campus wallet balance, top-up, & transaction ledger
+│   ├── rewards.html              # Loyalty tier progression, points, & streak badges
+│   ├── kiosk.html                # Big-screen TV counter status board
+│   ├── queue.html                # Public queue & crowd level dashboard
+│   ├── ai-center.html            # AI demand forecasting, traffic trends, & recommendations
+│   ├── admin/                    # Management portal
+│   │   ├── index.html            # Revenue trends & peak hour charts
+│   │   ├── orders.html           # Live kitchen status Kanban board
+│   │   ├── menu.html             # Dish pricing, availability, and station editor
+│   │   ├── inventory.html        # Real-time stock levels & restocking modal
+│   │   ├── waste.html            # Food waste logging & cost analytics
+│   │   ├── analytics.html        # Demand forecast benchmarks & override controls
+│   │   ├── users.html            # User directory & role management
+│   │   ├── notifications.html    # Site broadcast announcement composer
+│   │   └── database.html         # Live Relational PostgreSQL Table Inspector
+│   ├── css/                      # Design system (style.css, components.css, admin.css, animations.css)
+│   ├── js/                       # Modular ES6+ client logic (config.js, api.js, auth.js, cart.js, token.js, admin.js)
+│   └── assets/menu/              # 25 Curated South Indian food photos
+├── tests/                        # 71 Automated pytest unit & integration tests
+├── .env.example                  # Root environment variables template
+├── .gitignore                    # Git exclusions (secrets, database files, bytecode)
+├── .python-version               # Pinned to Python 3.12
+├── requirements.txt              # Pinned root dependencies for Vercel deployment
+└── vercel.json                   # Unified Vercel deployment routing configuration
 ```
 
 ---
 
-## 🚀 Quickstart Guide
+## 🚀 Quick Start (Local Development)
 
-### 1. Backend Setup
+### 1. Clone & Setup Virtual Environment
 ```bash
-# Create and activate virtual environment
+git clone https://github.com/jeremyjithesh7/Canteen-token-system.git
+cd Canteen-token-system
+
 python3 -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
+```
 
-# Start FastAPI server (Auto-seeds database on startup)
+### 2. Configure Environment
+```bash
+cp .env.example .env
+```
+*(By default, `DATABASE_URL` will use local SQLite `sqlite:///./canteen.db` if unset, or you can point it to a local/remote PostgreSQL instance).*
+
+### 3. Run the Backend API & Web Application
+```bash
 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-
-### 2. Frontend Client
-```bash
-# In a separate terminal
-python3 -m http.server 3000 --directory frontend
-```
-Navigate to **`http://localhost:3000`** in your browser.
+Open **`http://localhost:8000`** in your browser. FastAPI automatically serves the static frontend alongside the API.
 
 ---
 
-## 🧪 Automated Test Suite
+## ☁️ Deployment on Vercel & Neon PostgreSQL
 
-Run the full test suite across all AI, backend, image integrity, and frontend subsystems:
+### 1. Database Setup (Neon Serverless PostgreSQL)
+1. Create a free database at [neon.tech](https://neon.tech).
+2. Copy the **Pooled Connection String** (format: `postgresql://user:pass@ep-sample-pooler.region.aws.neon.tech/dbname?sslmode=require`).
+
+### 2. Deploy to Vercel (Unified Architecture)
+1. Import this repository into [Vercel](https://vercel.com).
+2. Set the following Environment Variables in Vercel Project Settings:
+   - `DATABASE_URL`: Your Neon Pooled connection string.
+   - `SECRET_KEY`: A secure 32-byte secret (`openssl rand -hex 32`).
+   - `ALLOWED_ORIGINS`: `https://your-canteen-app.vercel.app`
+   - `ENV`: `production`
+   - `DEBUG`: `false`
+3. Click **Deploy**. Vercel will automatically build the serverless functions (`api/index.py`) and host the static frontend via `vercel.json`.
+
+---
+
+## 🧪 Automated Testing
+
+The repository contains 71 automated pytest unit and integration tests covering authentication, order placement, inventory logs, QR token verification, rating constraints, real UPI billing, rewards, and AI analytics.
+
 ```bash
-./venv/bin/pytest -v tests/
-```
-Output:
-```
-======================= 38 passed in 2.88s =======================
+./venv/bin/pytest -v
 ```
 
 ---
 
-## 🔑 Demo Login Credentials
+## 🔑 Default Operational Accounts
 
-| Role | Email | Password | Key Permissions |
-|---|---|---|---|
-| **Student** | `student@canteen.edu` | `Student@123` | Order food, cart checkout, track live QR token, rate dishes |
-| **Kitchen Staff** | `staff@canteen.edu` | `Staff@123` | Advance tokens in Kanban lanes, view station queue |
-| **Admin** | `admin@canteen.edu` | `Admin@123` | Full portal: revenue charts, demand overrides, CSV export |
+| Role | Email | Password | Permissions |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@canteen.edu` | `Admin@123` | Full admin portal, revenue charts, demand overrides, database inspector |
+| **Kitchen Staff** | `staff@canteen.edu` | `Staff@123` | Kitchen Kanban, order status management, QR token verification |
+| **Student** | *(Register new student)* | *(Your password)* | Menu browsing, cart, wallet top-up, UPI payment, token tracking, reviews |
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.
