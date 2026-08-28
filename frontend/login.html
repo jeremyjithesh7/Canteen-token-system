@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,12 +37,12 @@
 
             <div style="margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border);">
                 <div style="font-size: 0.75rem; color: var(--text-muted); text-align:center; margin-bottom: var(--space-3); text-transform:uppercase; letter-spacing:0.04em; font-weight:700;">
-                    1-Click Demo Logins
+                    Quick Role Logins
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:var(--space-2);">
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('student@canteen.edu', 'Student@123')"><i class="fa-solid fa-graduation-cap"></i> Student</button>
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('staff@canteen.edu', 'Staff@123')"><i class="fa-solid fa-kitchen-set"></i> Staff</button>
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('admin@canteen.edu', 'Admin@123')"><i class="fa-solid fa-shield-halved"></i> Admin</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillCredentials('student@canteen.edu', 'Student@123')"><i class="fa-solid fa-graduation-cap"></i> Student</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillCredentials('staff@canteen.edu', 'Staff@123')"><i class="fa-solid fa-kitchen-set"></i> Staff</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillCredentials('admin@canteen.edu', 'Admin@123')"><i class="fa-solid fa-shield-halved"></i> Admin</button>
                 </div>
             </div>
         </div>
@@ -58,7 +58,7 @@
     <script src="js/auth.js"></script>
     <script src="js/notifications.js"></script>
     <script>
-        function fillDemo(email, pwd) {
+        function fillCredentials(email, pwd) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = pwd;
         }

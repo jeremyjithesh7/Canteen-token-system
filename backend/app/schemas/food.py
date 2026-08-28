@@ -24,6 +24,7 @@ class CategoryResponse(CategoryBase):
 
 class FoodItemBase(BaseModel):
     name: str
+    slug: Optional[str] = None
     category_id: int
     counter_id: Optional[int] = None
     description: Optional[str] = None
@@ -43,6 +44,7 @@ class FoodItemCreate(FoodItemBase):
 
 class FoodItemUpdate(BaseModel):
     name: Optional[str] = None
+    slug: Optional[str] = None
     category_id: Optional[int] = None
     counter_id: Optional[int] = None
     description: Optional[str] = None
@@ -64,8 +66,8 @@ class FoodItemResponse(FoodItemBase):
     category: Optional[CategoryResponse] = None
     counter: Optional[CounterResponse] = None
     current_stock: Optional[int] = 0
-    average_rating: float = 4.8
-    rating_count: int = 12
+    average_rating: Optional[float] = None
+    rating_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)
 

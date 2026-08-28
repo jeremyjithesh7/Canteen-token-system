@@ -1,34 +1,14 @@
 /**
- * Digital Canteen Token System - Main App Lifecycle & Theme Switcher
+ * Digital Canteen Token System - Main App Lifecycle
  */
 
 const App = {
     init: function() {
-        this.initTheme();
+        // Enforce permanent clean light mode
+        localStorage.removeItem('canteen_theme');
+        document.documentElement.removeAttribute('data-theme');
         this.renderNavbarUser();
         this.checkActiveBroadcasts();
-    },
-
-    initTheme: function() {
-        const savedTheme = localStorage.getItem('canteen_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        this.updateThemeToggleIcon(savedTheme);
-    },
-
-    toggleTheme: function() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('canteen_theme', newTheme);
-        this.updateThemeToggleIcon(newTheme);
-    },
-
-    updateThemeToggleIcon: function(theme) {
-        const btns = document.querySelectorAll('.theme-toggle-btn');
-        btns.forEach(btn => {
-            btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
-            btn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-        });
     },
 
     renderNavbarUser: function() {
@@ -39,10 +19,6 @@ const App = {
         if (user) {
             navAuthSlot.innerHTML = `
                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <div class="loyalty-badge-pill" title="Your Canteen Loyalty Level">
-                        ${user.loyalty_badge || '🌱 New Explorer'}
-                    </div>
-                    <button class="theme-toggle-btn" onclick="App.toggleTheme()" title="Toggle Theme">☀️</button>
                     <div style="position:relative;">
                         <button class="btn btn-icon btn-outline btn-sm" onclick="NotificationsManager.toggleDropdown()" title="Notifications">
                             🔔 <span id="notif-badge" class="badge badge-accent" style="display:none; font-size:0.65rem; padding:0.15rem 0.4rem; position:absolute; top:-5px; right:-5px;">0</span>
@@ -59,7 +35,6 @@ const App = {
         } else {
             navAuthSlot.innerHTML = `
                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <button class="theme-toggle-btn" onclick="App.toggleTheme()" title="Toggle Theme">☀️</button>
                     <a href="/login.html" class="btn btn-sm btn-secondary">Login</a>
                     <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
                 </div>

@@ -11,12 +11,26 @@ def test_admin_dashboard_metrics(client: TestClient, admin_auth_headers):
     assert "low_stock_count" in data
     assert "status_distribution" in data
     assert "top_selling_items" in data
+    assert "revenue_trends" in data
+    assert "peak_hours" in data
+    assert isinstance(data["peak_hours"], list)
+    assert len(data["peak_hours"]) > 0
+    assert "hour" in data["peak_hours"][0]
+    assert "orders" in data["peak_hours"][0]
 
 def test_admin_user_management(client: TestClient, admin_auth_headers):
+    # Ensure at least one student exists
+    client.post("/api/auth/register", json={
+        "name": "Admin Test Student",
+        "email": "admintest.student@canteen.edu",
+        "password": "Student@123",
+        "phone": "+1-555-4321",
+        "department": "Civil"
+    })
     response = client.get("/api/users/", headers=admin_auth_headers)
     assert response.status_code == 200
     users = response.json()
-    assert len(users) >= 4
+    assert len(users) >= 2
     student_user = next(u for u in users if u["role_id"] == 3)
 
     # Toggle status

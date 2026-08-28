@@ -80,21 +80,23 @@ def get_admin_dashboard_stats(
         revenue_chart_labels.append(day.strftime("%b %d"))
         revenue_chart_data.append(float(day_rev))
 
-    # Peak order hours
+    # Peak order hours dynamically computed from recent order history
+    past_week_start = datetime.combine(date.today() - timedelta(days=7), datetime.min.time())
+    recent_orders = db.query(Order.created_at).filter(
+        Order.created_at >= past_week_start,
+        Order.status != "Cancelled"
+    ).all()
+
+    hour_counts = {h: 0 for h in range(8, 21)}
+    for (order_dt,) in recent_orders:
+        if order_dt:
+            h = order_dt.hour
+            if h in hour_counts:
+                hour_counts[h] += 1
+
     peak_hours_data = [
-        {"hour": "08:00", "orders": 12},
-        {"hour": "09:00", "orders": 34},
-        {"hour": "10:00", "orders": 18},
-        {"hour": "11:00", "orders": 24},
-        {"hour": "12:00", "orders": 68},
-        {"hour": "13:00", "orders": 85},
-        {"hour": "14:00", "orders": 42},
-        {"hour": "15:00", "orders": 20},
-        {"hour": "16:00", "orders": 38},
-        {"hour": "17:00", "orders": 55},
-        {"hour": "18:00", "orders": 25},
-        {"hour": "19:00", "orders": 30},
-        {"hour": "20:00", "orders": 15}
+        {"hour": f"{h:02d}:00", "orders": count}
+        for h, count in sorted(hour_counts.items())
     ]
 
     return {

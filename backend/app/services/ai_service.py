@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Dict, Any, Optional
 from datetime import date, datetime, timedelta
 from decimal import Decimal
@@ -9,6 +10,7 @@ from backend.app.models.token import Token
 from backend.app.models.order import Order, OrderItem
 from backend.app.models.inventory import Inventory
 from backend.app.models.waste import FoodWasteLog
+from backend.app.models.rating import FoodRating
 from backend.app.models.ai_data import UserPreference, PredictionOverride, DemandPrediction
 from backend.app.schemas.ai import (
     DemandForecastResponse,
@@ -170,6 +172,7 @@ class AIService:
         food_items = db.query(FoodItem).limit(6).all()
         data_points = []
         total_variance_pct = 0.0
+        points_with_actuals = 0
 
         for day_offset in range(days, 0, -1):
             cur_date = end_date - timedelta(days=day_offset)
@@ -185,11 +188,24 @@ class AIService:
                     meal_slot="Lunch"
                 )
                 predicted_qty = pred["predicted_demand"]
-                delta = ((item.id * 7 + day_offset * 3) % 9) - 4
-                actual_qty = max(5, predicted_qty + delta)
+
+                # Query actual recorded orders for this dish on this date from PostgreSQL
+                day_start = datetime.combine(cur_date, datetime.min.time())
+                day_end = datetime.combine(cur_date, datetime.max.time())
+                actual_qty = db.query(func.coalesce(func.sum(OrderItem.quantity), 0)).join(Order).filter(
+                    OrderItem.food_item_id == item.id,
+                    Order.created_at >= day_start,
+                    Order.created_at <= day_end,
+                    Order.status != "Cancelled"
+                ).scalar() or 0
+
                 variance = actual_qty - predicted_qty
-                acc = max(70.0, min(100.0, 100.0 - abs(variance) / predicted_qty * 100.0))
-                total_variance_pct += acc
+                if actual_qty > 0 and predicted_qty > 0:
+                    acc = max(0.0, min(100.0, 100.0 - abs(variance) / predicted_qty * 100.0))
+                    total_variance_pct += acc
+                    points_with_actuals += 1
+                else:
+                    acc = 0.0
 
                 data_points.append(DemandVsActualPoint(
                     date=date_str,
@@ -201,7 +217,7 @@ class AIService:
                     accuracy_percentage=round(acc, 1)
                 ))
 
-        overall_accuracy = round(total_variance_pct / max(1, len(data_points)), 1)
+        overall_accuracy = round(total_variance_pct / max(1, points_with_actuals), 1) if points_with_actuals > 0 else 0.0
         return DemandVsActualResponse(
             period_days=days,
             overall_accuracy=overall_accuracy,
@@ -216,8 +232,10 @@ class AIService:
         top_n: int = 4
     ) -> List[FoodRecommendationItem]:
         all_items = db.query(FoodItem).join(Category).all()
-        catalog = [
-            {
+        catalog = []
+        for i in all_items:
+            avg_rating = db.query(func.avg(FoodRating.rating)).filter(FoodRating.food_item_id == i.id).scalar()
+            catalog.append({
                 "id": i.id,
                 "name": i.name,
                 "category_id": i.category_id,
@@ -229,10 +247,8 @@ class AIService:
                 "prep_time_minutes": i.prep_time_minutes,
                 "image_url": i.image_url,
                 "protein": i.protein,
-                "average_rating": float(getattr(i, "average_rating", 4.8) or 4.8)
-            }
-            for i in all_items
-        ]
+                "average_rating": round(float(avg_rating), 1) if avg_rating else 0.0
+            })
 
         pref = db.query(UserPreference).filter(UserPreference.user_id == user_id).first()
         pref_dict = {
@@ -429,9 +445,18 @@ class AIService:
         logs = db.query(FoodWasteLog).order_by(FoodWasteLog.log_date.desc()).limit(150).all()
 
         if not logs:
-            # Seed 7-day realistic waste data dynamically if empty
-            cls._seed_waste_logs_if_empty(db)
-            logs = db.query(FoodWasteLog).order_by(FoodWasteLog.log_date.desc()).limit(150).all()
+            return FoodWasteAnalyticsResponse(
+                total_prepared_portions=0,
+                total_sold_portions=0,
+                total_waste_portions=0,
+                overall_waste_percentage=Decimal("0.0"),
+                total_financial_loss_inr=Decimal("0.0"),
+                most_wasted_dishes=[],
+                weekly_trend=[],
+                ai_waste_reduction_suggestions=[
+                    "No food waste logs recorded yet. Waste analytics will calibrate automatically as kitchen preparation logs and unsold inventory are recorded."
+                ]
+            )
 
         total_prep = sum(l.prepared_quantity for l in logs)
         total_sold = sum(l.sold_quantity for l in logs)
@@ -515,10 +540,9 @@ class AIService:
 
         # AI/Statistical Suggestions
         suggestions = [
-            "Reduce preparation of Payasam / Kheer by approximately 10-12% tomorrow (consistent 18% unsold buffer in Dinner slot).",
-            "Medu Vada experiences demand spikes on Tuesdays & Thursdays: Recommended batch frying in smaller 15-unit intervals.",
-            "Fresh Coconut Water and Buttermilk show zero spoilage waste: Safe to increase daily inventory quota by +15%.",
-            "Upma prep in Breakfast slot exceeded consumption on 4 of last 7 days: Align with AI recommended 45 portions to save ~₹480 weekly."
+            "Reduce preparation buffer for items with high unsold ratios.",
+            "Schedule express item prep during peak hours (12:30-01:30 PM) to minimize food holding time.",
+            "Audit portion sizing across high-spoilage items."
         ]
 
         return FoodWasteAnalyticsResponse(
@@ -531,35 +555,3 @@ class AIService:
             weekly_trend=weekly_trends,
             ai_waste_reduction_suggestions=suggestions
         )
-
-    @classmethod
-    def _seed_waste_logs_if_empty(cls, db: Session):
-        items = db.query(FoodItem).all()
-        if not items:
-            return
-
-        today = date.today()
-        for day_offset in range(7, 0, -1):
-            log_d = today - timedelta(days=day_offset)
-            for item in items[:12]: # Sample 12 items
-                prep = 50 + (item.id * 3 + day_offset * 2) % 40
-                sold = int(prep * (0.82 + (item.id % 5) * 0.03))
-                leftover = max(0, prep - sold)
-                waste = int(leftover * 0.75) # 75% of leftover considered perishable waste
-                waste_pct = Decimal(str(round((waste / prep) * 100.0, 2)))
-                cost = Decimal(str(round(waste * float(item.price) * 0.45, 2))) # Raw ingredient cost factor ~45%
-
-                log = FoodWasteLog(
-                    food_item_id=item.id,
-                    log_date=log_d,
-                    meal_slot="Lunch" if item.id % 2 == 0 else "Breakfast",
-                    prepared_quantity=prep,
-                    sold_quantity=sold,
-                    leftover_quantity=leftover,
-                    waste_quantity=waste,
-                    waste_percentage=waste_pct,
-                    waste_cost_inr=cost,
-                    waste_reason="Over-preparation & unsold buffer"
-                )
-                db.add(log)
-        db.commit()

@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+    
+    # CORS Configuration: Comma-separated list of allowed origins
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5173,http://127.0.0.1:5173"
     
     # Database
     DATABASE_URL: str = "sqlite:///./canteen.db"
@@ -26,13 +29,20 @@ class Settings(BaseSettings):
     AI_MODEL_CONFIDENCE_THRESHOLD: float = 0.75
     CROWD_PEAK_THRESHOLD_QUEUE_DEPTH: int = 8
     
-    # Demo Payment
-    DEMO_PAYMENT_ENABLED: bool = True
-    DEMO_PAYMENT_GATEWAY_NAME: str = "DemoPay Gateway"
+    # Real UPI Payment Configuration
+    UPI_VPA: str = "jeremyjithesh7@oksbi"
+    UPI_PAYEE_NAME: str = "Jeremy Jithesh"
+    UPI_MERCHANT_CODE: str = "5812" # Canteen & Food Services
+    CAMPUS_GST_PERCENT: float = 5.0 # 5% Campus GST
 
-    class Config:
-        env_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    model_config = SettingsConfigDict(
+        env_file=(
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env"),
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"),
+            ".env"
+        ),
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
 settings = Settings()

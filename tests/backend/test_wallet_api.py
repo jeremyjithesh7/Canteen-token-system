@@ -41,3 +41,13 @@ def test_wallet_payment_order_deduction(client, student_auth_headers):
     # 3. Verify wallet balance deducted
     bal_after = float(client.get("/api/wallet/me", headers=student_auth_headers).json()["balance"])
     assert bal_after < bal_before
+
+def test_get_wallet_transactions(client, student_auth_headers):
+    """Test retrieving student's wallet transaction ledger directly."""
+    res = client.get("/api/wallet/transactions", headers=student_auth_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert isinstance(data, list)
+    if len(data) > 0:
+        assert "transaction_type" in data[0]
+        assert "amount" in data[0]

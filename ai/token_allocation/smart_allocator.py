@@ -62,7 +62,7 @@ class SmartTokenAllocator:
             estimated_wait = max(3, int(estimated_wait * 0.6))
 
         # 4. Generate counter-scoped token number
-        token_number = f"{counter_code}-{100 + (order_id % 900)}"
+        token_number = f"{counter_code}-{order_id:03d}"
 
         # 5. Priority score
         priority_score = 1.0

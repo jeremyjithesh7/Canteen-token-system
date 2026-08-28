@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rewards & Badges - Smart Campus Canteen OS</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/style.css?v=2.2">
+    <link rel="stylesheet" href="/css/components.css?v=2.2">
+    <link rel="stylesheet" href="/css/animations.css?v=2.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .rewards-hero {
-            background: linear-gradient(135deg, rgba(30, 20, 56, 0.9), rgba(18, 12, 34, 0.95));
-            border: 1px solid var(--primary-border);
+            background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+            border: 1px solid rgba(126, 34, 206, 0.2);
             border-radius: var(--radius-lg);
             padding: var(--space-6);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 16px rgba(126, 34, 206, 0.08);
             margin-bottom: var(--space-6);
+            position: relative;
         }
         .progress-bar-wrap {
-            background: var(--bg-surface);
+            background: #f1f5f9;
             border: 1px solid var(--border);
             border-radius: var(--radius-full);
             height: 10px;
@@ -38,7 +39,7 @@
             gap: var(--space-3);
         }
         .achievement-card {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: var(--space-4);
@@ -46,10 +47,12 @@
             align-items: center;
             gap: var(--space-3);
             transition: all var(--transition-base);
+            box-shadow: var(--shadow-xs);
         }
         .achievement-card:hover {
-            border-color: var(--border-hover);
+            border-color: var(--primary-border);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         .achievement-icon {
             font-size: 2rem;
@@ -61,11 +64,11 @@
             align-items: center;
             justify-content: space-between;
             padding: var(--space-3) var(--space-4);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border);
             transition: background var(--transition-fast);
         }
         .leaderboard-row:hover {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--bg-surface-elevated);
         }
         .rank-circle {
             width: 28px;
@@ -78,8 +81,8 @@
             font-size: 0.8125rem;
             font-family: var(--font-accent);
         }
-        .rank-1 { background: #ffd700; color: #000; }
-        .rank-2 { background: #e2e8f0; color: #000; }
+        .rank-1 { background: #ffd700; color: #000; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+        .rank-2 { background: #cbd5e1; color: #0f172a; }
         .rank-3 { background: #d97706; color: #fff; }
         .rank-other { background: var(--bg-surface-elevated); color: var(--text-muted); border: 1px solid var(--border); }
         @media (max-width: 900px) {
@@ -106,10 +109,11 @@
                 <li><a href="/index.html" class="nav-link">Home</a></li>
                 <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
                 <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
-                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/orders.html" class="nav-link"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
                 <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
                 <li><a href="/rewards.html" class="nav-link active"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
                 <li><a href="/queue.html" class="nav-link">Queue View</a></li>
                 <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
@@ -136,23 +140,23 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-5);">
                     <div>
                         <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
-                            <span class="badge badge-accent" id="user-tier-badge">Silver Foodie</span>
-                            <span class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="user-streak-val">5</span>-Day Canteen Streak</span>
+                            <span class="badge badge-accent" id="user-tier-badge">🥉 Bronze Member</span>
+                            <span class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="user-streak-val">0</span>-Day Canteen Streak</span>
                         </div>
-                        <div style="font-size:2.5rem; font-weight:700; font-family:var(--font-accent); color:#ffffff;" id="user-points-val">320 <span style="font-size:1rem; font-weight:500; color:var(--text-secondary);">POINTS</span></div>
+                        <div style="font-size:2.5rem; font-weight:700; font-family:var(--font-accent); color:var(--text-primary);" id="user-points-val">0 <span style="font-size:1rem; font-weight:500; color:var(--text-secondary);">POINTS</span></div>
                         <div style="font-size:0.8125rem; color:var(--text-secondary);" id="user-points-sub">Earn 1 reward point for every ₹10 spent on meals!</div>
                     </div>
 
                     <!-- Tier Progression Bar -->
                     <div style="min-width:280px; flex:1; max-width:440px;">
                         <div style="display:flex; justify-content:space-between; font-size:0.8125rem; font-weight:600;">
-                            <span id="tier-current-label" style="color:var(--primary-hover);">Silver Foodie (250 pts)</span>
-                            <span id="tier-next-label" style="color:var(--text-secondary);">Gold Gourmet (500 pts)</span>
+                            <span id="tier-current-label" style="color:var(--primary-hover);">Bronze (0 pts)</span>
+                            <span id="tier-next-label" style="color:var(--text-secondary);">Silver Foodie (100 pts)</span>
                         </div>
                         <div class="progress-bar-wrap">
-                            <div class="progress-bar-fill" id="tier-progress-fill" style="width: 56%;"></div>
+                            <div class="progress-bar-fill" id="tier-progress-fill" style="width: 0%;"></div>
                         </div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); text-align:right;" id="points-needed-label">180 points to level up!</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-align:right;" id="points-needed-label">100 points to level up!</div>
                     </div>
                 </div>
             </div>
@@ -221,12 +225,12 @@
     </footer>
 
     <!-- App Scripts -->
-    <script src="/js/config.js"></script>
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
-    <script src="/js/cart.js"></script>
-    <script src="/js/notifications.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/config.js?v=2.2"></script>
+    <script src="/js/api.js?v=2.2"></script>
+    <script src="/js/auth.js?v=2.2"></script>
+    <script src="/js/cart.js?v=2.2"></script>
+    <script src="/js/notifications.js?v=2.2"></script>
+    <script src="/js/app.js?v=2.2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             if (!Auth.isLoggedIn()) {

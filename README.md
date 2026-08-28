@@ -12,9 +12,9 @@ An end-to-end, production-grade smart college canteen ordering, multi-counter sc
 
 ## 🌟 Key Capabilities & Scale-Up Enhancements
 
-### 🎨 Purple Neon Design System & Authentic South Indian Menu
-- **Dark Neon Cyberpunk Aesthetics**: Deep cosmic violet canvas (`#0a0118`), elevated glass cards (`#140728`), neon electric purple (`#b026ff`), hot pink magenta (`#ff2ee6`), and cyan accents (`#00e5ff`).
-- **Futuristic Typography**: Google Fonts `Space Grotesk` (clean readability) and `Orbitron` (high-tech display headers & token sequence numbers).
+### 🎨 Modern SaaS Design System & Authentic South Indian Menu
+- **Clean & Vibrant UI Aesthetics**: Crisp, high-contrast light mode with elegant violet/purple accents, elevated surface cards, clean typography, and responsive micro-animations.
+- **Modern Typography**: Google Fonts `Inter` (UI & Body), `Manrope` (Headings), and `Space Grotesk` (Token numbers & accents).
 - **25 Authentic South Indian Dishes with 100% Unique Photos**:
   1. **South Indian Tiffin & Meals (Counter 1)**: Masala Dosa, Plain Dosa, Rava Dosa, Steamed Idlis, Crispy Medu Vada, Onion Tomato Uttapam, Ven Pongal, Rava Upma, Sambar Rice, Curd Rice, Bisi Bele Bath, Lemon Rice.
   2. **Traditional Desserts (Counter 2)**: Semiya Payasam, Desi Ghee Mysore Pak, Rava Kesari, Warm Gulab Jamun, Badam Halwa, Saffron Jalebi.
@@ -92,7 +92,7 @@ mini project/
 │       ├── qr.js                 # Standalone vector QR code renderer
 │       ├── admin.js              # Chart.js visualizers, Kanban & CSV exporter
 │       ├── notifications.js      # Toast notifications & dropdown manager
-│       └── app.js                # Navbar loyalty badge, broadcast banner & theme
+│       └── app.js                # Navbar loyalty badge & broadcast banner
 │
 ├── backend/app/                  # Production FastAPI Application
 │   ├── authentication/           # JWT access/refresh, rate limiting & deps

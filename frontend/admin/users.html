@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,7 @@
                 <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
                 <li><a href="/admin/users.html" class="sidebar-link active"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
                 <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+                <li><a href="/admin/database.html" class="sidebar-link"><i class="fa-solid fa-database"></i> <span>Database</span></a></li>
             </ul>
 
             <div class="sidebar-footer">
@@ -90,7 +91,7 @@
                         <td><strong style="color:var(--text-primary);">${u.name}</strong></td>
                         <td style="color:var(--text-secondary);">${u.email}</td>
                         <td><span class="badge badge-${u.role_id === 1 ? 'accent' : (u.role_id === 2 ? 'warning' : 'info')}">${u.role ? u.role.name : 'Student'}</span></td>
-                        <td><span class="badge badge-accent" style="font-size:0.75rem;">${u.loyalty_badge || 'New Explorer'}</span></td>
+                        <td><span class="badge badge-accent" style="font-size:0.75rem;">${u.loyalty_badge || 'Bronze Member'}</span></td>
                         <td style="color:var(--text-secondary);">${u.department || '-'}</td>
                         <td><span class="badge badge-${u.is_active ? 'ready' : 'cancelled'}">${u.is_active ? 'Active' : 'Deactivated'}</span></td>
                         <td style="text-align:right;">

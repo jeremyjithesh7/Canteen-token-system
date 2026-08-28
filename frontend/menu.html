@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Food Menu - Smart Campus Canteen OS</title>
     <meta name="description" content="Explore 25 authentic South Indian tiffins, sweets, and beverages. Order online and get live token tracking.">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/style.css?v=2.2">
+    <link rel="stylesheet" href="/css/components.css?v=2.2">
+    <link rel="stylesheet" href="/css/animations.css?v=2.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .menu-filter-bar {
@@ -21,14 +21,15 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: var(--space-3) var(--space-4);
+            box-shadow: var(--shadow-xs);
         }
         .cat-tab-btn {
-            padding: 0.4rem 0.95rem;
+            padding: 0.45rem 1rem;
             border-radius: var(--radius-full);
             border: 1px solid var(--border);
             background: var(--bg-surface-elevated);
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.8125rem;
             cursor: pointer;
             transition: all var(--transition-fast);
@@ -38,9 +39,10 @@
             background: var(--primary);
             color: #ffffff;
             border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(126, 34, 206, 0.25);
         }
         .food-img-container {
-            height: 165px;
+            height: 175px;
             width: 100%;
             position: relative;
             overflow: hidden;
@@ -53,33 +55,41 @@
             transition: transform 0.35s ease;
         }
         .food-card:hover .food-img {
-            transform: scale(1.04);
+            transform: scale(1.05);
         }
         .counter-badge-tag {
             position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(17, 11, 32, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
+            top: 10px;
+            left: 10px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #1e1b4b;
             font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.55rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
             border-radius: var(--radius-xs);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .rating-badge-tag {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(17, 11, 32, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fbbf24;
+            top: 10px;
+            right: 10px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #b45309;
             font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.55rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
             border-radius: var(--radius-xs);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .food-body {
             padding: var(--space-4);
@@ -96,7 +106,9 @@
             flex-wrap: wrap;
         }
         .macro-item {
-            background: var(--bg-surface);
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 500;
             padding: 0.15rem 0.45rem;
             border-radius: var(--radius-xs);
             border: 1px solid var(--border);
@@ -116,10 +128,11 @@
                 <li><a href="/" class="nav-link">Home</a></li>
                 <li><a href="/menu.html" class="nav-link active">Menu Catalog</a></li>
                 <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
-                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/orders.html" class="nav-link"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
                 <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
                 <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
                 <li><a href="/queue.html" class="nav-link">Queue View</a></li>
                 <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
@@ -166,12 +179,12 @@
     </main>
 
     <!-- App Scripts -->
-    <script src="/js/config.js"></script>
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
-    <script src="/js/cart.js"></script>
-    <script src="/js/notifications.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/config.js?v=2.2"></script>
+    <script src="/js/api.js?v=2.2"></script>
+    <script src="/js/auth.js?v=2.2"></script>
+    <script src="/js/cart.js?v=2.2"></script>
+    <script src="/js/notifications.js?v=2.2"></script>
+    <script src="/js/app.js?v=2.2"></script>
     <script>
         let allDishes = [];
         let selectedCategory = null;
@@ -234,16 +247,18 @@
 
             grid.innerHTML = dishes.map(dish => {
                 const counterName = dish.counter_id === 1 ? 'Counter 1' : (dish.counter_id === 2 ? 'Counter 2' : 'Counter 3');
-                const ratingScore = dish.average_rating ? dish.average_rating.toFixed(1) : "4.8";
-                const ratingCount = dish.rating_count || 14;
-                const img = dish.image_url || 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80';
+                const hasRatings = dish.average_rating !== null && dish.average_rating !== undefined && dish.rating_count > 0;
+                const ratingBadge = hasRatings
+                    ? `<span class="rating-badge-tag clickable" style="cursor:pointer;" onclick="openReviewModal(${dish.id})"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> ${parseFloat(dish.average_rating).toFixed(1)} (${dish.rating_count})</span>`
+                    : `<span class="rating-badge-tag clickable" style="cursor:pointer;" onclick="openReviewModal(${dish.id})"><i class="fa-regular fa-star"></i> No ratings yet</span>`;
+                const img = dish.image_url || '/assets/menu/masala-dosa.jpg';
 
                 return `
                     <div class="food-card">
                         <div class="food-img-container">
-                            <img src="${img}" alt="${dish.name}" class="food-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80'">
+                            <img src="${img}" alt="${dish.name}" class="food-img" loading="lazy" onerror="this.src='/assets/menu/masala-dosa.jpg'">
                             <span class="counter-badge-tag"><i class="fa-solid fa-store"></i> ${counterName}</span>
-                            <span class="rating-badge-tag"><i class="fa-solid fa-star"></i> ${ratingScore} (${ratingCount})</span>
+                            ${ratingBadge}
                         </div>
 
                         <div class="food-body">
@@ -300,9 +315,126 @@
             if (badge) badge.textContent = count;
         }
 
+        async function openReviewModal(dishId) {
+            const dish = allDishes.find(d => d.id === dishId);
+            if (!dish) return;
+
+            document.getElementById("modal-dish-name").textContent = dish.name;
+            document.getElementById("modal-dish-price").textContent = `₹${parseFloat(dish.price).toFixed(2)}`;
+            document.getElementById("modal-dish-img").src = dish.image_url || '/assets/menu/masala-dosa.jpg';
+            
+            const content = document.getElementById("modal-review-content");
+            content.innerHTML = `<div style="text-align:center; padding:var(--space-6); color:var(--text-secondary);"><div class="spinner spinner-lg"></div><p style="margin-top:var(--space-3); font-size:0.875rem;">Loading dish reviews...</p></div>`;
+            
+            document.getElementById("review-modal").style.display = "flex";
+
+            try {
+                const summary = await API.get(`/api/ratings/dish/${dishId}`);
+                renderReviewModalContent(summary, dish);
+            } catch (err) {
+                console.error("Error loading reviews:", err);
+                content.innerHTML = `<div style="text-align:center; padding:var(--space-5); color:var(--danger);"><i class="fa-solid fa-circle-exclamation"></i> Could not load reviews.</div>`;
+            }
+        }
+
+        function closeReviewModal() {
+            document.getElementById("review-modal").style.display = "none";
+        }
+
+        function renderReviewModalContent(summary, dish) {
+            const content = document.getElementById("modal-review-content");
+            const total = summary.rating_count || 0;
+            const avg = summary.average_rating ? summary.average_rating.toFixed(1) : null;
+            const starCounts = summary.star_counts || {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            
+            let distributionHtml = "";
+            for (let star = 5; star >= 1; star--) {
+                const c = starCounts[star] || 0;
+                const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+                distributionHtml += `
+                    <div class="rating-bar-row">
+                        <span class="rating-bar-label">${star} ★</span>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: ${pct}%;"></div>
+                        </div>
+                        <span class="rating-bar-count">${c}</span>
+                    </div>
+                `;
+            }
+
+            let reviewsListHtml = "";
+            if (!summary.latest_reviews || summary.latest_reviews.length === 0) {
+                reviewsListHtml = `
+                    <div style="text-align:center; padding:var(--space-6) var(--space-3); color:var(--text-secondary); background:var(--bg-surface-elevated); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                        <div style="font-size:2rem; color:var(--text-muted); margin-bottom:var(--space-2);"><i class="fa-regular fa-comment-dots"></i></div>
+                        <h4 style="margin:0 0 var(--space-1); font-size:0.95rem; font-weight:700; color:var(--text-primary);">No Customer Reviews Yet</h4>
+                        <p style="font-size:0.8125rem; margin:0; color:var(--text-secondary);">Be the first student to review this dish after completing your order!</p>
+                    </div>
+                `;
+            } else {
+                reviewsListHtml = summary.latest_reviews.map(r => {
+                    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+                    const formattedDate = new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    return `
+                        <div class="user-review-item">
+                            <div class="user-review-header">
+                                <span class="user-review-author"><i class="fa-solid fa-user-circle" style="color:var(--primary-hover);"></i> ${r.user_name || 'Verified Student'}</span>
+                                <span class="user-review-date">${formattedDate}</span>
+                            </div>
+                            <div style="color:#f59e0b; font-size:0.875rem; margin-bottom:var(--space-2); letter-spacing:1px;">${stars}</div>
+                            <p class="user-review-comment">${r.comment ? r.comment : '<em style="color:var(--text-muted);">Rated without written comment.</em>'}</p>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            content.innerHTML = `
+                <div class="review-summary-header">
+                    <div class="review-big-score">
+                        <div class="score-num">${avg ? avg : '0.0'}</div>
+                        <div class="stars-row">
+                            ${avg ? '★'.repeat(Math.round(summary.average_rating)) + '☆'.repeat(5 - Math.round(summary.average_rating)) : '☆☆☆☆☆'}
+                        </div>
+                        <div class="total-reviews">${total === 1 ? '1 review' : `${total} reviews`}</div>
+                    </div>
+                    <div class="rating-bars-container">
+                        ${distributionHtml}
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
+                    <h4 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text-primary);">Customer Feedback</h4>
+                    <a href="/orders.html" class="btn btn-sm btn-outline" style="font-size:0.75rem;"><i class="fa-solid fa-pen-to-square"></i> Rate in Orders</a>
+                </div>
+
+                <div style="display:flex; flex-direction:column;">
+                    ${reviewsListHtml}
+                </div>
+            `;
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             loadMenu();
         });
     </script>
+
+    <!-- Food Reviews & Rating Modal -->
+    <div id="review-modal" class="modal-backdrop" style="display:none;" onclick="if(event.target === this) closeReviewModal()">
+        <div class="modal-card animate-pop-in" style="max-width:540px; width:92%; max-height:85vh; display:flex; flex-direction:column;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:var(--space-3);">
+                    <img id="modal-dish-img" src="/assets/menu/masala-dosa.jpg" alt="Dish preview" style="width:44px; height:44px; border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--border);">
+                    <div>
+                        <h3 id="modal-dish-name" style="margin:0; font-size:1.15rem; font-weight:700; color:var(--text-primary);">Dish Name</h3>
+                        <span id="modal-dish-price" style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">₹0.00</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeReviewModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto; padding:var(--space-5);" id="modal-review-content">
+                <div class="spinner spinner-lg"></div> Loading reviews...
+            </div>
+        </div>
+    </div>
 </body>
 </html>

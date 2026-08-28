@@ -48,8 +48,15 @@ def client():
 
 @pytest.fixture(scope="session")
 def student_auth_headers(client):
-    """Logs in as demo student and returns Authorization header."""
-    res = client.post("/api/auth/login", json={"email": "student@canteen.edu", "password": "Student@123"})
+    """Dynamically registers a student and returns Authorization header."""
+    client.post("/api/auth/register", json={
+        "name": "Test Student",
+        "email": "teststudent@canteen.edu",
+        "password": "Student@123",
+        "phone": "+1-555-9999",
+        "department": "Computer Science"
+    })
+    res = client.post("/api/auth/login", json={"email": "teststudent@canteen.edu", "password": "Student@123"})
     assert res.status_code == 200, f"Student login failed: {res.text}"
     token = res.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}

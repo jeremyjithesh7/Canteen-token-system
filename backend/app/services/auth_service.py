@@ -21,7 +21,7 @@ class AuthService:
         elif orders_count >= 3:
             return {"tier": "Foodie", "badge": "🍔 Campus Foodie"}
         else:
-            return {"tier": "Newbie", "badge": "🌱 New Explorer"}
+            return {"tier": "Bronze", "badge": "🥉 Bronze Member"}
 
     @staticmethod
     def enrich_user_response(user: User, db: Session) -> UserResponse:

@@ -46,24 +46,45 @@
 .spinner {
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-top-color: var(--primary-hover);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-top-color: var(--primary);
     border-radius: 50%;
     animation: spin 0.75s linear infinite;
     display: inline-block;
     vertical-align: middle;
 }
 
-.spinner-sm {
-    width: 14px;
-    height: 14px;
-    border-width: 1.5px;
+/* 6. Cart Bounce Animation */
+@keyframes cartBounce {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.28) rotate(-6deg); }
+    60% { transform: scale(0.92) rotate(4deg); }
+    80% { transform: scale(1.08) rotate(-2deg); }
 }
 
-.spinner-lg {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
+.cart-bump {
+    animation: cartBounce 0.45s ease-out;
+}
+
+/* 7. Modal & Pop-in */
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-pop-in {
+    animation: popIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 8. Active Button Press Scale */
+.btn:active {
+    transform: scale(0.975);
 }
 
 /* ==========================================================================
@@ -85,6 +106,6 @@
 
     .skeleton {
         animation: none !important;
-        background: rgba(25, 18, 43, 0.9) !important;
+        background: #e2e8f0 !important;
     }
 }

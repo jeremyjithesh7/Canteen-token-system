@@ -47,3 +47,10 @@ def test_cart_lifecycle(client: TestClient, student_auth_headers):
     rem_res = client.delete("/api/cart/items/4", headers=student_auth_headers)
     assert rem_res.status_code == 200
     assert rem_res.json()["total_items_count"] == 0
+
+def test_get_cart_me_alias(client: TestClient, student_auth_headers):
+    """Test retrieving user's cart via /api/cart/me alias."""
+    res = client.get("/api/cart/me", headers=student_auth_headers)
+    assert res.status_code == 200
+    assert "items" in res.json()
+    assert "grand_total" in res.json()

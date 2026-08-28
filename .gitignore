@@ -31,14 +31,21 @@ wheels/
 # Environment
 .env
 .env.local
+.env.*.local
 
-# IDEs
+# IDEs & OS
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
+Thumbs.db
 
-# Testing
+# Vercel & Node
+.vercel/
+node_modules/
+
+# Testing & Coverage
 .pytest_cache/
 .coverage
 htmlcov/

@@ -16,6 +16,7 @@ from backend.app.models.user import User
 router = APIRouter(prefix="/api/cart", tags=["Cart Management"])
 
 @router.get("/", response_model=CartSummaryResponse)
+@router.get("/me", response_model=CartSummaryResponse)
 def get_user_cart(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)

@@ -4,8 +4,8 @@ from fastapi.testclient import TestClient
 def test_refresh_token_issuance_and_rotation(client: TestClient):
     # 1. Login to get access & refresh tokens
     login_res = client.post("/api/auth/login", json={
-        "email": "student@canteen.edu",
-        "password": "Student@123"
+        "email": "admin@canteen.edu",
+        "password": "Admin@123"
     })
     assert login_res.status_code == 200
     data = login_res.json()

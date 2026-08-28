@@ -1,9 +1,42 @@
 /**
- * Digital Canteen Token System - Frontend Configuration & Endpoints
+ * Digital Canteen Token System - Dynamic Frontend Configuration
+ * Auto-detects local development vs. unified or external production backend.
  */
 
+function resolveApiBaseUrl() {
+    // 1. Explicit runtime override via window object or localStorage
+    if (typeof window !== 'undefined' && window.CANTEEN_API_BASE) {
+        return window.CANTEEN_API_BASE.replace(/\/+$/, '');
+    }
+    if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('canteen_api_base');
+        if (stored) return stored.replace(/\/+$/, '');
+    }
+
+    // 2. Browser origin detection
+    if (typeof window !== 'undefined' && window.location) {
+        const port = window.location.port;
+        const hostname = window.location.hostname;
+
+        // Local development static servers (e.g. port 3000, 5500, 5173) connecting to local backend
+        if (
+            (hostname === 'localhost' || hostname === '127.0.0.1') &&
+            port &&
+            port !== '8000' &&
+            port !== ''
+        ) {
+            return 'http://127.0.0.1:8000';
+        }
+
+        // Same-origin deployments (FastAPI static mount or Vercel unified deployment with /api routing)
+        return '';
+    }
+
+    return '';
+}
+
 const CONFIG = {
-    API_BASE_URL: 'http://127.0.0.1:8000',
+    API_BASE_URL: resolveApiBaseUrl(),
 
     ENDPOINTS: {
         AUTH: {

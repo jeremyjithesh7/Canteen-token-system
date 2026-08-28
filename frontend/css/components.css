@@ -49,9 +49,9 @@
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-surface-elevated);
     border-color: var(--border-hover);
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .btn-outline {
@@ -63,7 +63,7 @@
 .btn-outline:hover {
     background: var(--primary-light);
     border-color: var(--primary-border);
-    color: #ffffff;
+    color: var(--primary-hover);
 }
 
 .btn-ghost {
@@ -73,7 +73,7 @@
 }
 
 .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-surface-elevated);
     color: var(--text-primary);
 }
 
@@ -133,7 +133,7 @@
 }
 
 .card-glass {
-    background: rgba(23, 15, 43, 0.72);
+    background: var(--bg-glass);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid var(--border);
@@ -195,7 +195,7 @@
     font-size: 3rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: var(--space-2) 0;
 }
 
@@ -205,7 +205,7 @@
     gap: var(--space-2);
     background: var(--primary-light);
     border: 1px solid var(--primary-border);
-    color: #c084fc;
+    color: var(--primary-hover);
     padding: 0.35rem 0.9rem;
     border-radius: var(--radius-full);
     font-weight: 600;
@@ -236,9 +236,9 @@
 }
 
 .badge-preparing {
-    background: rgba(147, 51, 234, 0.12);
-    color: #c084fc;
-    border: 1px solid rgba(147, 51, 234, 0.28);
+    background: var(--primary-light);
+    color: var(--primary-hover);
+    border: 1px solid var(--primary-border);
 }
 
 .badge-ready {
@@ -249,8 +249,8 @@
 
 .badge-completed {
     background: rgba(100, 116, 139, 0.12);
-    color: #94a3b8;
-    border: 1px solid rgba(100, 116, 139, 0.25);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
 }
 
 .badge-cancelled, .badge-danger {
@@ -266,9 +266,9 @@
 }
 
 .badge-accent {
-    background: rgba(124, 58, 237, 0.12);
-    color: #a78bfa;
-    border: 1px solid rgba(124, 58, 237, 0.28);
+    background: var(--secondary-light);
+    color: var(--secondary);
+    border: 1px solid var(--border);
 }
 
 /* --------------------------------------------------------------------------
@@ -317,30 +317,36 @@
 
 .food-counter-tag {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(17, 11, 32, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    top: 10px;
+    left: 10px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e1b4b;
     font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
     border-radius: var(--radius-xs);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .food-veg-tag {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 18px;
-    height: 18px;
-    background: rgba(17, 11, 32, 0.85);
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1.5px solid #10b981;
+    border: 1.5px solid #059669;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    z-index: 2;
 }
 
 .food-veg-tag.nonveg {
@@ -561,12 +567,12 @@
 
 .data-table td {
     padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
 }
 
 .data-table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-surface-elevated);
     color: var(--text-primary);
 }
 
@@ -612,7 +618,7 @@
 }
 
 .skeleton {
-    background: linear-gradient(90deg, rgba(25, 18, 43, 0.7) 25%, rgba(45, 30, 75, 0.8) 50%, rgba(25, 18, 43, 0.7) 75%);
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
     background-size: 200% 100%;
     animation: skeletonShimmer 1.8s infinite;
     border-radius: var(--radius-sm);
@@ -667,6 +673,105 @@
     transform: scale(1);
 }
 
+/* UPI Payment Specific Components */
+.upi-modal-card {
+    max-width: 500px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    padding: var(--space-6);
+}
+
+.upi-qr-box {
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    margin: 1rem auto;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.upi-qr-box img {
+    display: block;
+    width: 190px;
+    height: 190px;
+}
+
+.upi-app-btn-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    margin: 1rem 0;
+}
+
+.upi-app-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.upi-app-btn:hover {
+    border-color: var(--primary-border);
+    background: var(--primary-light);
+    color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.upi-details-table {
+    width: 100%;
+    background: var(--bg-surface-elevated);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.upi-details-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    color: var(--text-secondary);
+}
+
+.upi-details-row.total-row {
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.badge-payment-pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+}
+
 /* --------------------------------------------------------------------------
    10. Toast Notifications
    -------------------------------------------------------------------------- */
@@ -702,4 +807,206 @@
 
 .toast-error {
     border-left: 3px solid var(--danger);
+}
+
+/* --------------------------------------------------------------------------
+   Review & Rating Modal Components
+   -------------------------------------------------------------------------- */
+.review-summary-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.review-big-score {
+    text-align: center;
+    min-width: 110px;
+}
+
+.review-big-score .score-num {
+    font-size: 2.8rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.review-big-score .stars-row {
+    color: #f59e0b;
+    font-size: 1rem;
+    margin-top: 4px;
+}
+
+.review-big-score .total-reviews {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.rating-bars-container {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rating-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+}
+
+.rating-bar-label {
+    width: 32px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: right;
+}
+
+.rating-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.rating-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.rating-bar-count {
+    width: 28px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-align: left;
+}
+
+.user-review-item {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.user-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+}
+
+.user-review-author {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.user-review-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.user-review-comment {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+}
+
+/* Star Rating Picker (1 to 5 clickable stars) */
+.star-rating-picker {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+    margin: var(--space-4) 0;
+}
+
+.star-rating-picker .star-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--border-hover);
+    cursor: pointer;
+    transition: transform 0.15s ease, color 0.15s ease;
+    padding: 0 4px;
+}
+
+.star-rating-picker .star-btn.active,
+.star-rating-picker .star-btn:hover,
+.star-rating-picker .star-btn.hovered {
+    color: #f59e0b;
+    transform: scale(1.18);
+}
+
+/* ==========================================================================
+   Campus Physical Wallet Card High-Contrast Rules
+   ========================================================================== */
+.wallet-hero-card {
+    background: linear-gradient(135deg, #1e113a 0%, #150a28 60%, #0d0519 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: 0 12px 36px rgba(21, 10, 40, 0.35);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--space-6);
+    color: #ffffff !important;
+}
+
+.wallet-hero-card * {
+    color: #ffffff !important;
+}
+
+.wallet-hero-card .wallet-card-subtitle {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.wallet-hero-card .wallet-balance-display,
+.wallet-hero-card #wallet-balance-val {
+    color: #ffffff !important;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5) !important;
+}
+
+.wallet-hero-card .wallet-cardholder-label,
+.wallet-hero-card #wallet-holder-name {
+    color: #f8fafc !important;
+}
+
+.wallet-hero-card .wallet-id-val,
+.wallet-hero-card #student-roll-id {
+    color: #ffffff !important;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.wallet-chip {
+    width: 48px;
+    height: 36px;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+    border: 1px solid #b45309 !important;
+    border-radius: 6px;
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.wallet-chip i {
+    color: #78350f !important;
+    font-size: 1.25rem !important;
 }

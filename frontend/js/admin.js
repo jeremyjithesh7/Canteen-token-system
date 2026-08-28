@@ -24,6 +24,14 @@ const AdminController = {
         }
     },
 
+    getChartTextColor: function() {
+        return '#475569';
+    },
+
+    getChartGridColor: function() {
+        return 'rgba(0, 0, 0, 0.08)';
+    },
+
     renderRevenueChart: function(trends) {
         const ctx = document.getElementById('revenue-chart-canvas');
         if (!ctx || !trends || typeof Chart === 'undefined') return;
@@ -32,6 +40,9 @@ const AdminController = {
             this.revenueChartInstance.destroy();
         }
 
+        const textColor = this.getChartTextColor();
+        const gridColor = this.getChartGridColor();
+
         this.revenueChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -39,12 +50,12 @@ const AdminController = {
                 datasets: [{
                     label: 'Daily Revenue (₹)',
                     data: trends.data,
-                    borderColor: '#b026ff',
-                    backgroundColor: 'rgba(176, 38, 255, 0.15)',
+                    borderColor: '#9333ea',
+                    backgroundColor: 'rgba(147, 51, 234, 0.15)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.35,
-                    pointBackgroundColor: '#ff2ee6',
+                    pointBackgroundColor: '#a855f7',
                     pointBorderColor: '#ffffff',
                     pointRadius: 5
                 }]
@@ -56,8 +67,8 @@ const AdminController = {
                     legend: { display: false }
                 },
                 scales: {
-                    x: { grid: { color: 'rgba(176, 38, 255, 0.1)' }, ticks: { color: '#b3a7d4' } },
-                    y: { grid: { color: 'rgba(176, 38, 255, 0.1)' }, ticks: { color: '#b3a7d4' } }
+                    x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor } }
                 }
             }
         });
@@ -71,6 +82,9 @@ const AdminController = {
             this.peakHoursChartInstance.destroy();
         }
 
+        const textColor = this.getChartTextColor();
+        const gridColor = this.getChartGridColor();
+
         this.peakHoursChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -78,8 +92,8 @@ const AdminController = {
                 datasets: [{
                     label: 'Orders Volume',
                     data: peakData.map(p => p.orders),
-                    backgroundColor: 'rgba(0, 229, 255, 0.65)',
-                    borderColor: '#00e5ff',
+                    backgroundColor: 'rgba(6, 182, 212, 0.65)',
+                    borderColor: '#06b6d4',
                     borderWidth: 1.5,
                     borderRadius: 6
                 }]
@@ -91,8 +105,8 @@ const AdminController = {
                     legend: { display: false }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: '#b3a7d4' } },
-                    y: { grid: { color: 'rgba(0, 229, 255, 0.1)' }, ticks: { color: '#b3a7d4' } }
+                    x: { grid: { display: false }, ticks: { color: textColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor } }
                 }
             }
         });

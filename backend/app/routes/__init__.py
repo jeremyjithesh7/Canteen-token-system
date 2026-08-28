@@ -13,6 +13,7 @@ from .cart import router as cart_router
 from .ratings import router as ratings_router
 from .wallet import router as wallet_router
 from .rewards import router as rewards_router
+from .database_viewer import router as database_viewer_router
 
 __all__ = [
     "auth_router",
@@ -29,5 +30,6 @@ __all__ = [
     "cart_router",
     "ratings_router",
     "wallet_router",
-    "rewards_router"
+    "rewards_router",
+    "database_viewer_router"
 ]

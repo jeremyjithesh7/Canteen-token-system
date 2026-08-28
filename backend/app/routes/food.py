@@ -64,8 +64,8 @@ def get_food_items(
             resp.average_rating = round(float(sum(r.rating for r in item.ratings) / len(item.ratings)), 1)
             resp.rating_count = len(item.ratings)
         else:
-            resp.average_rating = 4.8
-            resp.rating_count = 14
+            resp.average_rating = None
+            resp.rating_count = 0
         results.append(resp)
     return results
 
@@ -82,8 +82,8 @@ def get_food_item_detail(item_id: int, db: Session = Depends(get_db)):
         resp.average_rating = round(float(sum(r.rating for r in item.ratings) / len(item.ratings)), 1)
         resp.rating_count = len(item.ratings)
     else:
-        resp.average_rating = 4.8
-        resp.rating_count = 14
+        resp.average_rating = None
+        resp.rating_count = 0
     return resp
 
 @router.post("/items", response_model=FoodItemResponse, status_code=status.HTTP_201_CREATED)

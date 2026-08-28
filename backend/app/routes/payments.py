@@ -8,7 +8,7 @@ from backend.app.schemas.payment import PaymentProcessRequest, PaymentResponse
 from backend.app.services.payment_service import PaymentService
 from backend.app.authentication.deps import get_current_active_user, get_current_admin
 
-router = APIRouter(prefix="/api/payments", tags=["Payments (Demo Gateway)"])
+router = APIRouter(prefix="/api/payments", tags=["Payments"])
 
 @router.post("/process", response_model=PaymentResponse)
 def process_payment(
@@ -16,8 +16,8 @@ def process_payment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Processes simulated instant payment confirmation via demo gateway."""
-    return PaymentService.process_demo_payment(db=db, user_id=current_user.id, payment_in=payment_in)
+    """Processes payment initiation request."""
+    return PaymentService.process_payment_request(db=db, user_id=current_user.id, payment_in=payment_in)
 
 @router.get("/order/{order_id}", response_model=PaymentResponse)
 def get_payment_for_order(

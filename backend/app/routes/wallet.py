@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from decimal import Decimal
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from backend.app.database.session import get_db
-from backend.app.schemas.wallet import WalletResponse, WalletTopUpRequest
+from backend.app.schemas.wallet import WalletResponse, WalletTopUpRequest, WalletTransactionResponse
 from backend.app.services.wallet_service import WalletService
 from backend.app.authentication.deps import get_current_active_user
 from backend.app.models.user import User
@@ -12,12 +12,22 @@ from backend.app.models.user import User
 router = APIRouter(prefix="/api/wallet", tags=["Campus Wallet"])
 
 @router.get("/me", response_model=WalletResponse)
+@router.get("/", response_model=WalletResponse)
 def get_my_wallet(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """Returns current student campus wallet balance and recent transaction history."""
     return WalletService.get_wallet_summary(db=db, user_id=current_user.id)
+
+@router.get("/transactions", response_model=List[WalletTransactionResponse])
+def get_my_wallet_transactions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Returns transaction history for logged-in user's wallet."""
+    summary = WalletService.get_wallet_summary(db=db, user_id=current_user.id)
+    return summary["transactions"]
 
 @router.post("/topup")
 def top_up_my_wallet(

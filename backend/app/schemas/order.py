@@ -34,14 +34,17 @@ class OrderResponse(BaseModel):
     id: int
     user_id: int
     order_number: str
-    total_amount: Decimal
+    total_amount: Decimal # Subtotal before tax
     discount_amount: Decimal
-    final_amount: Decimal
+    final_amount: Decimal # Grand total after 5% GST
+    tax_amount: Optional[Decimal] = None
+    subtotal: Optional[Decimal] = None
     status: str
     notes: Optional[str] = None
     scheduled_for: Optional[datetime] = None
     is_preorder: bool = False
     items: List[OrderItemResponse] = []
+    token_id: Optional[int] = None
     token_number: Optional[str] = None
     token_status: Optional[str] = None
     estimated_wait_minutes: Optional[int] = None
@@ -49,6 +52,9 @@ class OrderResponse(BaseModel):
     counter_number: Optional[int] = None
     payment_status: Optional[str] = None
     payment_method: Optional[str] = None
+    upi_payment_uri: Optional[str] = None
+    upi_vpa: Optional[str] = None
+    upi_payee_name: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

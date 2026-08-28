@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Database Live Inspector - Admin Portal</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .db-table-nav {
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-2);
+            margin-bottom: var(--space-4);
+            border-bottom: 1px solid var(--border);
+        }
+        .db-tab-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+        .db-tab-btn:hover {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+        .db-tab-btn.active {
+            background: var(--primary-light);
+            color: var(--primary-hover);
+            border-color: var(--primary-border);
+        }
+        .db-tab-count {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 0.1rem 0.45rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .db-filter-bar {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-4);
+            background: var(--bg-surface);
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+        .db-search-input {
+            flex: 1;
+            min-width: 220px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.45rem 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.8125rem;
+        }
+        .db-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.45rem 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.8125rem;
+        }
+        .db-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+        .db-data-table th {
+            background: var(--bg-surface);
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .db-data-table td {
+            padding: 0.65rem 0.85rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+        .db-data-table tr:hover {
+            background: var(--bg-surface);
+        }
+        .db-pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-4);
+            padding-top: var(--space-3);
+            border-top: 1px solid var(--border);
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+        .db-empty-state {
+            text-align: center;
+            padding: var(--space-6) var(--space-4);
+            color: var(--text-muted);
+        }
+        /* Relational Modal Graph Styles */
+        .relational-node {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+        }
+        .relational-node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+            padding-bottom: var(--space-2);
+            border-bottom: 1px solid var(--border);
+        }
+        .relational-node-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .relational-field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-2) var(--space-4);
+            font-size: 0.8125rem;
+        }
+        .relational-field-lbl {
+            color: var(--text-muted);
+            font-size: 0.725rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .relational-field-val {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span style="font-weight:700; font-size:1.05rem;">Canteen Admin</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/admin/index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> <span>Overview</span></a></li>
+                <li><a href="/admin/orders.html" class="sidebar-link"><i class="fa-solid fa-kitchen-set"></i> <span>Live Kitchen</span></a></li>
+                <li><a href="/admin/waste.html" class="sidebar-link"><i class="fa-solid fa-recycle"></i> <span>Waste Analytics</span></a></li>
+                <li><a href="/verify.html" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> <span>QR Verify</span></a></li>
+                <li><a href="/admin/menu.html" class="sidebar-link"><i class="fa-solid fa-book-open"></i> <span>Menu Manager</span></a></li>
+                <li><a href="/admin/inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></a></li>
+                <li><a href="/admin/analytics.html" class="sidebar-link"><i class="fa-solid fa-brain"></i> <span>AI Analytics</span></a></li>
+                <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
+                <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
+                <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+                <li><a href="/admin/database.html" class="sidebar-link active"><i class="fa-solid fa-database"></i> <span>Database</span></a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="/dashboard.html" class="btn btn-sm btn-secondary" style="width:100%;"><i class="fa-solid fa-user"></i> Student View</a>
+                <button class="btn btn-sm btn-outline" style="width:100%;" onclick="Auth.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Topbar -->
+            <div class="admin-topbar">
+                <div>
+                    <h1 style="font-size:1.65rem; font-weight:700; font-family:var(--font-heading); margin-bottom:var(--space-1);">
+                        <i class="fa-solid fa-database" style="color:var(--primary-hover); margin-right:6px;"></i> Live Database Inspector
+                    </h1>
+                    <p style="color:var(--text-secondary); font-size:0.875rem;">
+                        Real-time read-only inspection window directly queried from the live PostgreSQL / SQLite database engine.
+                    </p>
+                </div>
+
+                <div style="display:flex; gap:var(--space-2);">
+                    <button class="btn btn-secondary" onclick="DatabaseViewer.refreshCurrentTable()"><i class="fa-solid fa-arrows-rotate"></i> Refresh DB</button>
+                </div>
+            </div>
+
+            <!-- Database Overview Metrics Grid -->
+            <div class="metrics-grid" id="db-overview-grid" style="margin-bottom:var(--space-5);">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--primary-light); color:var(--primary);"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-total-users">0</div>
+                        <div class="metric-lbl">Users (<span id="stat-students">0</span> Students / <span id="stat-staff">0</span> Staff)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--accent-light); color:var(--accent);"><i class="fa-solid fa-receipt"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-total-orders">0</div>
+                        <div class="metric-lbl">Orders (<span id="stat-completed-orders">0</span> Completed)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--success-light); color:var(--success);"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-total-payments">0</div>
+                        <div class="metric-lbl">Payments (<span id="stat-successful-payments">0</span> Settled)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:var(--warning-light); color:var(--warning);"><i class="fa-solid fa-ticket"></i></div>
+                    <div>
+                        <div class="metric-val" id="stat-total-tokens">0</div>
+                        <div class="metric-lbl">Tokens (<span id="stat-active-tokens">0</span> Active Queue)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Navigation Tabs -->
+            <div class="db-table-nav" id="db-table-tabs">
+                <button class="db-tab-btn active" onclick="DatabaseViewer.switchTable('orders')">
+                    <i class="fa-solid fa-receipt"></i> <span>orders</span> <span class="db-tab-count" id="badge-orders">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('users')">
+                    <i class="fa-solid fa-users"></i> <span>users</span> <span class="db-tab-count" id="badge-users">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('order-items')">
+                    <i class="fa-solid fa-list-check"></i> <span>order_items</span> <span class="db-tab-count" id="badge-order-items">-</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('menu')">
+                    <i class="fa-solid fa-utensils"></i> <span>food_items</span> <span class="db-tab-count" id="badge-menu">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('payments')">
+                    <i class="fa-solid fa-credit-card"></i> <span>payments</span> <span class="db-tab-count" id="badge-payments">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('wallet-transactions')">
+                    <i class="fa-solid fa-wallet"></i> <span>wallet_transactions</span> <span class="db-tab-count" id="badge-wallet">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('tokens')">
+                    <i class="fa-solid fa-ticket"></i> <span>tokens</span> <span class="db-tab-count" id="badge-tokens">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('counters')">
+                    <i class="fa-solid fa-store"></i> <span>counters</span> <span class="db-tab-count" id="badge-counters">3</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('waste-logs')">
+                    <i class="fa-solid fa-recycle"></i> <span>food_waste_logs</span> <span class="db-tab-count" id="badge-waste">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('ratings')">
+                    <i class="fa-solid fa-star"></i> <span>food_ratings</span> <span class="db-tab-count" id="badge-ratings">0</span>
+                </button>
+                <button class="db-tab-btn" onclick="DatabaseViewer.switchTable('ai-data')">
+                    <i class="fa-solid fa-brain"></i> <span>ai_records</span> <span class="db-tab-count" id="badge-ai">-</span>
+                </button>
+            </div>
+
+            <!-- Table Filter Toolbar -->
+            <div class="db-filter-bar">
+                <input type="text" id="db-search-input" class="db-search-input" placeholder="Search current table records..." oninput="DatabaseViewer.onSearchInput(this.value)">
+                <div id="db-dynamic-filters" style="display:flex; gap:var(--space-2); align-items:center;">
+                    <!-- Dynamic filters injected based on selected table -->
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="DatabaseViewer.resetFilters()"><i class="fa-solid fa-filter-circle-xmark"></i> Clear</button>
+            </div>
+
+            <!-- Main Data Table Container -->
+            <div class="card" style="padding:0; overflow:hidden; margin-bottom:var(--space-5);">
+                <div style="overflow-x:auto;">
+                    <table class="db-data-table" id="db-main-table">
+                        <thead id="db-table-head">
+                            <!-- Headers dynamically injected -->
+                        </thead>
+                        <tbody id="db-table-body">
+                            <!-- Rows dynamically injected -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="db-pagination-bar" id="db-pagination-container" style="padding:var(--space-3) var(--space-4);">
+                    <div id="db-pagination-info">Showing 0 of 0 records</div>
+                    <div style="display:flex; gap:var(--space-2); align-items:center;">
+                        <button class="btn btn-sm btn-secondary" id="db-prev-btn" onclick="DatabaseViewer.prevPage()"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <span id="db-page-num" style="font-weight:700;">Page 1</span>
+                        <button class="btn btn-sm btn-secondary" id="db-next-btn" onclick="DatabaseViewer.nextPage()">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Relational Detail Modal (Phase 6 centerpiece) -->
+    <div class="modal-backdrop" id="relational-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+        <div class="card" style="width:90%; max-width:850px; max-height:90vh; overflow-y:auto; padding:var(--space-5); position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
+                <div>
+                    <h2 style="font-size:1.25rem; font-weight:700; margin:0;" id="modal-order-title">Order Relational Graph</h2>
+                    <p style="color:var(--text-secondary); font-size:0.8125rem; margin:0;">Multi-table relational traversal: User ➔ Order ➔ OrderItems ➔ Payment ➔ Token</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="DatabaseViewer.closeModal()"><i class="fa-solid fa-xmark"></i> Close</button>
+            </div>
+
+            <div id="relational-modal-content">
+                <!-- Relational Nodes Injected Here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        const DatabaseViewer = {
+            currentTable: 'orders',
+            currentPage: 1,
+            pageSize: 15,
+            searchQuery: '',
+            filterParam: '',
+            filterValue: '',
+            debounceTimer: null,
+
+            async init() {
+                if (!Auth.requireAdmin()) return;
+                await this.loadOverview();
+                await this.loadTable(this.currentTable);
+            },
+
+            async loadOverview() {
+                try {
+                    const data = await API.get('/api/admin/database/overview');
+                    if (data && data.counts) {
+                        const c = data.counts;
+                        document.getElementById('stat-total-users').textContent = c.total_users;
+                        document.getElementById('stat-students').textContent = c.total_students;
+                        document.getElementById('stat-staff').textContent = c.total_staff;
+                        
+                        document.getElementById('stat-total-orders').textContent = c.total_orders;
+                        document.getElementById('stat-completed-orders').textContent = c.completed_orders;
+
+                        document.getElementById('stat-total-payments').textContent = c.total_payments;
+                        document.getElementById('stat-successful-payments').textContent = c.successful_payments;
+
+                        document.getElementById('stat-total-tokens').textContent = c.total_tokens;
+                        document.getElementById('stat-active-tokens').textContent = c.active_tokens;
+
+                        // Badges
+                        document.getElementById('badge-orders').textContent = c.total_orders;
+                        document.getElementById('badge-users').textContent = c.total_users;
+                        document.getElementById('badge-menu').textContent = c.total_menu_items;
+                        document.getElementById('badge-payments').textContent = c.total_payments;
+                        document.getElementById('badge-wallet').textContent = c.total_wallet_transactions;
+                        document.getElementById('badge-tokens').textContent = c.total_tokens;
+                        document.getElementById('badge-waste').textContent = c.total_waste_logs;
+                        document.getElementById('badge-ratings').textContent = c.total_ratings;
+                    }
+                } catch (e) {
+                    console.error('Error loading DB overview:', e);
+                }
+            },
+
+            switchTable(tableKey) {
+                this.currentTable = tableKey;
+                this.currentPage = 1;
+                this.searchQuery = '';
+                this.filterParam = '';
+                this.filterValue = '';
+                document.getElementById('db-search-input').value = '';
+
+                // Update active tab styling
+                const tabBtns = document.querySelectorAll('.db-tab-btn');
+                tabBtns.forEach(btn => btn.classList.remove('active'));
+                event?.currentTarget?.classList.add('active');
+
+                this.renderFilterControls();
+                this.loadTable(tableKey);
+            },
+
+            renderFilterControls() {
+                const container = document.getElementById('db-dynamic-filters');
+                container.innerHTML = '';
+
+                if (this.currentTable === 'orders') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('status_filter', this.value)">
+                            <option value="">All Statuses</option>
+                            <option value="Waiting">Waiting</option>
+                            <option value="Preparing">Preparing</option>
+                            <option value="Ready">Ready</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('counter_id', this.value)">
+                            <option value="">All Counters</option>
+                            <option value="1">Counter 1 (Tiffins)</option>
+                            <option value="2">Counter 2 (Desserts)</option>
+                            <option value="3">Counter 3 (Beverages)</option>
+                        </select>
+                    `;
+                } else if (this.currentTable === 'users') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('role_id', this.value)">
+                            <option value="">All Roles</option>
+                            <option value="1">Admin</option>
+                            <option value="2">Staff</option>
+                            <option value="3">Student</option>
+                        </select>
+                    `;
+                } else if (this.currentTable === 'menu') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('category_id', this.value)">
+                            <option value="">All Categories</option>
+                            <option value="1">South Indian Tiffins</option>
+                            <option value="2">Desserts</option>
+                            <option value="3">Beverages</option>
+                        </select>
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('is_veg', this.value)">
+                            <option value="">All Veg/Non-Veg</option>
+                            <option value="true">Pure Veg</option>
+                        </select>
+                    `;
+                } else if (this.currentTable === 'payments') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('payment_method', this.value)">
+                            <option value="">All Methods</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Wallet">Wallet</option>
+                            <option value="Card">Card</option>
+                            <option value="Cash">Cash</option>
+                        </select>
+                    `;
+                } else if (this.currentTable === 'wallet-transactions') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('txn_type', this.value)">
+                            <option value="">All Types</option>
+                            <option value="CREDIT">CREDIT</option>
+                            <option value="DEBIT">DEBIT</option>
+                        </select>
+                    `;
+                } else if (this.currentTable === 'tokens') {
+                    container.innerHTML = `
+                        <select class="db-select" onchange="DatabaseViewer.onFilterChange('status_filter', this.value)">
+                            <option value="">All Statuses</option>
+                            <option value="Waiting">Waiting</option>
+                            <option value="Preparing">Preparing</option>
+                            <option value="Ready">Ready</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    `;
+                }
+            },
+
+            onSearchInput(val) {
+                clearTimeout(this.debounceTimer);
+                this.debounceTimer = setTimeout(() => {
+                    this.searchQuery = val.trim();
+                    this.currentPage = 1;
+                    this.loadTable(this.currentTable);
+                }, 300);
+            },
+
+            onFilterChange(paramName, val) {
+                this.filterParam = paramName;
+                this.filterValue = val;
+                this.currentPage = 1;
+                this.loadTable(this.currentTable);
+            },
+
+            resetFilters() {
+                this.searchQuery = '';
+                this.filterParam = '';
+                this.filterValue = '';
+                document.getElementById('db-search-input').value = '';
+                this.renderFilterControls();
+                this.currentPage = 1;
+                this.loadTable(this.currentTable);
+            },
+
+            async refreshCurrentTable() {
+                await this.loadOverview();
+                await this.loadTable(this.currentTable);
+            },
+
+            async loadTable(tableKey) {
+                const thead = document.getElementById('db-table-head');
+                const tbody = document.getElementById('db-table-body');
+                tbody.innerHTML = `<tr><td colspan="10" class="db-empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Querying PostgreSQL database...</td></tr>`;
+
+                let endpoint = `/api/admin/database/${tableKey}?page=${this.currentPage}&page_size=${this.pageSize}`;
+                if (this.searchQuery) endpoint += `&search=${encodeURIComponent(this.searchQuery)}`;
+                if (this.filterParam && this.filterValue) endpoint += `&${this.filterParam}=${encodeURIComponent(this.filterValue)}`;
+
+                try {
+                    const res = await API.get(endpoint);
+                    this.renderTableData(tableKey, res);
+                } catch (e) {
+                    tbody.innerHTML = `<tr><td colspan="10" class="db-empty-state" style="color:var(--danger);"><i class="fa-solid fa-circle-exclamation"></i> Error querying table: ${e.message}</td></tr>`;
+                }
+            },
+
+            renderTableData(tableKey, data) {
+                const thead = document.getElementById('db-table-head');
+                const tbody = document.getElementById('db-table-body');
+                const items = data.items || [];
+                const total = data.total || items.length;
+
+                // Update pagination
+                const startIdx = total === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+                const endIdx = Math.min(this.currentPage * this.pageSize, total);
+                document.getElementById('db-pagination-info').textContent = `Showing ${startIdx}–${endIdx} of ${total} records from '${tableKey}' table`;
+                document.getElementById('db-page-num').textContent = `Page ${this.currentPage}`;
+                document.getElementById('db-prev-btn').disabled = (this.currentPage <= 1);
+                document.getElementById('db-next-btn').disabled = (endIdx >= total);
+
+                if (items.length === 0) {
+                    thead.innerHTML = `<tr><th>Information</th></tr>`;
+                    tbody.innerHTML = `<tr><td class="db-empty-state"><i class="fa-solid fa-database" style="font-size:2rem; margin-bottom:0.5rem; opacity:0.3;"></i><br>No records found in '${tableKey}' table.</td></tr>`;
+                    return;
+                }
+
+                if (tableKey === 'orders') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Order Number</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Token</th>
+                            <th>Payment</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(o => `
+                        <tr>
+                            <td><strong style="color:var(--primary); cursor:pointer;" onclick="DatabaseViewer.openOrderModal(${o.id})">#${o.id}</strong></td>
+                            <td><span class="badge badge-info">${o.order_number}</span></td>
+                            <td><strong>${o.customer_name}</strong><br><small style="color:var(--text-muted);">${o.customer_email}</small></td>
+                            <td>${o.items_count} items</td>
+                            <td><strong style="color:var(--success);">₹${o.final_amount.toFixed(2)}</strong></td>
+                            <td><span class="badge ${this.getStatusBadge(o.status)}">${o.status}</span></td>
+                            <td>${o.token_number ? `<span class="badge badge-accent">${o.token_number}</span>` : '-'}</td>
+                            <td><span class="badge badge-secondary">${o.payment_method}</span> <small>(${o.payment_status})</small></td>
+                            <td><small>${this.formatDate(o.created_at)}</small></td>
+                            <td>
+                                <button class="btn btn-xs btn-primary" onclick="DatabaseViewer.openOrderModal(${o.id})">
+                                    <i class="fa-solid fa-diagram-project"></i> Relational Tree
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'users') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Registered Date</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(u => `
+                        <tr>
+                            <td><strong>#${u.id}</strong></td>
+                            <td><strong>${u.name}</strong></td>
+                            <td>${u.email}</td>
+                            <td>${u.phone || '-'}</td>
+                            <td><span class="badge ${u.role_id === 1 ? 'badge-danger' : (u.role_id === 2 ? 'badge-warning' : 'badge-info')}">${u.role_name.toUpperCase()}</span></td>
+                            <td>${u.department || '-'}</td>
+                            <td><span class="badge ${u.is_active ? 'badge-ready' : 'badge-cancelled'}">${u.is_active ? 'Active' : 'Disabled'}</span></td>
+                            <td><small>${this.formatDate(u.created_at)}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'order-items') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Order Number</th>
+                            <th>Food Item</th>
+                            <th>Category</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Subtotal</th>
+                            <th>Special Notes</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(oi => `
+                        <tr>
+                            <td>#${oi.id}</td>
+                            <td><a href="javascript:void(0)" onclick="DatabaseViewer.openOrderModal(${oi.order_id})" style="color:var(--primary); font-weight:700;">${oi.order_number}</a></td>
+                            <td><strong>${oi.food_name}</strong></td>
+                            <td><span class="badge badge-secondary">${oi.category}</span></td>
+                            <td><strong>${oi.quantity}x</strong></td>
+                            <td>₹${oi.unit_price.toFixed(2)}</td>
+                            <td><strong style="color:var(--success);">₹${oi.subtotal.toFixed(2)}</strong></td>
+                            <td><small style="color:var(--text-muted);">${oi.special_instructions || '-'}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'menu') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Dish Name</th>
+                            <th>Category</th>
+                            <th>Counter</th>
+                            <th>Price</th>
+                            <th>Prep Time</th>
+                            <th>Rating</th>
+                            <th>Dietary</th>
+                            <th>Available</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(m => `
+                        <tr>
+                            <td>#${m.id}</td>
+                            <td><strong>${m.name}</strong></td>
+                            <td><span class="badge badge-info">${m.category_name}</span></td>
+                            <td>Counter ${m.counter_id}</td>
+                            <td><strong style="color:var(--success);">₹${m.price.toFixed(2)}</strong></td>
+                            <td>${m.prep_time_minutes} mins</td>
+                            <td>${m.average_rating ? `<span style="color:var(--warning); font-weight:700;">★ ${m.average_rating}</span> <small>(${m.rating_count})</small>` : '<small style="color:var(--text-muted);">No ratings</small>'}</td>
+                            <td><span class="badge ${m.is_veg ? 'badge-ready' : 'badge-danger'}">${m.is_veg ? 'VEG' : 'NON-VEG'}</span></td>
+                            <td><span class="badge ${m.is_available ? 'badge-ready' : 'badge-cancelled'}">${m.is_available ? 'IN STOCK' : 'OUT OF STOCK'}</span></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'payments') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>Transaction ID</th>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(p => `
+                        <tr>
+                            <td>#${p.id}</td>
+                            <td><code style="background:var(--bg-surface); padding:2px 6px; border-radius:4px;">${p.transaction_id}</code></td>
+                            <td><a href="javascript:void(0)" onclick="DatabaseViewer.openOrderModal(${p.order_id})" style="color:var(--primary); font-weight:700;">${p.order_number}</a></td>
+                            <td>${p.customer_name}</td>
+                            <td><strong style="color:var(--success);">₹${p.amount.toFixed(2)}</strong></td>
+                            <td><span class="badge badge-secondary">${p.payment_method}</span></td>
+                            <td><span class="badge ${p.status === 'Completed' ? 'badge-ready' : 'badge-warning'}">${p.status}</span></td>
+                            <td><small>${this.formatDate(p.payment_date || p.created_at)}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'wallet-transactions') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Txn ID</th>
+                            <th>Wallet ID</th>
+                            <th>Customer</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Ref Order</th>
+                            <th>Date</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(w => `
+                        <tr>
+                            <td>#${w.id}</td>
+                            <td>Wallet #${w.wallet_id}</td>
+                            <td><strong>${w.customer_name}</strong><br><small style="color:var(--text-muted);">${w.customer_email}</small></td>
+                            <td><span class="badge ${w.transaction_type === 'CREDIT' ? 'badge-ready' : 'badge-danger'}">${w.transaction_type}</span></td>
+                            <td><strong style="color:${w.transaction_type === 'CREDIT' ? 'var(--success)' : 'var(--danger)'};">${w.transaction_type === 'CREDIT' ? '+' : '-'}₹${w.amount.toFixed(2)}</strong></td>
+                            <td>${w.description}</td>
+                            <td>${w.reference_order_id ? `<a href="javascript:void(0)" onclick="DatabaseViewer.openOrderModal(${w.reference_order_id})" style="color:var(--primary); font-weight:700;">Order #${w.reference_order_id}</a>` : '-'}</td>
+                            <td><small>${this.formatDate(w.created_at)}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'tokens') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Token ID</th>
+                            <th>Token Number</th>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Counter</th>
+                            <th>Status</th>
+                            <th>Est. Wait</th>
+                            <th>Created At</th>
+                            <th>Ready At</th>
+                            <th>Completed At</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(t => `
+                        <tr>
+                            <td>#${t.id}</td>
+                            <td><span class="badge badge-accent" style="font-size:0.9rem; font-weight:700;">${t.token_number}</span></td>
+                            <td><a href="javascript:void(0)" onclick="DatabaseViewer.openOrderModal(${t.order_id})" style="color:var(--primary); font-weight:700;">${t.order_number}</a></td>
+                            <td>${t.customer_name}</td>
+                            <td>Counter ${t.counter_number}</td>
+                            <td><span class="badge ${this.getStatusBadge(t.status)}">${t.status}</span></td>
+                            <td>${t.estimated_wait_minutes} mins</td>
+                            <td><small>${this.formatDate(t.created_at)}</small></td>
+                            <td><small>${this.formatDate(t.ready_at) || '-'}</small></td>
+                            <td><small>${this.formatDate(t.completed_at) || '-'}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'counters') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Code</th>
+                            <th>Station Name</th>
+                            <th>Station Type</th>
+                            <th>Description</th>
+                            <th>Active Queue</th>
+                            <th>Status</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(c => `
+                        <tr>
+                            <td>#${c.id}</td>
+                            <td><span class="badge badge-info">${c.code}</span></td>
+                            <td><strong>${c.name}</strong></td>
+                            <td>${c.station_type}</td>
+                            <td><small style="color:var(--text-muted);">${c.description}</small></td>
+                            <td><span class="badge badge-warning">${c.active_tokens_count} tokens</span></td>
+                            <td><span class="badge ${c.is_active ? 'badge-ready' : 'badge-cancelled'}">${c.is_active ? 'OPERATIONAL' : 'INACTIVE'}</span></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'waste-logs') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Dish Name</th>
+                            <th>Date</th>
+                            <th>Slot</th>
+                            <th>Prepared</th>
+                            <th>Sold</th>
+                            <th>Wasted</th>
+                            <th>Waste %</th>
+                            <th>Loss (₹)</th>
+                            <th>Reason</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(w => `
+                        <tr>
+                            <td>#${w.id}</td>
+                            <td><strong>${w.food_name}</strong></td>
+                            <td>${w.log_date}</td>
+                            <td><span class="badge badge-secondary">${w.meal_slot}</span></td>
+                            <td>${w.prepared_quantity}</td>
+                            <td>${w.sold_quantity}</td>
+                            <td><strong style="color:var(--danger);">${w.waste_quantity}</strong></td>
+                            <td>${w.waste_percentage.toFixed(1)}%</td>
+                            <td><strong style="color:var(--danger);">₹${w.waste_cost_inr.toFixed(2)}</strong></td>
+                            <td><small style="color:var(--text-muted);">${w.waste_reason}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'ratings') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Dish Name</th>
+                            <th>Customer</th>
+                            <th>Star Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                        </tr>
+                    `;
+                    tbody.innerHTML = items.map(r => `
+                        <tr>
+                            <td>#${r.id}</td>
+                            <td><strong>${r.food_name}</strong></td>
+                            <td>${r.customer_name}</td>
+                            <td><span style="color:var(--warning); font-weight:700;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} (${r.rating}/5)</span></td>
+                            <td><em>"${r.comment || 'No review comment'}"</em></td>
+                            <td><small>${this.formatDate(r.created_at)}</small></td>
+                        </tr>
+                    `).join('');
+                } else if (tableKey === 'ai-data') {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Override ID</th>
+                            <th>Dish Name</th>
+                            <th>Target Date</th>
+                            <th>Meal Slot</th>
+                            <th>Original Prediction</th>
+                            <th>Override Qty</th>
+                            <th>Reason</th>
+                        </tr>
+                    `;
+                    const overrides = data.persisted_overrides || [];
+                    if (overrides.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="db-empty-state"><i class="fa-solid fa-brain" style="font-size:2rem; margin-bottom:0.5rem; opacity:0.3;"></i><br>No manual prediction overrides stored. Demand & crowd forecasting runs on-the-fly dynamically from live order records.</td></tr>`;
+                    } else {
+                        tbody.innerHTML = overrides.map(o => `
+                            <tr>
+                                <td>#${o.id}</td>
+                                <td><strong>${o.food_name}</strong></td>
+                                <td>${o.prediction_date}</td>
+                                <td><span class="badge badge-secondary">${o.meal_slot}</span></td>
+                                <td>${o.original_predicted_quantity} units</td>
+                                <td><strong style="color:var(--accent);">${o.override_quantity} units</strong></td>
+                                <td><small style="color:var(--text-muted);">${o.reason || '-'}</small></td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            },
+
+            async openOrderModal(orderId) {
+                const modal = document.getElementById('relational-modal');
+                const content = document.getElementById('relational-modal-content');
+                modal.style.display = 'flex';
+                content.innerHTML = `<div style="text-align:center; padding:var(--space-6);"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br>Fetching relational entity graph from PostgreSQL...</div>`;
+
+                try {
+                    const data = await API.get(`/api/admin/database/orders/${orderId}/details`);
+                    const o = data.order;
+                    const c = data.customer;
+                    const p = data.payment;
+                    const t = data.token;
+                    const w = data.wallet_transaction;
+                    const items = data.order_items || [];
+                    const ratings = data.ratings || [];
+
+                    document.getElementById('modal-order-title').textContent = `Order ${o.order_number} Relational Entity Graph`;
+
+                    content.innerHTML = `
+                        <!-- Node 1: Order Core Record -->
+                        <div class="relational-node">
+                            <div class="relational-node-header">
+                                <div class="relational-node-title"><i class="fa-solid fa-receipt" style="color:var(--primary);"></i> 1. orders Table Record</div>
+                                <span class="badge ${this.getStatusBadge(o.status)}">${o.status}</span>
+                            </div>
+                            <div class="relational-field-grid">
+                                <div><div class="relational-field-lbl">Order ID / Number</div><div class="relational-field-val">#${o.id} (${o.order_number})</div></div>
+                                <div><div class="relational-field-lbl">Final Amount</div><div class="relational-field-val" style="color:var(--success);">₹${o.final_amount.toFixed(2)}</div></div>
+                                <div><div class="relational-field-lbl">Order Placed At</div><div class="relational-field-val">${this.formatDate(o.created_at)}</div></div>
+                                <div><div class="relational-field-lbl">Notes / Special</div><div class="relational-field-val">${o.notes || 'None'}</div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 2: Customer Foreign Key Record -->
+                        <div class="relational-node">
+                            <div class="relational-node-header">
+                                <div class="relational-node-title"><i class="fa-solid fa-user" style="color:var(--info);"></i> 2. users Table (FK: user_id = ${c.id})</div>
+                                <span class="badge badge-info">${c.role.toUpperCase()}</span>
+                            </div>
+                            <div class="relational-field-grid">
+                                <div><div class="relational-field-lbl">Customer Name</div><div class="relational-field-val">${c.name}</div></div>
+                                <div><div class="relational-field-lbl">Email Address</div><div class="relational-field-val">${c.email}</div></div>
+                                <div><div class="relational-field-lbl">Phone Number</div><div class="relational-field-val">${c.phone || 'N/A'}</div></div>
+                                <div><div class="relational-field-lbl">Department</div><div class="relational-field-val">${c.department || 'N/A'}</div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 3: Line Items (OrderItems -> FoodItems) -->
+                        <div class="relational-node">
+                            <div class="relational-node-header">
+                                <div class="relational-node-title"><i class="fa-solid fa-utensils" style="color:var(--warning);"></i> 3. order_items & food_items Tables (${items.length} Line Items)</div>
+                            </div>
+                            <table style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border); text-align:left; color:var(--text-muted);">
+                                        <th style="padding:4px 8px;">Food Item</th>
+                                        <th style="padding:4px 8px;">Category</th>
+                                        <th style="padding:4px 8px;">Quantity</th>
+                                        <th style="padding:4px 8px;">Unit Price</th>
+                                        <th style="padding:4px 8px;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${items.map(item => `
+                                        <tr style="border-bottom:1px solid var(--border);">
+                                            <td style="padding:6px 8px;"><strong>${item.food_name}</strong></td>
+                                            <td style="padding:6px 8px;"><span class="badge badge-secondary">${item.category}</span></td>
+                                            <td style="padding:6px 8px;"><strong>${item.quantity}x</strong></td>
+                                            <td style="padding:6px 8px;">₹${item.unit_price.toFixed(2)}</td>
+                                            <td style="padding:6px 8px; color:var(--success); font-weight:700;">₹${item.subtotal.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Node 4: Payment Transaction Record -->
+                        ${p ? `
+                            <div class="relational-node">
+                                <div class="relational-node-header">
+                                    <div class="relational-node-title"><i class="fa-solid fa-credit-card" style="color:var(--success);"></i> 4. payments Table (FK: order_id = ${o.id})</div>
+                                    <span class="badge badge-ready">${p.status}</span>
+                                </div>
+                                <div class="relational-field-grid">
+                                    <div><div class="relational-field-lbl">Transaction ID</div><div class="relational-field-val"><code>${p.transaction_id}</code></div></div>
+                                    <div><div class="relational-field-lbl">Payment Method</div><div class="relational-field-val">${p.payment_method}</div></div>
+                                    <div><div class="relational-field-lbl">Amount Settled</div><div class="relational-field-val" style="color:var(--success);">₹${p.amount.toFixed(2)}</div></div>
+                                    <div><div class="relational-field-lbl">Settlement Timestamp</div><div class="relational-field-val">${this.formatDate(p.payment_date)}</div></div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Node 5: Digital Token Record -->
+                        ${t ? `
+                            <div class="relational-node">
+                                <div class="relational-node-header">
+                                    <div class="relational-node-title"><i class="fa-solid fa-ticket" style="color:var(--accent);"></i> 5. tokens Table (FK: order_id = ${o.id})</div>
+                                    <span class="badge ${this.getStatusBadge(t.status)}">${t.status}</span>
+                                </div>
+                                <div class="relational-field-grid">
+                                    <div><div class="relational-field-lbl">Token Number</div><div class="relational-field-val" style="color:var(--accent); font-size:1.1rem;">${t.token_number}</div></div>
+                                    <div><div class="relational-field-lbl">Station Counter</div><div class="relational-field-val">Counter #${t.counter_number}</div></div>
+                                    <div><div class="relational-field-lbl">Ready Timestamp</div><div class="relational-field-val">${this.formatDate(t.ready_at) || 'Pending'}</div></div>
+                                    <div><div class="relational-field-lbl">Completed / Verified At</div><div class="relational-field-val">${this.formatDate(t.completed_at) || 'Pending'}</div></div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Node 6: Wallet Debit Record (if applicable) -->
+                        ${w ? `
+                            <div class="relational-node">
+                                <div class="relational-node-header">
+                                    <div class="relational-node-title"><i class="fa-solid fa-wallet" style="color:var(--warning);"></i> 6. wallet_transactions Table (Debit Reference)</div>
+                                    <span class="badge badge-danger">DEBIT</span>
+                                </div>
+                                <div class="relational-field-grid">
+                                    <div><div class="relational-field-lbl">Transaction ID</div><div class="relational-field-val">#${w.id}</div></div>
+                                    <div><div class="relational-field-lbl">Wallet ID</div><div class="relational-field-val">#${w.wallet_id}</div></div>
+                                    <div><div class="relational-field-lbl">Debited Amount</div><div class="relational-field-val" style="color:var(--danger);">-₹${w.amount.toFixed(2)}</div></div>
+                                    <div><div class="relational-field-lbl">Description</div><div class="relational-field-val">${w.description}</div></div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Node 7: Customer Rating & Feedback (if rated) -->
+                        ${ratings.length > 0 ? `
+                            <div class="relational-node">
+                                <div class="relational-node-header">
+                                    <div class="relational-node-title"><i class="fa-solid fa-star" style="color:var(--warning);"></i> 7. food_ratings Table</div>
+                                </div>
+                                ${ratings.map(r => `
+                                    <div style="font-size:0.8125rem; margin-top:4px;">
+                                        <span style="color:var(--warning); font-weight:700;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+                                        <em>"${r.comment || 'No comment'}"</em>
+                                        <small style="color:var(--text-muted); margin-left:6px;">(${this.formatDate(r.created_at)})</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    `;
+                } catch (e) {
+                    content.innerHTML = `<div class="db-empty-state" style="color:var(--danger);">Error loading order relational details: ${e.message}</div>`;
+                }
+            },
+
+            closeModal() {
+                document.getElementById('relational-modal').style.display = 'none';
+            },
+
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadTable(this.currentTable);
+                }
+            },
+
+            nextPage() {
+                this.currentPage++;
+                this.loadTable(this.currentTable);
+            },
+
+            getStatusBadge(status) {
+                switch(status) {
+                    case 'Ready': return 'badge-ready';
+                    case 'Preparing': return 'badge-preparing';
+                    case 'Waiting': return 'badge-warning';
+                    case 'Completed': return 'badge-ready';
+                    case 'Cancelled': return 'badge-cancelled';
+                    default: return 'badge-info';
+                }
+            },
+
+            formatDate(isoStr) {
+                if (!isoStr) return '';
+                try {
+                    const d = new Date(isoStr);
+                    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                } catch(e) {
+                    return isoStr;
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            DatabaseViewer.init();
+        });
+    </script>
+</body>
+</html>

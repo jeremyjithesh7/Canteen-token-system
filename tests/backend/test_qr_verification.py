@@ -2,10 +2,12 @@ import pytest
 
 def test_qr_verification_valid_token(client, student_auth_headers, staff_auth_headers):
     """Test staff verifying student token and QR payload."""
-    # 1. Place order to generate token
+    # 1. Top up wallet and place order to generate instant token
+    client.post("/api/wallet/topup", json={"amount": 150.0, "payment_method": "UPI"}, headers=student_auth_headers)
+
     order_payload = {
         "items": [{"food_item_id": 1, "quantity": 1}],
-        "payment_method": "UPI"
+        "payment_method": "Wallet"
     }
     order_res = client.post("/api/orders/", json=order_payload, headers=student_auth_headers)
     assert order_res.status_code == 201

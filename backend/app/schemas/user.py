@@ -34,8 +34,8 @@ class UserResponse(UserBase):
     is_active: bool
     created_at: datetime
     role: Optional[RoleResponse] = None
-    loyalty_tier: Optional[str] = "Newbie"
-    loyalty_badge: Optional[str] = "🌱 New Explorer"
+    loyalty_tier: Optional[str] = "Bronze"
+    loyalty_badge: Optional[str] = "🥉 Bronze Member"
     total_orders_count: Optional[int] = 0
 
     class Config:

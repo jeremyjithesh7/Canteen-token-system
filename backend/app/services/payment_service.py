@@ -11,29 +11,31 @@ from backend.app.utils.helpers import generate_transaction_id
 class PaymentService:
 
     @staticmethod
-    def process_demo_payment(db: Session, user_id: int, payment_in: PaymentProcessRequest) -> Payment:
+    def process_payment_request(db: Session, user_id: int, payment_in: PaymentProcessRequest) -> Payment:
         """
-        Simulates an instant demo payment gateway with full validation.
-        Can be replaced with Stripe/Razorpay SDK seamlessly.
+        Initiates authentic payment transaction. Status remains 'Pending'
+        until genuine verification (or completed atomically for Campus Wallet).
         """
         order = db.query(Order).filter(Order.id == payment_in.order_id).first()
         if not order:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found.")
 
-        # Check if already paid
         existing = db.query(Payment).filter(Payment.order_id == payment_in.order_id).first()
-        if existing and existing.status == "Completed":
+        if existing:
             return existing
 
         txn_id = generate_transaction_id()
+        is_wallet = payment_in.payment_method == "Wallet"
+        status_val = "Completed" if is_wallet else "Pending"
+
         payment = Payment(
             order_id=order.id,
             user_id=user_id,
             transaction_id=txn_id,
             payment_method=payment_in.payment_method,
             amount=payment_in.amount,
-            status="Completed",
-            gateway_response=f'{{"gateway": "DemoPay", "status": "SUCCESS", "method": "{payment_in.payment_method}", "txn_id": "{txn_id}"}}'
+            status=status_val,
+            gateway_response=f'{{"status": "{status_val}", "method": "{payment_in.payment_method}", "txn_id": "{txn_id}"}}'
         )
         db.add(payment)
         db.commit()

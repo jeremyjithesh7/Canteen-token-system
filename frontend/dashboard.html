@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,6 +47,71 @@
                 grid-template-columns: 1fr !important;
             }
         }
+        /* Stable Dashboard Layout Shell & Section Switcher */
+        .dash-tabs-bar {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-2);
+            margin-bottom: var(--space-6);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .dash-tabs-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .dash-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .dash-tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-elevated);
+        }
+        .dash-tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(126, 34, 206, 0.25);
+        }
+        .dash-content-shell {
+            width: 100%;
+            min-height: 480px;
+            position: relative;
+        }
+        .dash-section-pane {
+            width: 100%;
+            transition: opacity var(--transition-fast);
+        }
+        .dash-section-pane.is-hidden {
+            display: none !important;
+        }
+        #active-token-container {
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+        }
+        #recs-grid {
+            min-height: 320px;
+        }
+        #recent-orders-card {
+            min-height: 220px;
+        }
     </style>
 </head>
 <body>
@@ -66,10 +131,11 @@
                 <li><a href="/index.html" class="nav-link">Home</a></li>
                 <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
                 <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
-                <li><a href="/dashboard.html" class="nav-link active">Dashboard</a></li>
-                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/orders.html" class="nav-link"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
                 <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
                 <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
                 <li><a href="/queue.html" class="nav-link">Queue View</a></li>
                 <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
@@ -86,9 +152,8 @@
             <div class="page-header">
                 <div>
                     <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; margin-bottom:var(--space-1);">
-                        <h1 class="page-header-title" id="user-greeting">Welcome back!</h1>
-                        <span id="user-loyalty-slot" class="badge badge-accent">Bronze Explorer</span>
-                        <span id="user-streak-badge" class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="streak-days-val">3</span>-Day Streak</span>
+                        <h1 class="page-header-title" id="user-greeting">Welcome!</h1>
+                        <span id="user-streak-badge" class="badge badge-ready"><i class="fa-solid fa-fire"></i> <span id="streak-days-val">0</span>-Day Streak</span>
                     </div>
                     <p class="page-header-desc">AI-powered smart campus canteen command center.</p>
                 </div>
@@ -107,7 +172,7 @@
                         <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-wallet" style="color:var(--accent); margin-right:4px;"></i> Campus Wallet</span>
                         <a href="/wallet.html" style="font-size:0.75rem; color:var(--accent); text-decoration:none; font-weight:600;">Top Up →</a>
                     </div>
-                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--accent);" id="dash-wallet-bal">₹420.00</div>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--accent);" id="dash-wallet-bal">₹0.00</div>
                     <small style="color:var(--text-muted); font-size:0.75rem;">1-Click checkout enabled</small>
                 </div>
 
@@ -117,8 +182,8 @@
                         <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fa-solid fa-award" style="color:var(--primary-hover); margin-right:4px;"></i> Rewards</span>
                         <a href="/rewards.html" style="font-size:0.75rem; color:var(--primary-hover); text-decoration:none; font-weight:600;">Badges →</a>
                     </div>
-                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--primary-hover);" id="dash-points-val">320 <span style="font-size:0.875rem; font-weight:500; color:var(--text-secondary);">pts</span></div>
-                    <small style="color:var(--text-muted); font-size:0.75rem;" id="dash-points-sub">80 pts to Gold Gourmet</small>
+                    <div style="font-size:1.65rem; font-weight:700; font-family:var(--font-accent); color:var(--primary-hover);" id="dash-points-val">0 <span style="font-size:0.875rem; font-weight:500; color:var(--text-secondary);">pts</span></div>
+                    <small style="color:var(--text-muted); font-size:0.75rem;" id="dash-points-sub">Order to earn points</small>
                 </div>
 
                 <!-- 3. Current Live Crowd Meter -->
@@ -143,102 +208,125 @@
 
             </div>
 
-            <!-- Two-Column Grid: Active Token + AI Crowd Forecast -->
-            <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:var(--space-6); margin-bottom:var(--space-8);" class="dash-split-grid">
-                
-                <!-- Left: Active Digital Token Signature Card -->
-                <div>
-                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
-                        <i class="fa-solid fa-qrcode" style="color:var(--primary-hover);"></i> Live Token Card
-                    </h2>
-                    <div id="active-token-container">
-                        <div class="card" style="text-align:center; padding:var(--space-7) var(--space-4);">
-                            <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-ticket"></i></div>
-                            <h3 class="empty-state-title">No Active Orders</h3>
-                            <p class="empty-state-desc">Order from our 25 authentic South Indian dishes to get your live queue token.</p>
-                            <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Browse Food Menu</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: AI Crowd Prediction & Timeline Forecast -->
-                <div>
-                    <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
-                        <i class="fa-solid fa-chart-line" style="color:var(--accent);"></i> AI Crowd Forecast (Next 2 Hours)
-                    </h2>
-                    <div class="card" style="padding:var(--space-5);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
-                            <div>
-                                <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Expected Peak Rush</span>
-                                <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary); font-family:var(--font-accent);" id="crowd-peak-time">01:15 PM</div>
-                            </div>
-                            <span class="badge badge-ready" id="crowd-peak-level">PEAK LUNCH</span>
-                        </div>
-
-                        <!-- 4 Step Forecast Cards (Current, 30m, 60m, 120m) -->
-                        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:var(--space-2); margin-bottom:var(--space-4);" id="crowd-forecast-steps">
-                            <div class="crowd-step-card">
-                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">CURRENT</div>
-                                <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-now">MODERATE</div>
-                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~6 mins</div>
-                            </div>
-                            <div class="crowd-step-card">
-                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">30 MIN</div>
-                                <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-30">HIGH</div>
-                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~14 mins</div>
-                            </div>
-                            <div class="crowd-step-card">
-                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">60 MIN</div>
-                                <div style="font-size:0.9375rem; font-weight:700; color:var(--danger); margin:var(--space-1) 0;" id="cf-60">PEAK</div>
-                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~22 mins</div>
-                            </div>
-                            <div class="crowd-step-card">
-                                <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">120 MIN</div>
-                                <div style="font-size:0.9375rem; font-weight:700; color:var(--accent); margin:var(--space-1) 0;" id="cf-120">LOW</div>
-                                <div style="font-size:0.6875rem; color:var(--text-secondary);">~4 mins</div>
-                            </div>
-                        </div>
-
-                        <div style="background:var(--primary-light); border:1px solid var(--primary-border); padding:var(--space-3); border-radius:var(--radius-sm); font-size:0.8125rem; color:var(--text-secondary);" id="crowd-recommendation-note">
-                            💡 <strong>Smart Tip:</strong> Pre-order 15 mins ahead during Lunch rush for instant pickup without counter waiting.
-                        </div>
-                    </div>
-                </div>
+            <!-- Dashboard Section Tabs Toolbar -->
+            <div class="dash-tabs-bar" role="tablist" aria-label="Dashboard Views">
+                <button class="dash-tab-btn active" role="tab" aria-selected="true" onclick="switchDashboardTab('all', this)">
+                    <i class="fa-solid fa-layer-group"></i> All Overview
+                </button>
+                <button class="dash-tab-btn" role="tab" aria-selected="false" onclick="switchDashboardTab('token', this)">
+                    <i class="fa-solid fa-ticket"></i> Live Token & Crowd
+                </button>
+                <button class="dash-tab-btn" role="tab" aria-selected="false" onclick="switchDashboardTab('recs', this)">
+                    <i class="fa-solid fa-brain"></i> AI Recommendations
+                </button>
+                <button class="dash-tab-btn" role="tab" aria-selected="false" onclick="switchDashboardTab('orders', this)">
+                    <i class="fa-solid fa-receipt"></i> Recent Orders
+                </button>
             </div>
 
-            <!-- Upgraded AI Recommendations Section -->
-            <section style="margin-bottom:var(--space-8);">
-                <div class="page-header">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:var(--space-2);">
-                            <span class="badge badge-info">AI Recommendation</span>
-                            <h2 style="font-size:1.35rem; font-weight:700; margin:0;">Recommended For You</h2>
+            <!-- Stable Dashboard Content Region -->
+            <div class="dash-content-shell">
+                
+                <!-- Section 1: Live Token + AI Crowd Forecast -->
+                <div class="dash-section-pane" id="dash-pane-token">
+                    <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:var(--space-6); margin-bottom:var(--space-8);" class="dash-split-grid">
+                        
+                        <!-- Left: Active Digital Token Signature Card -->
+                        <div>
+                            <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
+                                <i class="fa-solid fa-qrcode" style="color:var(--primary-hover);"></i> Live Token Card
+                            </h2>
+                            <div id="active-token-container">
+                                <div class="card" style="text-align:center; padding:var(--space-7) var(--space-4); flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                                    <div style="font-size:2.5rem; margin-bottom:var(--space-3); color:var(--text-muted);"><i class="fa-solid fa-ticket"></i></div>
+                                    <h3 class="empty-state-title">No Active Orders</h3>
+                                    <p class="empty-state-desc">Order from our 25 authentic South Indian dishes to get your live queue token.</p>
+                                    <a href="/menu.html" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Browse Food Menu</a>
+                                </div>
+                            </div>
                         </div>
-                        <p class="page-header-desc">Personalized dishes tailored to your taste profile, time of day, and ordering habits.</p>
+
+                        <!-- Right: AI Crowd Prediction & Timeline Forecast -->
+                        <div>
+                            <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:var(--space-3); display:flex; align-items:center; gap:var(--space-2);">
+                                <i class="fa-solid fa-chart-line" style="color:var(--accent);"></i> AI Crowd Forecast (Next 2 Hours)
+                            </h2>
+                            <div class="card" style="padding:var(--space-5);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+                                    <div>
+                                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Expected Peak Rush</span>
+                                        <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary); font-family:var(--font-accent);" id="crowd-peak-time">01:15 PM</div>
+                                    </div>
+                                    <span class="badge badge-ready" id="crowd-peak-level">PEAK LUNCH</span>
+                                </div>
+
+                                <!-- 4 Step Forecast Cards (Current, 30m, 60m, 120m) -->
+                                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:var(--space-2); margin-bottom:var(--space-4);" id="crowd-forecast-steps">
+                                    <div class="crowd-step-card">
+                                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">CURRENT</div>
+                                        <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-now">MODERATE</div>
+                                        <div style="font-size:0.6875rem; color:var(--text-secondary);">~6 mins</div>
+                                    </div>
+                                    <div class="crowd-step-card">
+                                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">30 MIN</div>
+                                        <div style="font-size:0.9375rem; font-weight:700; color:var(--warning); margin:var(--space-1) 0;" id="cf-30">HIGH</div>
+                                        <div style="font-size:0.6875rem; color:var(--text-secondary);">~14 mins</div>
+                                    </div>
+                                    <div class="crowd-step-card">
+                                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">60 MIN</div>
+                                        <div style="font-size:0.9375rem; font-weight:700; color:var(--danger); margin:var(--space-1) 0;" id="cf-60">PEAK</div>
+                                        <div style="font-size:0.6875rem; color:var(--text-secondary);">~22 mins</div>
+                                    </div>
+                                    <div class="crowd-step-card">
+                                        <div style="font-size:0.6875rem; color:var(--text-muted); font-weight:700;">120 MIN</div>
+                                        <div style="font-size:0.9375rem; font-weight:700; color:var(--accent); margin:var(--space-1) 0;" id="cf-120">LOW</div>
+                                        <div style="font-size:0.6875rem; color:var(--text-secondary);">~4 mins</div>
+                                    </div>
+                                </div>
+
+                                <div style="background:var(--primary-light); border:1px solid var(--primary-border); padding:var(--space-3); border-radius:var(--radius-sm); font-size:0.8125rem; color:var(--text-secondary);" id="crowd-recommendation-note">
+                                    💡 <strong>Smart Tip:</strong> Pre-order 15 mins ahead during Lunch rush for instant pickup without counter waiting.
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="/menu.html" class="btn btn-sm btn-secondary">Explore Full Menu <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
-                <div class="food-grid" id="recs-grid">
-                    <div style="grid-column:1/-1; text-align:center; padding:var(--space-7); color:var(--text-secondary);">
-                        <div class="spinner spinner-lg"></div>
-                        <p style="margin-top:var(--space-3); font-size:0.875rem;">Calculating personalized match scores...</p>
+                <!-- Section 2: Upgraded AI Recommendations -->
+                <div class="dash-section-pane" id="dash-pane-recs" style="margin-bottom:var(--space-8);">
+                    <div class="page-header">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:var(--space-2);">
+                                <span class="badge badge-info">AI Recommendation</span>
+                                <h2 style="font-size:1.35rem; font-weight:700; margin:0;">Recommended For You</h2>
+                            </div>
+                            <p class="page-header-desc">Personalized dishes tailored to your taste profile, time of day, and ordering habits.</p>
+                        </div>
+                        <a href="/menu.html" class="btn btn-sm btn-secondary">Explore Full Menu <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
-                </div>
-            </section>
 
-            <!-- Recent Orders Feed -->
-            <section style="margin-bottom:var(--space-8);">
-                <div class="page-header">
-                    <h2 class="page-header-title" style="font-size:1.35rem;"><i class="fa-regular fa-clock" style="color:var(--primary-hover); margin-right:6px;"></i> Recent Orders</h2>
-                    <a href="/orders.html" class="btn btn-sm btn-secondary">View All History <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-                <div class="table-container" id="recent-orders-card">
-                    <div style="text-align:center; padding:var(--space-6); color:var(--text-muted);" id="recent-orders-feed">
-                        <div class="spinner"></div> Loading recent orders...
+                    <div class="food-grid" id="recs-grid">
+                        <div style="grid-column:1/-1; text-align:center; padding:var(--space-7); color:var(--text-secondary);">
+                            <div class="spinner spinner-lg"></div>
+                            <p style="margin-top:var(--space-3); font-size:0.875rem;">Calculating personalized match scores...</p>
+                        </div>
                     </div>
                 </div>
-            </section>
+
+                <!-- Section 3: Recent Orders Feed -->
+                <div class="dash-section-pane" id="dash-pane-orders" style="margin-bottom:var(--space-8);">
+                    <div class="page-header">
+                        <h2 class="page-header-title" style="font-size:1.35rem;"><i class="fa-regular fa-clock" style="color:var(--primary-hover); margin-right:6px;"></i> Recent Orders</h2>
+                        <a href="/orders.html" class="btn btn-sm btn-secondary">View All History <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="table-container" id="recent-orders-card">
+                        <div style="text-align:center; padding:var(--space-6); color:var(--text-muted);" id="recent-orders-feed">
+                            <div class="spinner"></div> Loading recent orders...
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
         </div>
     </main>
@@ -329,7 +417,7 @@
                     recsGrid.innerHTML = recs.map(item => `
                         <div class="food-card">
                             <div class="food-image-wrap">
-                                <img src="${item.image_url || '/assets/menu/placeholder.svg'}" alt="${item.name}" class="food-image" loading="lazy" onerror="this.onerror=null;this.src='/assets/menu/placeholder.svg';" />
+                                <img src="${item.image_url || '/assets/menu/masala-dosa.jpg'}" alt="${item.name}" class="food-image" loading="lazy" onerror="this.onerror=null;this.src='/assets/menu/masala-dosa.jpg';" />
                                 <span class="food-counter-tag">${item.category_name}</span>
                                 <div class="food-veg-tag ${item.is_veg ? '' : 'nonveg'}">
                                     <div class="food-veg-dot ${item.is_veg ? '' : 'nonveg'}"></div>
@@ -382,7 +470,7 @@
                                         <td><span class="badge badge-info">${o.token_number || 'N/A'}</span></td>
                                         <td style="color:var(--text-secondary);">${o.items_summary || (o.items ? o.items.map(i => `${i.quantity}x ${i.food_item_name}`).join(', ') : 'South Indian Meal')}</td>
                                         <td style="font-weight:700; color:var(--text-primary); font-family:var(--font-heading);">₹${parseFloat(o.final_amount || o.total_amount).toFixed(2)}</td>
-                                        <td><span class="badge ${o.status === 'Completed' ? 'badge-completed' : (o.status === 'Ready' ? 'badge-ready' : 'badge-preparing')}">${o.status}</span></td>
+                                        <td><span class="badge ${o.status === 'Completed' ? 'badge-completed' : (o.status === 'Ready' ? 'badge-ready' : (o.status === 'Payment_Pending' ? 'badge-payment-pending' : 'badge-preparing'))}">${o.status}</span></td>
                                         <td style="text-align:right;">
                                             <a href="/orders.html" class="btn btn-sm btn-secondary">Details</a>
                                         </td>
@@ -412,11 +500,37 @@
             }
         }
 
-        function updateNavCartBadge() {
-            const items = Cart.getItems();
-            const count = items.reduce((acc, i) => acc + i.quantity, 0);
-            const badge = document.getElementById("nav-cart-count");
-            if (badge) badge.textContent = count;
+        function switchDashboardTab(tabKey, btnElement) {
+            document.querySelectorAll('.dash-tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            if (btnElement) {
+                btnElement.classList.add('active');
+                btnElement.setAttribute('aria-selected', 'true');
+            }
+
+            const paneToken = document.getElementById('dash-pane-token');
+            const paneRecs = document.getElementById('dash-pane-recs');
+            const paneOrders = document.getElementById('dash-pane-orders');
+
+            if (tabKey === 'all') {
+                paneToken.classList.remove('is-hidden');
+                paneRecs.classList.remove('is-hidden');
+                paneOrders.classList.remove('is-hidden');
+            } else if (tabKey === 'token') {
+                paneToken.classList.remove('is-hidden');
+                paneRecs.classList.add('is-hidden');
+                paneOrders.classList.add('is-hidden');
+            } else if (tabKey === 'recs') {
+                paneToken.classList.add('is-hidden');
+                paneRecs.classList.remove('is-hidden');
+                paneOrders.classList.add('is-hidden');
+            } else if (tabKey === 'orders') {
+                paneToken.classList.add('is-hidden');
+                paneRecs.classList.add('is-hidden');
+                paneOrders.classList.remove('is-hidden');
+            }
         }
     </script>
 </body>

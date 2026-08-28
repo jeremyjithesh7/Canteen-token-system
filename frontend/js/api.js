@@ -5,10 +5,10 @@
 
 class ApiClient {
     static getBaseUrl() {
-        if (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) {
+        if (typeof CONFIG !== 'undefined' && typeof CONFIG.API_BASE_URL === 'string') {
             return CONFIG.API_BASE_URL;
         }
-        return 'http://127.0.0.1:8000';
+        return '';
     }
 
     static async request(endpoint, options = {}) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,7 @@
                 <li><a href="/ai-center.html" class="sidebar-link"><i class="fa-solid fa-microchip"></i> <span>AI Center</span></a></li>
                 <li><a href="/admin/users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> <span>Users</span></a></li>
                 <li><a href="/admin/notifications.html" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> <span>Broadcast</span></a></li>
+                <li><a href="/admin/database.html" class="sidebar-link"><i class="fa-solid fa-database"></i> <span>Database</span></a></li>
             </ul>
 
             <div class="sidebar-footer">
@@ -136,27 +137,60 @@
                     return;
                 }
 
-                tbody.innerHTML = orders.map(o => `
-                    <tr>
-                        <td><strong>${o.order_number}</strong></td>
-                        <td><span style="font-family:var(--font-accent); font-weight:700; color:var(--accent);">${o.token_number || '-'}</span></td>
-                        <td><span class="badge badge-info">Counter ${o.counter_number || 1}</span></td>
-                        <td>User #${o.user_id}</td>
-                        <td style="max-width:240px; font-size:0.8125rem;">
-                            ${o.items.map(i => `${i.quantity}x ${i.food_item ? i.food_item.name : 'Dish'}`).join(', ')}
-                        </td>
-                        <td><strong style="font-family:var(--font-accent);">₹${parseFloat(o.final_amount).toFixed(2)}</strong></td>
-                        <td><span class="badge badge-ready">${o.payment_method || 'UPI'} (${o.payment_status || 'Paid'})</span></td>
-                        <td><span class="badge badge-${o.status === 'Completed' ? 'completed' : (o.status === 'Cancelled' ? 'cancelled' : (o.status === 'Ready' ? 'ready' : (o.status === 'Preparing' ? 'preparing' : 'waiting')))}">${o.status}</span></td>
-                        <td style="text-align:right;">
-                            ${o.status !== 'Completed' && o.status !== 'Cancelled' ? `
-                                <button class="btn btn-sm btn-secondary" onclick="AdminController.advanceTokenStatus(${o.id}, 'Completed'); loadAllOrdersTable();">Complete</button>
-                            ` : '-'}
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = orders.map(o => {
+                    const isPendingPayment = o.status === 'Payment_Pending' || o.payment_status === 'Pending';
+                    const paymentBadge = isPendingPayment 
+                        ? `<span class="badge badge-payment-pending">${o.payment_method || 'UPI'} (Pending)</span>`
+                        : `<span class="badge badge-ready">${o.payment_method || 'UPI'} (${o.payment_status || 'Paid'})</span>`;
+                    
+                    let actionHtml = '-';
+                    if (isPendingPayment) {
+                        actionHtml = `
+                            <button class="btn btn-sm btn-primary" onclick="confirmOrderPaymentAdmin(${o.id}, '${o.order_number}')" title="Verify Payment & Issue Token">
+                                <i class="fa-solid fa-check"></i> Verify Pay
+                            </button>
+                        `;
+                    } else if (o.status !== 'Completed' && o.status !== 'Cancelled') {
+                        actionHtml = `
+                            <button class="btn btn-sm btn-secondary" onclick="AdminController.advanceTokenStatus(${o.token_id || o.id}, 'Completed'); loadAllOrdersTable();">Complete</button>
+                        `;
+                    }
+
+                    return `
+                        <tr>
+                            <td><strong>${o.order_number}</strong></td>
+                            <td><span style="font-family:var(--font-accent); font-weight:700; color:var(--accent);">${o.token_number || '-'}</span></td>
+                            <td><span class="badge badge-info">Counter ${o.counter_number || 1}</span></td>
+                            <td>User #${o.user_id}</td>
+                            <td style="max-width:240px; font-size:0.8125rem;">
+                                ${o.items.map(i => `${i.quantity}x ${i.food_item ? i.food_item.name : 'Dish'}`).join(', ')}
+                            </td>
+                            <td><strong style="font-family:var(--font-accent);">₹${parseFloat(o.final_amount).toFixed(2)}</strong></td>
+                            <td>${paymentBadge}</td>
+                            <td><span class="badge badge-${o.status === 'Completed' ? 'completed' : (o.status === 'Cancelled' ? 'cancelled' : (o.status === 'Ready' ? 'ready' : (o.status === 'Preparing' ? 'preparing' : (o.status === 'Payment_Pending' ? 'payment-pending' : 'waiting'))))}">${o.status}</span></td>
+                            <td style="text-align:right;">
+                                ${actionHtml}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             } catch (err) {
                 console.error(err);
+            }
+        }
+
+        async function confirmOrderPaymentAdmin(orderId, orderNum) {
+            if (!confirm(`Confirm that payment of ₹... has been received for Order #${orderNum}? This will issue a digital token to the student and send the order to the kitchen.`)) {
+                return;
+            }
+
+            try {
+                await API.post(`/api/orders/${orderId}/confirm-payment`, {});
+                showNotification(`Payment verified for Order #${orderNum}! Token issued.`, 'success');
+                AdminController.loadKitchenLanes();
+                loadAllOrdersTable();
+            } catch (err) {
+                alert(err.message || 'Failed to verify payment');
             }
         }
 

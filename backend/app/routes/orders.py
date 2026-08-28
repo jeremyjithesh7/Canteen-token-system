@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from decimal import Decimal
+import json
 
+from backend.app.config import settings
 from backend.app.database.session import get_db
 from backend.app.models.user import User
 from backend.app.models.order import Order
@@ -13,7 +16,14 @@ router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
 def _format_order_response(order: Order) -> OrderResponse:
     resp = OrderResponse.model_validate(order)
+    resp.subtotal = order.total_amount
+    resp.tax_amount = order.final_amount - order.total_amount
+    resp.upi_vpa = settings.UPI_VPA
+    resp.upi_payee_name = settings.UPI_PAYEE_NAME
+    resp.upi_payment_uri = OrderService.generate_upi_uri(order.final_amount, order.order_number)
+
     if order.token:
+        resp.token_id = order.token.id
         resp.token_number = order.token.token_number
         resp.token_status = order.token.status
         resp.estimated_wait_minutes = order.token.estimated_wait_minutes
@@ -31,10 +41,44 @@ def place_order(
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    Places a new food order, validates inventory, charges payment, and generates a digital token.
+    Places a new food order with server-side 5% GST calculation.
+    - Wallet: Atomic deduction -> Confirmed -> Token issued.
+    - UPI: Sets Payment_Pending -> Generates dynamic UPI URI with exact total.
     """
     result = OrderService.create_order(db=db, user_id=current_user.id, order_in=order_in)
     return _format_order_response(result["order"])
+
+@router.post("/{order_id}/submit-payment-reference", response_model=OrderResponse)
+def submit_payment_reference(
+    order_id: int,
+    utr_reference: str = Body(..., embed=True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Student submits payment UTR / reference for verification.
+    Records reference in payment audit log; order remains Payment_Pending until verified.
+    """
+    order = OrderService.submit_payment_reference(
+        db=db,
+        order_id=order_id,
+        user_id=current_user.id,
+        utr_reference=utr_reference
+    )
+    return _format_order_response(order)
+
+@router.post("/{order_id}/confirm-payment", response_model=OrderResponse)
+def confirm_payment(
+    order_id: int,
+    db: Session = Depends(get_db),
+    admin_or_staff: User = Depends(get_current_staff_or_admin)
+):
+    """
+    Staff / Admin / Webhook endpoint:
+    Genuinely confirms payment receipt, updates status to Confirmed, and generates Kitchen Token.
+    """
+    order = OrderService.confirm_payment_and_issue_token(db=db, order_id=order_id)
+    return _format_order_response(order)
 
 @router.get("/my-orders", response_model=List[OrderResponse])
 @router.get("/me", response_model=List[OrderResponse])

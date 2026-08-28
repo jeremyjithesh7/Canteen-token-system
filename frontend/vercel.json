@@ -1,0 +1,9 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/admin/:page",
+      "destination": "/admin/:page.html"
+    }
+  ]
+}

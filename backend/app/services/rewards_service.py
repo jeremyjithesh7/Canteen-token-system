@@ -22,24 +22,12 @@ class RewardsService:
         if not reward:
             reward = UserReward(
                 user_id=user_id,
-                total_points=85,
+                total_points=0,
                 tier="Bronze Explorer",
-                current_streak_days=3,
-                last_order_date=date.today() - timedelta(days=1)
+                current_streak_days=0,
+                last_order_date=None
             )
             db.add(reward)
-            db.commit()
-            db.refresh(reward)
-
-            # Seed initial welcoming badge
-            ach = UserAchievement(
-                user_id=user_id,
-                achievement_key="FIRST_ORDER",
-                title="First Order Placed",
-                icon="🏆",
-                description="Completed your first digital canteen token order!"
-            )
-            db.add(ach)
             db.commit()
             db.refresh(reward)
         return reward
@@ -153,20 +141,10 @@ class RewardsService:
                 "total_points": rew.total_points,
                 "tier": rew.tier,
                 "streak_days": rew.current_streak_days,
-                "badges_count": max(1, badge_cnt)
+                "badges_count": badge_cnt
             })
             if current_user_id and rew.user_id == current_user_id:
                 user_rank = idx
-
-        # Fallback if empty
-        if not leaderboard:
-            leaderboard = [
-                {"rank": 1, "user_name": "Aarav Sharma", "total_points": 480, "tier": "Gold Gourmet", "streak_days": 12, "badges_count": 4},
-                {"rank": 2, "user_name": "Priya Nair", "total_points": 340, "tier": "Silver Foodie", "streak_days": 7, "badges_count": 3},
-                {"rank": 3, "user_name": "Karthik Iyer", "total_points": 290, "tier": "Silver Foodie", "streak_days": 5, "badges_count": 2},
-                {"rank": 4, "user_name": "Ananya Reddy", "total_points": 210, "tier": "Silver Foodie", "streak_days": 4, "badges_count": 2},
-                {"rank": 5, "user_name": "Rohan Patel", "total_points": 160, "tier": "Silver Foodie", "streak_days": 3, "badges_count": 1}
-            ]
 
         return {
             "top_users": leaderboard,

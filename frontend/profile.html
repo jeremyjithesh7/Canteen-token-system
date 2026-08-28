@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -17,16 +18,21 @@
     <nav class="navbar">
         <div class="container navbar-container">
             <a href="/index.html" class="brand">
-                <div class="brand-icon">⚡</div>
-                <span>CANTEEN OS</span>
+                <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                <span>Canteen<span class="brand-highlight">OS</span></span>
             </a>
 
             <ul class="nav-links">
                 <li><a href="/index.html" class="nav-link">Home</a></li>
-                <li><a href="/menu.html" class="nav-link">Menu & Order</a></li>
+                <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
+                <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                <li><a href="/orders.html" class="nav-link"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
+                <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+                <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
                 <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="/token.html" class="nav-link">Token Tracker</a></li>
-                <li><a href="/orders.html" class="nav-link">My Orders</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/queue.html" class="nav-link">Queue View</a></li>
+                <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
 
             <div class="nav-actions" id="nav-auth-slot"></div>
@@ -48,7 +54,6 @@
                     <div style="flex:1;">
                         <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
                             <h2 style="font-size:1.4rem; font-weight:800;" id="prof-name">Student Name</h2>
-                            <span id="prof-badge" class="loyalty-badge-pill">🌱 New Explorer</span>
                         </div>
                         <div style="color:var(--text-secondary); font-size:0.9rem;" id="prof-email">student@canteen.edu</div>
                         <div style="color:var(--text-muted); font-size:0.85rem;" id="prof-dept">Computer Science</div>
@@ -109,7 +114,7 @@
     <!-- Footer -->
     <footer class="site-footer">
         <div class="container footer-bottom">
-            <p>© 2026 Digital Canteen Token System. Designed with Purple Neon Theme.</p>
+            <p>© 2026 Smart Campus Canteen OS. All rights reserved.</p>
         </div>
     </footer>
 
@@ -127,9 +132,19 @@
                 document.getElementById('prof-name').textContent = user.name;
                 document.getElementById('prof-email').textContent = user.email;
                 document.getElementById('prof-dept').textContent = `${user.department || 'General'} • Role #${user.role_id}`;
-                document.getElementById('prof-badge').textContent = user.loyalty_badge || '🌱 New Explorer';
                 document.getElementById('prof-orders-count').textContent = user.total_orders_count || 0;
                 document.getElementById('prof-tier-name').textContent = user.loyalty_tier || 'Newbie';
+            }
+
+            try {
+                const prefs = await ApiClient.get('/api/users/me/preferences');
+                if (prefs) {
+                    if (prefs.is_veg_only !== undefined) document.getElementById('pref-veg-only').checked = prefs.is_veg_only;
+                    if (prefs.spice_level) document.getElementById('pref-spice').value = prefs.spice_level;
+                    if (prefs.dietary_notes) document.getElementById('pref-notes').value = prefs.dietary_notes;
+                }
+            } catch (err) {
+                console.error("Could not load preferences:", err);
             }
         });
 
@@ -139,10 +154,17 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> Saving...';
 
+            const payload = {
+                is_veg_only: document.getElementById('pref-veg-only').checked,
+                spice_level: document.getElementById('pref-spice').value,
+                dietary_notes: document.getElementById('pref-notes').value.trim() || null
+            };
+
             try {
-                Toast.success('Dietary preferences updated!');
+                await ApiClient.put('/api/users/me/preferences', payload);
+                Toast.success('Dietary preferences updated in PostgreSQL database! ✨');
             } catch (err) {
-                Toast.error('Failed to save preferences.');
+                Toast.error(err.message || 'Failed to save preferences.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Save Preferences ✨';

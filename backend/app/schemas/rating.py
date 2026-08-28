@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, List, Dict
 from datetime import datetime
 
 class FoodRatingCreate(BaseModel):
@@ -22,6 +22,7 @@ class FoodRatingResponse(BaseModel):
 
 class FoodRatingSummary(BaseModel):
     food_item_id: int
-    average_rating: float
-    rating_count: int
-    latest_reviews: list[FoodRatingResponse] = []
+    average_rating: Optional[float] = None
+    rating_count: int = 0
+    star_counts: Dict[int, int] = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    latest_reviews: List[FoodRatingResponse] = []

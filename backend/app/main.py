@@ -29,7 +29,8 @@ from backend.app.routes import (
     cart_router,
     ratings_router,
     wallet_router,
-    rewards_router
+    rewards_router,
+    database_viewer_router
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -63,10 +64,22 @@ app = FastAPI(
 # Structured request logging middleware
 app.add_middleware(RequestLoggingMiddleware)
 
-# Configure CORS for seamless frontend interaction
+# Configure CORS with explicit, environment-driven origins
+raw_origins = getattr(settings, "ALLOWED_ORIGINS", "")
+allowed_origins_list = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+if not allowed_origins_list:
+    allowed_origins_list = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,6 +102,7 @@ app.include_router(cart_router)
 app.include_router(ratings_router)
 app.include_router(wallet_router)
 app.include_router(rewards_router)
+app.include_router(database_viewer_router)
 
 @app.get("/api/health", tags=["Health"])
 def health_check():
@@ -100,13 +114,20 @@ def health_check():
         "database": "connected"
     }
 
-@app.get("/", tags=["Root"])
-def root():
-    return {
-        "message": "Welcome to the Digital Canteen Token System API",
-        "documentation": "/docs",
-        "health": "/api/health"
-    }
+from fastapi.staticfiles import StaticFiles
+import os
+
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+else:
+    @app.get("/", tags=["Root"])
+    def root():
+        return {
+            "message": "Welcome to the Digital Canteen Token System API",
+            "documentation": "/docs",
+            "health": "/api/health"
+        }
 
 if __name__ == "__main__":
     import uvicorn

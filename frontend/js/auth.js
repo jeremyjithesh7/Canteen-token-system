@@ -54,7 +54,7 @@ const Auth = {
         const refreshToken = this.getRefreshToken();
         if (!refreshToken) return false;
         try {
-            const baseUrl = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : 'http://127.0.0.1:8000';
+            const baseUrl = (typeof CONFIG !== 'undefined' && typeof CONFIG.API_BASE_URL === 'string') ? CONFIG.API_BASE_URL : '';
             const endpoint = (typeof CONFIG !== 'undefined' && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.AUTH) ? CONFIG.ENDPOINTS.AUTH.REFRESH : '/api/auth/refresh';
             const res = await fetch(`${baseUrl}${endpoint}`, {
                 method: 'POST',
@@ -97,7 +97,9 @@ const Auth = {
         const refreshToken = this.getRefreshToken();
         if (refreshToken) {
             try {
-                await fetch(`${CONFIG.API_BASE_URL}${CONFIG.ENDPOINTS.AUTH.LOGOUT}`, {
+                const baseUrl = (typeof CONFIG !== 'undefined' && typeof CONFIG.API_BASE_URL === 'string') ? CONFIG.API_BASE_URL : '';
+                const logoutEndpoint = (typeof CONFIG !== 'undefined' && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.AUTH) ? CONFIG.ENDPOINTS.AUTH.LOGOUT : '/api/auth/logout';
+                await fetch(`${baseUrl}${logoutEndpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ refresh_token: refreshToken })

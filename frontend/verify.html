@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -186,7 +186,7 @@
             if (data.items && data.items.length > 0) {
                 itemsList.innerHTML = data.items.map(i => `
                     <li style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <strong style="color:var(--text-primary); font-size:0.9375rem;">${i.quantity}x ${i.food_item_name}</strong>
+                        <strong style="color:var(--text-primary); font-size:0.9375rem;">${i.quantity}x ${i.food_name || i.food_item_name || 'Dish'}</strong>
                         <span style="color:var(--text-primary); font-weight:700; font-family:var(--font-heading);">₹${parseFloat(i.subtotal).toFixed(2)}</span>
                     </li>
                 `).join('');

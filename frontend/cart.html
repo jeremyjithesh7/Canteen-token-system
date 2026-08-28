@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,10 +98,11 @@
                 <li><a href="/" class="nav-link">Home</a></li>
                 <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
                 <li><a href="/cart.html" class="nav-link active"><i class="fa-solid fa-cart-shopping"></i> Cart <span class="badge badge-accent" id="nav-cart-count" style="margin-left:4px;">0</span></a></li>
-                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/orders.html" class="nav-link"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
                 <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
                 <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
                 <li><a href="/queue.html" class="nav-link">Queue View</a></li>
                 <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
@@ -211,11 +212,11 @@
 
                         <!-- Place Order Button -->
                         <button id="btn-place-order" class="btn btn-lg btn-primary" style="width:100%; margin-top:var(--space-4);" onclick="processOrderCheckout()">
-                            <i class="fa-solid fa-bolt"></i> Confirm & Generate Token
+                            <i class="fa-solid fa-bolt"></i> Place Order & Pay
                         </button>
 
                         <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:var(--space-3);">
-                            <i class="fa-solid fa-shield-halved"></i> Instant Digital Token allocation & Kitchen Dispatch.
+                            <i class="fa-solid fa-shield-halved"></i> 100% Secure Student Payments • Fast Kitchen Dispatch
                         </p>
                     </div>
                 </div>
@@ -223,15 +224,119 @@
         </div>
     </main>
 
+    <!-- UPI Dynamic Payment Modal -->
+    <div id="upi-payment-modal" class="modal-backdrop">
+        <div class="modal-card upi-modal-card animate-pop-in">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="brand-icon" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <div>
+                        <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin:0;">UPI Payment</h3>
+                        <span class="badge-payment-pending" style="margin-top:2px;"><i class="fa-solid fa-clock"></i> Payment Pending</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-ghost btn-icon" onclick="closeUpiModal()" style="color:var(--text-muted); font-size:1.1rem;">✕</button>
+            </div>
+
+            <!-- Dynamic Amount & Breakdown -->
+            <div class="upi-details-table">
+                <div class="upi-details-row">
+                    <span>Order Number</span>
+                    <strong id="upi-modal-order-no" style="color:var(--text-primary);">#ORD-00000</strong>
+                </div>
+                <div class="upi-details-row">
+                    <span>Subtotal</span>
+                    <span id="upi-modal-subtotal">₹0.00</span>
+                </div>
+                <div class="upi-details-row">
+                    <span>Campus GST (5%)</span>
+                    <span id="upi-modal-gst">₹0.00</span>
+                </div>
+                <div class="upi-details-row total-row">
+                    <span>Amount Payable</span>
+                    <span id="upi-modal-total" style="color:var(--primary-hover); font-size:1.15rem;">₹0.00</span>
+                </div>
+            </div>
+
+            <!-- Scannable Dynamic UPI QR Code -->
+            <div style="text-align:center;">
+                <div class="upi-qr-box">
+                    <div id="upi-qr-container">
+                        <!-- Dynamic QR rendered here -->
+                    </div>
+                    <div style="font-size:0.75rem; color:#4a5568; font-weight:600; margin-top:0.4rem;">
+                        Scan with any UPI App (GPay, PhonePe, Paytm)
+                    </div>
+                </div>
+
+                <!-- UPI VPA display with copy button -->
+                <div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--bg-surface-elevated); padding:0.4rem 0.85rem; border-radius:9999px; border:1px solid var(--border); font-size:0.8rem; margin-top:0.25rem;">
+                    <span style="color:var(--text-muted);">UPI ID:</span>
+                    <strong id="upi-modal-vpa" style="color:var(--text-primary); font-family:var(--font-mono, monospace);">jeremyjithesh7@oksbi</strong>
+                    <button class="btn btn-xs btn-ghost" onclick="copyUpiVpa()" title="Copy UPI ID" style="padding:0.2rem 0.4rem; color:var(--primary-hover);">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pay via App Intent Links -->
+            <div style="margin-top:1rem;">
+                <label class="form-label" style="font-size:0.8rem; text-align:center; display:block; margin-bottom:0.4rem; color:var(--text-secondary);">
+                    Tap to pay directly in your app (Mobile):
+                </label>
+                <div class="upi-app-btn-grid">
+                    <a id="btn-intent-gpay" href="#" class="upi-app-btn">
+                        <i class="fa-brands fa-google-pay" style="font-size:1.2rem; color:#4285F4;"></i> Google Pay
+                    </a>
+                    <a id="btn-intent-phonepe" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-mobile" style="color:#5f259f;"></i> PhonePe
+                    </a>
+                    <a id="btn-intent-paytm" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-wallet" style="color:#00b9f1;"></i> Paytm
+                    </a>
+                    <a id="btn-intent-generic" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-bolt" style="color:var(--accent);"></i> Any UPI App
+                    </a>
+                </div>
+            </div>
+
+            <!-- UTR / Reference ID Submission -->
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem; margin-top:1rem;">
+                <label for="upi-utr-input" style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:0.35rem;">
+                    <i class="fa-solid fa-receipt" style="color:var(--accent);"></i> Submit 12-Digit UTR / Transaction Reference (Optional)
+                </label>
+                <div style="display:flex; gap:0.5rem;">
+                    <input type="text" id="upi-utr-input" class="form-control form-control-sm" placeholder="e.g. 423987129034" maxlength="30" style="font-size:0.85rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="submitUtrReference()" id="btn-submit-utr" style="white-space:nowrap;">
+                        Submit Reference
+                    </button>
+                </div>
+                <div id="utr-submit-status" style="font-size:0.75rem; margin-top:0.4rem; color:var(--text-muted);"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
+                <a href="/orders.html" class="btn btn-secondary" style="flex:1; justify-content:center;">
+                    <i class="fa-solid fa-list-check"></i> View My Orders
+                </a>
+                <button class="btn btn-ghost" onclick="closeUpiModal()" style="flex:1;">
+                    Done / Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- App Scripts -->
     <script src="/js/config.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
+    <script src="/js/qr.js"></script>
     <script src="/js/cart.js"></script>
     <script src="/js/notifications.js"></script>
     <script src="/js/app.js"></script>
     <script>
         let currentCartData = null;
+        let activeUpiOrder = null;
 
         async function loadCartPage() {
             if (Auth.isLoggedIn()) {
@@ -272,7 +377,7 @@
             }
 
             const subtotal = localCart.reduce((acc, i) => acc + (parseFloat(i.price) * i.quantity), 0);
-            const gst = subtotal * 0.05;
+            const gst = Math.round(subtotal * 0.05 * 100) / 100;
             const grandTotal = subtotal + gst;
 
             renderCartUI({
@@ -313,11 +418,11 @@
             const container = document.getElementById("cart-items-list-container");
             container.innerHTML = cart.items.map(item => {
                 const counterBadge = item.counter_id === 1 ? 'Counter 1' : (item.counter_id === 2 ? 'Counter 2' : 'Counter 3');
-                const itemImg = item.image_url || 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80';
+                const itemImg = item.image_url || '/assets/menu/masala-dosa.jpg';
                 
                 return `
                     <div class="cart-item-card">
-                        <img src="${itemImg}" alt="${item.name}" class="cart-item-img" onerror="this.src='https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80'">
+                        <img src="${itemImg}" alt="${item.name}" class="cart-item-img" onerror="this.src='/assets/menu/masala-dosa.jpg'">
                         <div style="flex:1;">
                             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:var(--space-1);">
                                 <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin:0;">${item.name}</h4>
@@ -375,7 +480,7 @@
 
         async function processOrderCheckout() {
             if (!Auth.isLoggedIn()) {
-                alert("Please log in or register to confirm your order and receive a digital token.");
+                alert("Please log in or register to place your order.");
                 window.location.href = "/login.html?redirect=cart.html";
                 return;
             }
@@ -388,7 +493,7 @@
 
             const btn = document.getElementById("btn-place-order");
             btn.disabled = true;
-            btn.innerHTML = `<div class="spinner spinner-sm"></div> Dispatching Token...`;
+            btn.innerHTML = `<div class="spinner spinner-sm"></div> Processing Order...`;
 
             try {
                 const selectedMethod = document.querySelector('input[name="pay_method"]:checked')?.value || "UPI";
@@ -418,18 +523,90 @@
                 const res = await API.post("/api/orders/", orderPayload);
                 if (res && res.id) {
                     Cart.clear();
-                    showNotification("Order placed successfully! Token issued.", "success");
-                    setTimeout(() => {
-                        window.location.href = `/token.html?token_id=${res.id}`;
-                    }, 800);
+
+                    if (selectedMethod.toLowerCase() === "wallet" || res.status === "Confirmed") {
+                        showNotification("Order confirmed! Digital token issued.", "success");
+                        setTimeout(() => {
+                            window.location.href = `/token.html?token_id=${res.id}`;
+                        }, 600);
+                    } else {
+                        // UPI / Payment Pending Flow
+                        activeUpiOrder = res;
+                        openUpiModal(res);
+                    }
                 } else {
                     throw new Error("Order creation response invalid");
                 }
             } catch (err) {
                 console.error("Order error:", err);
                 alert(err.message || "Failed to place order. Please try again.");
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Confirm & Generate Token`;
+                btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Place Order & Pay`;
+            }
+        }
+
+        function openUpiModal(order) {
+            document.getElementById("upi-modal-order-no").textContent = `#${order.order_number}`;
+            document.getElementById("upi-modal-subtotal").textContent = `₹${parseFloat(order.subtotal || order.total_amount).toFixed(2)}`;
+            document.getElementById("upi-modal-gst").textContent = `₹${parseFloat(order.tax_amount || (order.final_amount - order.total_amount)).toFixed(2)}`;
+            document.getElementById("upi-modal-total").textContent = `₹${parseFloat(order.final_amount).toFixed(2)}`;
+            document.getElementById("upi-modal-vpa").textContent = order.upi_vpa || "jeremyjithesh7@oksbi";
+
+            const upiUri = order.upi_payment_uri || `upi://pay?pa=jeremyjithesh7@oksbi&pn=Jeremy%20Jithesh&am=${parseFloat(order.final_amount).toFixed(2)}&tr=${order.order_number}&tn=Order_${order.order_number}&cu=INR`;
+            
+            // Render Dynamic Scannable QR Code
+            QRGenerator.renderToElement("upi-qr-container", upiUri, 180);
+
+            // Configure App Intent Links
+            document.getElementById("btn-intent-gpay").href = upiUri;
+            document.getElementById("btn-intent-phonepe").href = upiUri;
+            document.getElementById("btn-intent-paytm").href = upiUri;
+            document.getElementById("btn-intent-generic").href = upiUri;
+
+            document.getElementById("utr-submit-status").textContent = "";
+            document.getElementById("upi-utr-input").value = "";
+
+            document.getElementById("upi-payment-modal").classList.add("open");
+        }
+
+        function closeUpiModal() {
+            document.getElementById("upi-payment-modal").classList.remove("open");
+            loadCartPage();
+        }
+
+        function copyUpiVpa() {
+            const vpa = document.getElementById("upi-modal-vpa").textContent;
+            navigator.clipboard.writeText(vpa).then(() => {
+                showNotification(`UPI ID '${vpa}' copied to clipboard!`, "success");
+            }).catch(() => {
+                showNotification(`UPI ID: ${vpa}`, "info");
+            });
+        }
+
+        async function submitUtrReference() {
+            if (!activeUpiOrder) return;
+            const utr = document.getElementById("upi-utr-input").value.trim();
+            if (!utr) {
+                alert("Please enter your 12-digit UPI UTR / Transaction Reference number.");
+                return;
+            }
+
+            const btn = document.getElementById("btn-submit-utr");
+            btn.disabled = true;
+            btn.textContent = "Submitting...";
+
+            try {
+                const res = await API.post(`/api/orders/${activeUpiOrder.id}/submit-payment-reference`, {
+                    utr_reference: utr
+                });
+                document.getElementById("utr-submit-status").innerHTML = `<span style="color:var(--success); font-weight:600;"><i class="fa-solid fa-check-circle"></i> Reference submitted (Pending Verification). Staff will verify at counter.</span>`;
+                showNotification("Payment reference recorded!", "success");
+            } catch (err) {
+                document.getElementById("utr-submit-status").innerHTML = `<span style="color:var(--danger);">${err.message || 'Failed to submit reference'}</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Submit Reference";
             }
         }
 

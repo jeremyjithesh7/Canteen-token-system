@@ -20,7 +20,7 @@ def test_smart_token_allocation():
         active_tokens=active_tokens
     )
 
-    assert decision["token_number"] == "C1-105"
+    assert decision["token_number"] == "C1-005"
     assert decision["status"] == "Waiting"
     assert decision["counter_number"] == 1
     assert decision["estimated_wait_minutes"] >= 8

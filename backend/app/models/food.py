@@ -22,6 +22,7 @@ class FoodItem(Base):
     __tablename__ = "food_items"
 
     id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(100), unique=True, index=True, nullable=True)
     category_id = Column(Integer, ForeignKey("categories.id", ondelete="RESTRICT"), nullable=False)
     counter_id = Column(Integer, ForeignKey("counters.id", ondelete="SET NULL"), nullable=True)
     name = Column(String(150), nullable=False)

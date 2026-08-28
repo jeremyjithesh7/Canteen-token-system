@@ -60,7 +60,8 @@
 
 .sidebar-link.active {
     background: var(--primary-light);
-    color: #ffffff;
+    color: var(--primary-hover);
+    border: 1px solid var(--primary-border);
     font-weight: 600;
 }
 

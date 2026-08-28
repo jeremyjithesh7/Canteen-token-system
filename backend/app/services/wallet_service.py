@@ -11,20 +11,8 @@ class WalletService:
     def get_or_create_wallet(db: Session, user_id: int) -> Wallet:
         wallet = db.query(Wallet).filter(Wallet.user_id == user_id).first()
         if not wallet:
-            wallet = Wallet(user_id=user_id, balance=Decimal("500.00")) # Default ₹500 demo welcome credit
+            wallet = Wallet(user_id=user_id, balance=Decimal("0.00"))
             db.add(wallet)
-            db.commit()
-            db.refresh(wallet)
-
-            # Record initial welcome credit transaction
-            tx = WalletTransaction(
-                wallet_id=wallet.id,
-                user_id=user_id,
-                amount=Decimal("500.00"),
-                transaction_type="CREDIT",
-                description="Campus Welcome Wallet Bonus"
-            )
-            db.add(tx)
             db.commit()
             db.refresh(wallet)
         return wallet

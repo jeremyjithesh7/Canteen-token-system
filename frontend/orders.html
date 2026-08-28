@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders & History - Smart Campus Canteen OS</title>
     <meta name="description" content="View past orders, track digital token status, download receipts, reorder favorite dishes, and submit dish ratings.">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/style.css?v=2.2">
+    <link rel="stylesheet" href="/css/components.css?v=2.2">
+    <link rel="stylesheet" href="/css/animations.css?v=2.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .order-history-card {
@@ -50,12 +50,11 @@
                 <li><a href="/" class="nav-link">Home</a></li>
                 <li><a href="/menu.html" class="nav-link">Menu Catalog</a></li>
                 <li><a href="/cart.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
-                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
+                <li><a href="/orders.html" class="nav-link active"><i class="fa-solid fa-receipt"></i> My Orders</a></li>
                 <li><a href="/wallet.html" class="nav-link"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
                 <li><a href="/rewards.html" class="nav-link"><i class="fa-solid fa-award"></i> Rewards</a></li>
-                <li><a href="/orders.html" class="nav-link active">My Orders</a></li>
-                <li><a href="/token.html" class="nav-link">Live Token</a></li>
+                <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/ai-center.html" class="nav-link"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> AI Center</a></li>
                 <li><a href="/queue.html" class="nav-link">Queue View</a></li>
                 <li><a href="/kiosk.html" class="nav-link" target="_blank"><i class="fa-solid fa-tv"></i> Kiosk TV</a></li>
             </ul>
@@ -136,18 +135,111 @@
         </div>
     </div>
 
+    <!-- UPI Payment Modal -->
+    <div id="upi-payment-modal" class="modal-backdrop">
+        <div class="modal-card upi-modal-card animate-pop-in">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="brand-icon" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <div>
+                        <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin:0;">Complete UPI Payment</h3>
+                        <span class="badge-payment-pending" style="margin-top:2px;"><i class="fa-solid fa-clock"></i> Payment Pending</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-ghost btn-icon" onclick="closeUpiModal()" style="color:var(--text-muted); font-size:1.1rem;">✕</button>
+            </div>
+
+            <div class="upi-details-table">
+                <div class="upi-details-row">
+                    <span>Order Number</span>
+                    <strong id="upi-modal-order-no" style="color:var(--text-primary);">#ORD-00000</strong>
+                </div>
+                <div class="upi-details-row">
+                    <span>Subtotal</span>
+                    <span id="upi-modal-subtotal">₹0.00</span>
+                </div>
+                <div class="upi-details-row">
+                    <span>Campus GST (5%)</span>
+                    <span id="upi-modal-gst">₹0.00</span>
+                </div>
+                <div class="upi-details-row total-row">
+                    <span>Amount Payable</span>
+                    <span id="upi-modal-total" style="color:var(--primary-hover); font-size:1.15rem;">₹0.00</span>
+                </div>
+            </div>
+
+            <div style="text-align:center;">
+                <div class="upi-qr-box">
+                    <div id="upi-qr-container"></div>
+                    <div style="font-size:0.75rem; color:#4a5568; font-weight:600; margin-top:0.4rem;">
+                        Scan with any UPI App (GPay, PhonePe, Paytm)
+                    </div>
+                </div>
+
+                <div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--bg-surface-elevated); padding:0.4rem 0.85rem; border-radius:9999px; border:1px solid var(--border); font-size:0.8rem; margin-top:0.25rem;">
+                    <span style="color:var(--text-muted);">UPI ID:</span>
+                    <strong id="upi-modal-vpa" style="color:var(--text-primary); font-family:var(--font-mono, monospace);">jeremyjithesh7@oksbi</strong>
+                    <button class="btn btn-xs btn-ghost" onclick="copyUpiVpa()" title="Copy UPI ID" style="padding:0.2rem 0.4rem; color:var(--primary-hover);">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top:1rem;">
+                <label class="form-label" style="font-size:0.8rem; text-align:center; display:block; margin-bottom:0.4rem; color:var(--text-secondary);">
+                    Tap to open UPI app:
+                </label>
+                <div class="upi-app-btn-grid">
+                    <a id="btn-intent-gpay" href="#" class="upi-app-btn">
+                        <i class="fa-brands fa-google-pay" style="font-size:1.2rem; color:#4285F4;"></i> Google Pay
+                    </a>
+                    <a id="btn-intent-phonepe" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-mobile" style="color:#5f259f;"></i> PhonePe
+                    </a>
+                    <a id="btn-intent-paytm" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-wallet" style="color:#00b9f1;"></i> Paytm
+                    </a>
+                    <a id="btn-intent-generic" href="#" class="upi-app-btn">
+                        <i class="fa-solid fa-bolt" style="color:var(--accent);"></i> Any UPI App
+                    </a>
+                </div>
+            </div>
+
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem; margin-top:1rem;">
+                <label for="upi-utr-input" style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:0.35rem;">
+                    <i class="fa-solid fa-receipt" style="color:var(--accent);"></i> Submit 12-Digit UTR / Transaction Reference (Optional)
+                </label>
+                <div style="display:flex; gap:0.5rem;">
+                    <input type="text" id="upi-utr-input" class="form-control form-control-sm" placeholder="e.g. 423987129034" maxlength="30" style="font-size:0.85rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="submitUtrReference()" id="btn-submit-utr" style="white-space:nowrap;">
+                        Submit Reference
+                    </button>
+                </div>
+                <div id="utr-submit-status" style="font-size:0.75rem; margin-top:0.4rem; color:var(--text-muted);"></div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
+                <button class="btn btn-ghost" onclick="closeUpiModal()" style="flex:1;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- App Scripts -->
-    <script src="/js/config.js"></script>
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
-    <script src="/js/cart.js"></script>
-    <script src="/js/notifications.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/config.js?v=2.2"></script>
+    <script src="/js/api.js?v=2.2"></script>
+    <script src="/js/auth.js?v=2.2"></script>
+    <script src="/js/qr.js?v=2.2"></script>
+    <script src="/js/cart.js?v=2.2"></script>
+    <script src="/js/notifications.js?v=2.2"></script>
+    <script src="/js/app.js?v=2.2"></script>
     <script>
         let allOrders = [];
         let currentStatusFilter = "all";
         let activeRatingFoodId = null;
         let activeRatingOrderId = null;
+        let activeUpiOrder = null;
         let selectedStars = 5;
 
         async function loadOrders() {
@@ -224,20 +316,39 @@
                 });
 
                 let statusBadgeClass = "badge-waiting";
-                if (o.status === "Ready") statusBadgeClass = "badge-ready";
-                else if (o.status === "Preparing") statusBadgeClass = "badge-preparing";
-                else if (o.status === "Completed") statusBadgeClass = "badge-completed";
-                else if (o.status === "Cancelled") statusBadgeClass = "badge-cancelled";
+                let statusLabel = o.status;
+
+                if (o.status === "Payment_Pending") {
+                    statusBadgeClass = "badge-payment-pending";
+                    statusLabel = "Payment Pending";
+                } else if (o.status === "Ready") {
+                    statusBadgeClass = "badge-ready";
+                } else if (o.status === "Preparing") {
+                    statusBadgeClass = "badge-preparing";
+                } else if (o.status === "Completed") {
+                    statusBadgeClass = "badge-completed";
+                } else if (o.status === "Cancelled") {
+                    statusBadgeClass = "badge-cancelled";
+                }
+
+                const subtotal = parseFloat(o.subtotal || o.total_amount || 0);
+                const tax = parseFloat(o.tax_amount || (parseFloat(o.final_amount) - subtotal) || 0);
+                const total = parseFloat(o.final_amount || 0);
 
                 const itemsHtml = (o.items || []).map(i => {
                     const foodName = i.food_item ? i.food_item.name : `Food Item #${i.food_item_id}`;
+                    const canRate = ['Confirmed', 'Preparing', 'Ready', 'Completed'].includes(o.status);
+                    const rateBtn = canRate ? `
+                        <button class="btn btn-sm btn-ghost" style="padding:0.15rem 0.45rem; font-size:0.75rem; color:#f59e0b; margin-left:var(--space-2);" onclick="openRatingModal(${i.food_item_id}, ${o.id}, '${foodName.replace(/'/g, "\\'")}')">
+                            <i class="fa-solid fa-star"></i> Rate
+                        </button>
+                    ` : '';
+
                     return `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) 0; font-size:0.875rem; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) 0; font-size:0.875rem; border-bottom:1px solid var(--border);">
                             <span>
                                 <strong style="color:var(--text-primary);">${i.quantity}x</strong> ${foodName}
-                                <button class="btn btn-sm btn-ghost" style="padding:0.15rem 0.45rem; font-size:0.75rem; color:#fbbf24; margin-left:var(--space-2);" onclick="openRatingModal(${i.food_item_id}, ${o.id}, '${foodName.replace(/'/g, "\\'")}')">
-                                    <i class="fa-solid fa-star"></i> Rate
-                                </button>
+                                ${rateBtn}
                             </span>
                             <span style="font-weight:600; color:var(--text-primary);">₹${parseFloat(i.subtotal).toFixed(2)}</span>
                         </div>
@@ -252,7 +363,17 @@
                         </div>
                         <a href="/token.html?token_id=${o.id}" class="btn btn-sm btn-secondary"><i class="fa-solid fa-qrcode"></i> View Live Token</a>
                     </div>
-                ` : '';
+                ` : (o.status === "Payment_Pending" ? `
+                    <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:var(--space-3) var(--space-4); display:flex; align-items:center; justify-content:space-between; margin-top:var(--space-3); flex-wrap:wrap; gap:0.5rem;">
+                        <div>
+                            <div style="font-size:0.85rem; font-weight:700; color:#f59e0b;"><i class="fa-solid fa-clock"></i> Payment Pending</div>
+                            <small style="color:var(--text-muted);">Complete UPI payment or submit UTR reference</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="openUpiModalFromOrder(${o.id})">
+                            <i class="fa-solid fa-qrcode"></i> Pay via UPI / QR
+                        </button>
+                    </div>
+                ` : '');
 
                 return `
                     <div class="order-history-card">
@@ -262,7 +383,7 @@
                                 <small style="color:var(--text-muted);">${dateStr} • ${o.payment_method || 'UPI'}</small>
                             </div>
                             <div>
-                                <span class="badge ${statusBadgeClass}">${o.status}</span>
+                                <span class="badge ${statusBadgeClass}">${statusLabel}</span>
                             </div>
                         </div>
 
@@ -270,21 +391,86 @@
                             ${itemsHtml}
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
-                            <span style="font-weight:600; color:var(--text-secondary); font-size:0.875rem;">Total Amount:</span>
-                            <span style="font-size:1.15rem; font-weight:800; font-family:var(--font-heading); color:var(--text-primary);">₹${parseFloat(o.final_amount).toFixed(2)}</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:var(--space-1);">
+                            <span>Subtotal: ₹${subtotal.toFixed(2)} + GST (5%): ₹${tax.toFixed(2)}</span>
+                            <span style="font-size:1.15rem; font-weight:800; font-family:var(--font-heading); color:var(--text-primary);">₹${total.toFixed(2)}</span>
                         </div>
 
                         ${tokenSection}
 
                         <div style="display:flex; justify-content:flex-end; gap:var(--space-2); margin-top:var(--space-3);">
-                            <button class="btn btn-sm btn-primary" onclick="reorderItems(${o.id})">
+                            <button class="btn btn-sm btn-outline" onclick="reorderItems(${o.id})">
                                 <i class="fa-solid fa-rotate-right"></i> Reorder
                             </button>
                         </div>
                     </div>
                 `;
             }).join("");
+        }
+
+        function openUpiModalFromOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+            activeUpiOrder = order;
+
+            document.getElementById("upi-modal-order-no").textContent = `#${order.order_number}`;
+            document.getElementById("upi-modal-subtotal").textContent = `₹${parseFloat(order.subtotal || order.total_amount).toFixed(2)}`;
+            document.getElementById("upi-modal-gst").textContent = `₹${parseFloat(order.tax_amount || (order.final_amount - order.total_amount)).toFixed(2)}`;
+            document.getElementById("upi-modal-total").textContent = `₹${parseFloat(order.final_amount).toFixed(2)}`;
+            document.getElementById("upi-modal-vpa").textContent = order.upi_vpa || "jeremyjithesh7@oksbi";
+
+            const upiUri = order.upi_payment_uri || `upi://pay?pa=jeremyjithesh7@oksbi&pn=Jeremy%20Jithesh&am=${parseFloat(order.final_amount).toFixed(2)}&tr=${order.order_number}&tn=Order_${order.order_number}&cu=INR`;
+            
+            QRGenerator.renderToElement("upi-qr-container", upiUri, 180);
+
+            document.getElementById("btn-intent-gpay").href = upiUri;
+            document.getElementById("btn-intent-phonepe").href = upiUri;
+            document.getElementById("btn-intent-paytm").href = upiUri;
+            document.getElementById("btn-intent-generic").href = upiUri;
+
+            document.getElementById("utr-submit-status").textContent = "";
+            document.getElementById("upi-utr-input").value = "";
+
+            document.getElementById("upi-payment-modal").classList.add("open");
+        }
+
+        function closeUpiModal() {
+            document.getElementById("upi-payment-modal").classList.remove("open");
+        }
+
+        function copyUpiVpa() {
+            const vpa = document.getElementById("upi-modal-vpa").textContent;
+            navigator.clipboard.writeText(vpa).then(() => {
+                showNotification(`UPI ID '${vpa}' copied!`, "success");
+            }).catch(() => {
+                showNotification(`UPI ID: ${vpa}`, "info");
+            });
+        }
+
+        async function submitUtrReference() {
+            if (!activeUpiOrder) return;
+            const utr = document.getElementById("upi-utr-input").value.trim();
+            if (!utr) {
+                alert("Please enter your 12-digit UPI UTR / Transaction Reference number.");
+                return;
+            }
+
+            const btn = document.getElementById("btn-submit-utr");
+            btn.disabled = true;
+            btn.textContent = "Submitting...";
+
+            try {
+                await API.post(`/api/orders/${activeUpiOrder.id}/submit-payment-reference`, {
+                    utr_reference: utr
+                });
+                document.getElementById("utr-submit-status").innerHTML = `<span style="color:var(--success); font-weight:600;"><i class="fa-solid fa-check-circle"></i> Reference submitted (Pending Verification).</span>`;
+                showNotification("Payment reference recorded!", "success");
+            } catch (err) {
+                document.getElementById("utr-submit-status").innerHTML = `<span style="color:var(--danger);">${err.message || 'Failed to submit reference'}</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Submit Reference";
+            }
         }
 
         function reorderItems(orderId) {
