@@ -13,6 +13,14 @@ DOES NOT SEED fake students, fake orders, fake tokens, fake ratings,
 fake wallet transactions, fake rewards, or fake food waste logs.
 """
 
+import sys
+import os
+
+# Ensure the root project directory is in sys.path when executed directly as a script
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 from decimal import Decimal
@@ -160,3 +168,18 @@ def seed_database_if_empty(db: Session):
                 db.commit()
             except Exception:
                 db.rollback()
+
+if __name__ == "__main__":
+    from backend.app.database.session import SessionLocal, engine
+    from backend.app.database.base import Base
+    import backend.app.models  # register all models
+
+    print("Checking / Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        print("Seeding master catalog and configuration data...")
+        seed_database_if_empty(db)
+        print("✅ Database tables and seed data verified successfully.")
+    finally:
+        db.close()
