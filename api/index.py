@@ -1,14 +1,13 @@
-"""
-Vercel Serverless Function entrypoint for CanteenOS FastAPI Backend.
-Vercel automatically detects the 'app' ASGI instance exported here.
-"""
-
 import sys
 import os
 
-# Ensure the root project directory is in the Python path for module resolution
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if root_dir not in sys.path:
-    sys.path.insert(0, root_dir)
+# Comprehensive module path resolution for local dev & Vercel serverless environment (/var/task)
+cwd = os.getcwd()
+file_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(file_dir, ".."))
+
+for path in [cwd, file_dir, parent_dir]:
+    if path and path not in sys.path:
+        sys.path.insert(0, path)
 
 from backend.app.main import app
