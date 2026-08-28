@@ -2,12 +2,13 @@
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.8-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python)](https://python.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-336791.svg?logo=postgresql)](https://neon.tech)
-[![Vercel Ready](https://img.shields.io/badge/Vercel-Serverless%20Functions-black.svg?logo=vercel)](https://vercel.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Managed-336791.svg?logo=postgresql)](https://neon.tech)
+[![Render Backend](https://img.shields.io/badge/Render-Persistent%20Web%20Service-46E3B7.svg?logo=render)](https://render.com)
+[![Vercel Frontend](https://img.shields.io/badge/Vercel-Static%20Edge%20CDN-black.svg?logo=vercel)](https://vercel.com)
 [![Tests](https://img.shields.io/badge/Tests-71%20Passing-success.svg)](https://pytest.org)
 [![Design](https://img.shields.io/badge/UI-Dark%20Glassmorphism-6366f1.svg)](https://github.com)
 
-An end-to-end, production-ready campus canteen ordering, multi-counter scheduling, and kitchen intelligence platform. Built with **FastAPI**, **PostgreSQL** (with Neon serverless connection pooling and local SQLite fallback), **Serverless Vercel Functions**, and a **Dark Glassmorphic Web Client**.
+An end-to-end, production-ready campus canteen ordering, multi-counter scheduling, and kitchen intelligence platform. Built with **FastAPI**, **PostgreSQL** (with Neon connection pooling and local SQLite fallback), **Render** (persistent FastAPI service), **Vercel** (static frontend Edge CDN), and a **Dark Glassmorphic Web Client**.
 
 ---
 
@@ -49,8 +50,6 @@ An end-to-end, production-ready campus canteen ordering, multi-counter schedulin
 
 ```
 .
-├── api/
-│   └── index.py                  # Vercel Serverless Function entrypoint (FastAPI ASGI)
 ├── backend/
 │   ├── app/
 │   │   ├── authentication/       # JWT access/refresh token handlers & bcrypt hashing
@@ -62,15 +61,14 @@ An end-to-end, production-ready campus canteen ordering, multi-counter schedulin
 │   │   ├── utils/                # Database seeding & logging middleware
 │   │   ├── config.py             # Pydantic SettingsConfigDict with environment support
 │   │   └── main.py               # FastAPI application definition & CORS configuration
-│   ├── .env.example              # Environment variables template
-│   └── requirements.txt          # Backend dependencies
 ├── database/
 │   ├── schema.sql                # Production PostgreSQL DDL schema
 │   ├── seed.sql                  # Initial seed dataset
 │   └── reset_demo_data.sql       # Safe clean-slate reset script
 ├── docs/
 │   ├── api-documentation.md      # API endpoint documentation
-│   └── setup.md                  # Comprehensive setup & Vercel/Neon deployment guide
+│   ├── deployment.md             # Complete Render + Vercel + Neon production deployment guide
+│   └── setup.md                  # Local development setup guide
 ├── frontend/                     # Modern Dark Glassmorphic Web Client
 │   ├── index.html                # Landing page with crowd metrics & quick actions
 │   ├── menu.html                 # 25 South Indian dishes with category filters & macros
@@ -83,25 +81,18 @@ An end-to-end, production-ready campus canteen ordering, multi-counter schedulin
 │   ├── kiosk.html                # Big-screen TV counter status board
 │   ├── queue.html                # Public queue & crowd level dashboard
 │   ├── ai-center.html            # AI demand forecasting, traffic trends, & recommendations
-│   ├── admin/                    # Management portal
-│   │   ├── index.html            # Revenue trends & peak hour charts
-│   │   ├── orders.html           # Live kitchen status Kanban board
-│   │   ├── menu.html             # Dish pricing, availability, and station editor
-│   │   ├── inventory.html        # Real-time stock levels & restocking modal
-│   │   ├── waste.html            # Food waste logging & cost analytics
-│   │   ├── analytics.html        # Demand forecast benchmarks & override controls
-│   │   ├── users.html            # User directory & role management
-│   │   ├── notifications.html    # Site broadcast announcement composer
-│   │   └── database.html         # Live Relational PostgreSQL Table Inspector
+│   ├── admin/                    # Management portal (analytics, database, inventory, menu, orders, etc.)
 │   ├── css/                      # Design system (style.css, components.css, admin.css, animations.css)
 │   ├── js/                       # Modular ES6+ client logic (config.js, api.js, auth.js, cart.js, token.js, admin.js)
-│   └── assets/menu/              # 25 Curated South Indian food photos
+│   ├── assets/menu/              # 25 Curated South Indian food photos
+│   └── vercel.json               # Static frontend clean URL rewrites for Vercel
 ├── tests/                        # 71 Automated pytest unit & integration tests
 ├── .env.example                  # Root environment variables template
 ├── .gitignore                    # Git exclusions (secrets, database files, bytecode)
 ├── .python-version               # Pinned to Python 3.12
-├── requirements.txt              # Pinned root dependencies for Vercel deployment
-└── vercel.json                   # Unified Vercel deployment routing configuration
+├── render.yaml                   # Render Blueprint for persistent FastAPI backend service
+├── requirements.txt              # Pinned backend dependencies
+└── vercel.json                   # Root static frontend routing fallback
 ```
 
 ---
@@ -132,21 +123,13 @@ Open **`http://localhost:8000`** in your browser. FastAPI automatically serves t
 
 ---
 
-## ☁️ Deployment on Vercel & Neon PostgreSQL
+## ☁️ Cloud Deployment (Clean Split Architecture)
 
-### 1. Database Setup (Neon Serverless PostgreSQL)
-1. Create a free database at [neon.tech](https://neon.tech).
-2. Copy the **Pooled Connection String** (format: `postgresql://user:pass@ep-sample-pooler.region.aws.neon.tech/dbname?sslmode=require`).
+- **Database:** Managed PostgreSQL on **Neon** (`https://neon.tech`) using the pooled connection string.
+- **Backend Service:** Persistent FastAPI web service on **Render** (`https://render.com`) via `render.yaml` or manual setup.
+- **Frontend Static Site:** Hosted on **Vercel** (`https://vercel.com`) with Root Directory set to `frontend/`.
 
-### 2. Deploy to Vercel (Unified Architecture)
-1. Import this repository into [Vercel](https://vercel.com).
-2. Set the following Environment Variables in Vercel Project Settings:
-   - `DATABASE_URL`: Your Neon Pooled connection string.
-   - `SECRET_KEY`: A secure 32-byte secret (`openssl rand -hex 32`).
-   - `ALLOWED_ORIGINS`: `https://your-canteen-app.vercel.app`
-   - `ENV`: `production`
-   - `DEBUG`: `false`
-3. Click **Deploy**. Vercel will automatically build the serverless functions (`api/index.py`) and host the static frontend via `vercel.json`.
+For complete step-by-step instructions, see [docs/deployment.md](file:///Users/jeremyjithesh/mini%20project/docs/deployment.md).
 
 ---
 
@@ -155,7 +138,7 @@ Open **`http://localhost:8000`** in your browser. FastAPI automatically serves t
 The repository contains 71 automated pytest unit and integration tests covering authentication, order placement, inventory logs, QR token verification, rating constraints, real UPI billing, rewards, and AI analytics.
 
 ```bash
-./venv/bin/pytest -v
+source venv/bin/activate && pytest -v
 ```
 
 ---

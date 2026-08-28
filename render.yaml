@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: canteen-os-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:3000,https://REPLACE_WITH_VERCEL_URL.vercel.app"
+      - key: UPI_VPA
+        value: "canteen@upi"
+      - key: UPI_PAYEE_NAME
+        value: "Campus Canteen Services"
+      - key: UPI_MERCHANT_CODE
+        value: "5812"
+      - key: CAMPUS_GST_PERCENT
+        value: "5.0"

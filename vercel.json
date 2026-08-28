@@ -1,110 +1,13 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "{backend/**,ai/**,database/**}"
-    }
-  },
+  "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/docs",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/openapi.json",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/redoc",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/menu",
-      "destination": "/frontend/menu.html"
-    },
-    {
-      "source": "/cart",
-      "destination": "/frontend/cart.html"
-    },
-    {
-      "source": "/orders",
-      "destination": "/frontend/orders.html"
-    },
-    {
-      "source": "/wallet",
-      "destination": "/frontend/wallet.html"
-    },
-    {
-      "source": "/rewards",
-      "destination": "/frontend/rewards.html"
-    },
-    {
-      "source": "/dashboard",
-      "destination": "/frontend/dashboard.html"
-    },
-    {
-      "source": "/ai-center",
-      "destination": "/frontend/ai-center.html"
-    },
-    {
-      "source": "/queue",
-      "destination": "/frontend/queue.html"
-    },
-    {
-      "source": "/kiosk",
-      "destination": "/frontend/kiosk.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/frontend/login.html"
-    },
-    {
-      "source": "/register",
-      "destination": "/frontend/register.html"
-    },
-    {
-      "source": "/profile",
-      "destination": "/frontend/profile.html"
-    },
-    {
-      "source": "/token",
-      "destination": "/frontend/token.html"
-    },
-    {
-      "source": "/verify",
-      "destination": "/frontend/verify.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/frontend/admin/index.html"
-    },
-    {
-      "source": "/admin/:page",
-      "destination": "/frontend/admin/:page.html"
-    },
-    {
-      "source": "/assets/:path*",
-      "destination": "/frontend/assets/:path*"
-    },
-    {
-      "source": "/css/:path*",
-      "destination": "/frontend/css/:path*"
-    },
-    {
-      "source": "/js/:path*",
-      "destination": "/frontend/js/:path*"
-    },
-    {
-      "source": "/favicon.:ext",
-      "destination": "/frontend/favicon.:ext"
-    }
+    { "source": "/", "destination": "/frontend/index.html" },
+    { "source": "/admin", "destination": "/frontend/admin/index.html" },
+    { "source": "/admin/:page", "destination": "/frontend/admin/:page.html" },
+    { "source": "/assets/:path*", "destination": "/frontend/assets/:path*" },
+    { "source": "/css/:path*", "destination": "/frontend/css/:path*" },
+    { "source": "/js/:path*", "destination": "/frontend/js/:path*" },
+    { "source": "/:page", "destination": "/frontend/:page.html" }
   ]
 }

@@ -1,9 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/admin/:page",
-      "destination": "/admin/:page.html"
-    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/:page", "destination": "/admin/:page.html" }
   ]
 }

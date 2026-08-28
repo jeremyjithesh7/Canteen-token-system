@@ -1,10 +1,17 @@
 /**
  * Digital Canteen Token System - Dynamic Frontend Configuration
- * Auto-detects local development vs. unified or external production backend.
+ * Clean Split Architecture: Static Frontend (Vercel) + Persistent FastAPI API (Render)
  */
 
+// ==============================================================================
+// ⚡ PRODUCTION BACKEND URL CONFIGURATION (EDIT LINE 8 AFTER RENDER DEPLOYMENT)
+// Replace the placeholder below with your live Render Web Service URL.
+// Example: const RENDER_BACKEND_URL = 'https://canteen-os-backend.onrender.com';
+// ==============================================================================
+const RENDER_BACKEND_URL = 'https://REPLACE_WITH_RENDER_URL.onrender.com';
+
 function resolveApiBaseUrl() {
-    // 1. Explicit runtime override via window object or localStorage
+    // 1. Explicit runtime override via window object or localStorage (useful for debugging)
     if (typeof window !== 'undefined' && window.CANTEEN_API_BASE) {
         return window.CANTEEN_API_BASE.replace(/\/+$/, '');
     }
@@ -13,12 +20,10 @@ function resolveApiBaseUrl() {
         if (stored) return stored.replace(/\/+$/, '');
     }
 
-    // 2. Browser origin detection
+    // 2. Local development static servers automatically connect to local FastAPI backend
     if (typeof window !== 'undefined' && window.location) {
-        const port = window.location.port;
         const hostname = window.location.hostname;
-
-        // Local development static servers (e.g. port 3000, 5500, 5173) connecting to local backend
+        const port = window.location.port;
         if (
             (hostname === 'localhost' || hostname === '127.0.0.1') &&
             port &&
@@ -27,12 +32,10 @@ function resolveApiBaseUrl() {
         ) {
             return 'http://127.0.0.1:8000';
         }
-
-        // Same-origin deployments (FastAPI static mount or Vercel unified deployment with /api routing)
-        return '';
     }
 
-    return '';
+    // 3. Standalone production deployment (Vercel, custom domain) -> calls Render backend
+    return RENDER_BACKEND_URL.replace(/\/+$/, '');
 }
 
 const CONFIG = {

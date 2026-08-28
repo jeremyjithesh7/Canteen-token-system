@@ -1,104 +1,124 @@
-# 🚀 Production Deployment Guide - CanteenOS (Vercel & Neon PostgreSQL)
+# 🚀 Production Deployment Guide - CanteenOS (Render + Vercel + Neon PostgreSQL)
 
-This document is the verified, production deployment manual for **CanteenOS**. It details the exact architecture, environment variables, and verification steps required to deploy the system to **Vercel** and **Neon PostgreSQL**.
+This document is the verified production deployment manual for **CanteenOS**. It details the exact clean split architecture, configuration steps, and verification procedures.
 
 ---
 
 ## 1. Target Architecture Overview
 
-CanteenOS utilizes a **Unified Serverless Monorepo** on Vercel:
+```
+Vercel  →  Serves ONLY frontend/ as a static site. No backend code, no API routing, no Python.
+Render  →  Runs ONLY the backend as a persistent FastAPI web service (uvicorn), reachable at its own URL.
+Neon    →  PostgreSQL database with connection pooling. Backend connects via DATABASE_URL.
+```
 
-- **Frontend (`frontend/`):** Pure vanilla HTML5, CSS3, and modern JavaScript (ES6+). Served globally with zero build step via Vercel's High-Performance Edge CDN.
-- **Backend API (`api/index.py` $\rightarrow$ `backend/`):** FastAPI ASGI application executed as ephemeral Python Serverless Functions.
-- **Database:** Serverless PostgreSQL via **Neon** using **PgBouncer connection pooling**.
-- **Real-Time Layer:** Stateless HTTP polling (`setInterval` at 3.5s–5.0s) for live token tracking and kiosk displays — completely eliminating WebSocket dependencies to adhere to Vercel's serverless runtime constraints.
+- **Frontend (`frontend/` on Vercel):** Pure vanilla HTML5, CSS3, and ES6+ JavaScript. Served globally via Vercel's Edge CDN. Configured with clean URL rewrites.
+- **Backend API (`backend/` on Render):** Persistent FastAPI service running with `uvicorn` on Python 3.12, binding to `0.0.0.0:$PORT`.
+- **Database (Neon PostgreSQL):** Cloud PostgreSQL with PgBouncer connection pooling.
+- **Cross-Domain Communication:** The frontend communicates directly with the backend via CORS using the full Render URL (e.g. `https://canteen-os-backend.onrender.com`).
 
 ---
 
-## 2. Step 1: Database Setup (Neon PostgreSQL)
+## 2. Step 1: Database Setup (Neon PostgreSQL) [ALREADY REUSED]
 
-1. Sign up or log in at **[neon.tech](https://neon.tech)** (Free Tier supported).
-2. Click **Create Project** (e.g. `canteen-os-prod`).
-3. In the Neon Dashboard under **Connection Details**:
-   - Check the **"Pooled connection"** checkbox (`-pooler` in the host domain).
-   - Copy the generated connection string.
+1. Log in to **[neon.tech](https://neon.tech)**.
+2. Select your project (e.g. `canteen-os-prod`).
+3. In the Dashboard under **Connection Details**:
+   - Enable the **"Pooled connection"** checkbox (`-pooler` in the host domain).
+   - Copy the connection string.
 4. **Format Verification:**
    ```text
    postgresql://[user]:[password]@ep-[name]-pooler.[region].aws.neon.tech/[dbname]?sslmode=require
    ```
-   > [!IMPORTANT]
-   > **Why Pooled?** Ephemeral serverless functions scale up concurrently. Without a connection pooler, high student traffic would quickly exceed PostgreSQL's max connection threshold. Neon's PgBouncer pooler maintains connection stability under peak lunch rush.
 
 ---
 
-## 3. Step 2: Vercel Cloud Deployment
+## 3. Step 2: Render Backend Web Service Setup
 
-### A. Push Code to GitHub
-Ensure your latest changes are pushed to your GitHub repository:
-```bash
-git push origin main
-```
+### Option A: Using `render.yaml` (Render Blueprint)
+1. Push the repo to GitHub.
+2. In Render Dashboard, click **New +** $\rightarrow$ **Blueprint**.
+3. Connect your repository. Render will automatically detect `render.yaml`.
+4. Provide the secret `DATABASE_URL` when prompted.
 
-### B. Import to Vercel
-1. Log in to **[vercel.com](https://vercel.com)** and click **"Add New Project"**.
-2. Select your `Canteen-token-system` repository.
-3. Keep the default root directory (`./`).
-4. **Framework Preset:** Leave as `Other` (Vercel auto-detects `vercel.json` and Python functions via `api/index.py`).
+### Option B: Manual Web Service Creation in Render Dashboard
+If configuring manually:
+- **Service Type:** Web Service
+- **Environment:** `Python 3`
+- **Root Directory:** *(leave blank for repo root)*
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+- **Health Check Path:** `/api/health`
 
-### C. Configure Environment Variables
-In the **Environment Variables** section, add the following 5 variables:
+### Environment Variables on Render:
 
-| Variable Name | Exact Format / Example Value | Purpose |
+| Variable Name | Example / Recommended Value | Description |
 | :--- | :--- | :--- |
 | `DATABASE_URL` | `postgresql://user:pass@ep-...-pooler.../dbname?sslmode=require` | Pooled Neon PostgreSQL connection string |
 | `SECRET_KEY` | *(Run `openssl rand -hex 32`)* | Cryptographic JWT signing secret (min 32 bytes) |
-| `ALLOWED_ORIGINS` | `https://your-canteen-app.vercel.app,http://localhost:3000` | Allowed CORS origins (comma-separated) |
+| `ALLOWED_ORIGINS` | `http://localhost:3000,https://REPLACE_WITH_VERCEL_URL.vercel.app` | Allowed CORS origins (add your Vercel URL) |
 | `ENV` | `production` | Declares production environment |
-| `DEBUG` | `false` | Disables debug stack traces & masks server errors |
+| `DEBUG` | `false` | Disables debug stack traces |
+| `PYTHON_VERSION` | `3.12.8` | Pinned Python runtime version |
+| `UPI_VPA` | `canteen@upi` | **OVERRIDE DEFAULT** (demo UPI ID) |
+| `UPI_PAYEE_NAME` | `Campus Canteen Services` | **OVERRIDE DEFAULT** (canteen name) |
+| `UPI_MERCHANT_CODE` | `5812` | Food & Canteen merchant category code |
+| `CAMPUS_GST_PERCENT`| `5.0` | Campus GST percentage |
 
-*(Optional Campus UPI Settings: `UPI_VPA="canteen@upi"`, `UPI_PAYEE_NAME="Campus Canteen"`, `CAMPUS_GST_PERCENT="5.0"`)*
-
-### D. Click Deploy
-Vercel will install dependencies from `requirements.txt`, package the serverless function, configure rewrites, and deploy the application.
+> [!WARNING]
+> **UPI Credentials Notice:** Code-level defaults in `backend/app/config.py` contain developer demo values (`jeremyjithesh7@oksbi`). You must explicitly set `UPI_VPA="canteen@upi"` and `UPI_PAYEE_NAME="Campus Canteen Services"` in Render's environment variables.
 
 ---
 
-## 4. Step 3: Post-Deployment Verification
+## 4. Step 3: Frontend API URL Configuration
 
-### 1. Check API Health & Database Connection
-Visit: `https://your-canteen-app.vercel.app/api/health`
+Once Render completes the initial deploy, copy your service URL (e.g., `https://canteen-os-backend.onrender.com`).
 
-**Expected JSON Response:**
-```json
-{
-  "status": "healthy",
-  "service": "Digital Canteen Token System",
-  "environment": "production",
-  "debug": false,
-  "database": "connected"
-}
+Edit **`frontend/js/config.js`** at **line 8**:
+```javascript
+const RENDER_BACKEND_URL = 'https://canteen-os-backend.onrender.com';
 ```
-- If `"database": "connected"`, the database tables were automatically verified and master data seeded.
 
-### 2. Verify Initial Master Accounts
-Sign in at `https://your-canteen-app.vercel.app/login.html`:
-- **Admin Portal:** `admin@canteen.edu` / `Admin@123`
-- **Kitchen Counter Staff:** `staff@canteen.edu` / `Staff@123`
-- **Student Flow:** Click "Register New Student" or sign in to browse menu, test cart, and place an order.
-
-### 3. Update `ALLOWED_ORIGINS`
-Once Vercel assigns your real production domain (e.g. `https://canteen-os-jeremy.vercel.app`):
-1. Go to **Vercel Dashboard $\rightarrow$ Settings $\rightarrow$ Environment Variables**.
-2. Update `ALLOWED_ORIGINS` with your assigned URL.
-3. Trigger a Redeploy under the **Deployments** tab.
+Commit and push this change to GitHub:
+```bash
+git add frontend/js/config.js
+git commit -m "Update Render backend production URL"
+git push origin main
+```
 
 ---
 
-## 5. Troubleshooting & Error Identification
+## 5. Step 4: Vercel Frontend Deployment
 
-| Issue | Manifestation | Root Cause & Resolution |
-| :--- | :--- | :--- |
-| **Database Connection Failure** | `/api/health` reports `"database": "disconnected"` or HTTP 500 on login. | Missing `?sslmode=require` or incorrect credentials in `DATABASE_URL`. Ensure you copied the **Pooled** connection string from Neon. |
-| **CORS Blocked** | Browser console: `Access to fetch at ... has been blocked by CORS policy`. | The origin in browser address bar does not match any entry in `ALLOWED_ORIGINS`. Add your domain to `ALLOWED_ORIGINS` in Vercel settings and redeploy. |
-| **404 on Subpages** | Direct URL navigation (e.g. `/menu`) shows 404. | Handled automatically by `vercel.json` rewrites. Ensure `vercel.json` is committed at the project root. |
-| **JWT Session Expired** | Immediate logout or 401 error. | Automatic refresh token rotation is built-in (`/api/auth/refresh`). If `SECRET_KEY` was changed between deploys, existing sessions must re-login. |
+1. Log in to **[vercel.com](https://vercel.com)** and click **"Add New Project"**.
+2. Select your `Canteen-token-system` repository.
+3. Configure Project Settings:
+   - **Framework Preset:** `Other`
+   - **Root Directory:** Click edit and set to `frontend/`
+   - **Build Command:** *(leave empty — no build step needed)*
+   - **Output Directory:** *(leave empty)*
+4. Click **Deploy**.
+5. Vercel will serve your static frontend with clean URL routing configured via `frontend/vercel.json`.
+
+---
+
+## 6. Step 5: CORS Finalization
+
+1. Copy your live Vercel URL (e.g., `https://canteen-os-frontend.vercel.app`).
+2. Go to **Render Dashboard** $\rightarrow$ your `canteen-os-backend` service $\rightarrow$ **Environment**.
+3. Update `ALLOWED_ORIGINS` to include your Vercel URL:
+   ```text
+   ALLOWED_ORIGINS="https://canteen-os-frontend.vercel.app,http://localhost:3000"
+   ```
+4. Render will automatically redeploy with the updated CORS policy.
+
+---
+
+## 7. Step 6: End-to-End Live Verification Checklist
+
+- [ ] Visit `https://<render-backend-url>/api/health` $\rightarrow$ Confirm `{"status": "healthy", "database": "connected"}`.
+- [ ] Visit `https://<vercel-frontend-url>/login` $\rightarrow$ Page loads without console errors.
+- [ ] Log in as Admin (`admin@canteen.edu` / `Admin@123`) $\rightarrow$ Verify dashboard metrics and menu load.
+- [ ] Log in as Staff (`staff@canteen.edu` / `Staff@123`) $\rightarrow$ Open `/verify` page.
+- [ ] Register a new student account $\rightarrow$ Browse menu (confirm all 25 food images load) $\rightarrow$ Add to cart $\rightarrow$ Checkout $\rightarrow$ Token generation.
+- [ ] Check `/kiosk` $\rightarrow$ Confirm live order board updates.
