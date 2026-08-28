@@ -8,7 +8,7 @@
 // Replace the placeholder below with your live Render Web Service URL.
 // Example: const RENDER_BACKEND_URL = 'https://canteen-os-backend.onrender.com';
 // ==============================================================================
-const RENDER_BACKEND_URL = 'https://REPLACE_WITH_RENDER_URL.onrender.com';
+const RENDER_BACKEND_URL = 'https://canteen-token-system.onrender.com';
 
 function resolveApiBaseUrl() {
     // 1. Explicit runtime override via window object or localStorage (useful for debugging)
