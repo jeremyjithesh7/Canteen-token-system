@@ -1,11 +1,15 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
+from sqlalchemy.orm import Session
+from sqlalchemy import text
 import logging
+import os
 
 from backend.app.config import settings
-from backend.app.database.session import engine, SessionLocal
+from backend.app.database.session import engine, SessionLocal, get_db
 from backend.app.database.base import Base
 from backend.app.utils.seed_data import seed_database_if_empty
 from backend.app.utils.logger import RequestLoggingMiddleware
@@ -40,15 +44,18 @@ logger = logging.getLogger("backend.app.main")
 async def lifespan(app: FastAPI):
     """Application startup & shutdown events."""
     logger.info("Initializing database schema and seed records...")
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
     try:
-        seed_database_if_empty(db)
-        logger.info("Database initialized & seeded successfully.")
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+        try:
+            seed_database_if_empty(db)
+            logger.info("Database initialized & seeded successfully.")
+        except Exception as e:
+            logger.error(f"Error seeding database: {e}")
+        finally:
+            db.close()
     except Exception as e:
-        logger.error(f"Error seeding database: {e}")
-    finally:
-        db.close()
+        logger.error(f"Database connection / startup error: {e}")
     yield
     logger.info("Application shutting down...")
 
@@ -86,6 +93,20 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+# Global exception handler - masks stack traces in production (DEBUG=False)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled server error on {request.method} {request.url.path}: {exc}", exc_info=True)
+    if settings.DEBUG:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"detail": str(exc), "type": type(exc).__name__}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "An internal server error occurred. Please contact canteen support."}
+    )
+
 # Mount API Routers
 app.include_router(auth_router)
 app.include_router(users_router)
@@ -105,17 +126,23 @@ app.include_router(rewards_router)
 app.include_router(database_viewer_router)
 
 @app.get("/api/health", tags=["Health"])
-def health_check():
-    """Health check endpoint for container monitors and uptime checkers."""
+def health_check(db: Session = Depends(get_db)):
+    """Health check endpoint that actively tests database connection and reports environment status."""
+    db_status = "connected"
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        db_status = "disconnected"
+
+    is_healthy = db_status == "connected"
     return {
-        "status": "healthy",
+        "status": "healthy" if is_healthy else "degraded",
         "service": settings.PROJECT_NAME,
         "environment": settings.ENV,
-        "database": "connected"
+        "debug": settings.DEBUG,
+        "database": db_status
     }
-
-from fastapi.staticfiles import StaticFiles
-import os
 
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend")
 if os.path.exists(frontend_dir):
